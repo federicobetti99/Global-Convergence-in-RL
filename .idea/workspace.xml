@@ -7,18 +7,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5f8d68a1-aa79-4c5c-8247-a7e721e9fcdd" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/Global-Convergence-in-RL.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RL_cliff/actions.py" beforeDir="false" afterPath="$PROJECT_DIR$/RL_cliff/actions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RL_cliff/environment.py" beforeDir="false" afterPath="$PROJECT_DIR$/RL_cliff/environment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RL_cliff/learning_algorithm.py" beforeDir="false" afterPath="$PROJECT_DIR$/RL_cliff/learning_algorithm.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RL_cliff/main_parallel_cliff_REINFORCE.py" beforeDir="false" afterPath="$PROJECT_DIR$/RL_cliff/main_parallel_cliff_REINFORCE.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RL_cliff/main_parallel_cliff_SCRN.py" beforeDir="false" afterPath="$PROJECT_DIR$/RL_cliff/main_parallel_cliff_SCRN.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RL_cliff/main_parallel_cliff_SGD.py" beforeDir="false" afterPath="$PROJECT_DIR$/RL_cliff/main_parallel_cliff_SGD.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RL_cliff/plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/RL_cliff/plot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Global-Convergence-in-RL.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Global-Convergence-in-RL.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SCR-PL-alpha2-varying-tau.py" beforeDir="false" afterPath="$PROJECT_DIR$/SCR-PL-alpha2-varying-tau.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SCR-SGD-polynomial.py" beforeDir="false" afterPath="$PROJECT_DIR$/SCR-SGD-polynomial.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SCRN-vs-SGD-adaptive-batch.py" beforeDir="false" afterPath="$PROJECT_DIR$/SCRN-vs-SGD-adaptive-batch.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SCRN_batch_free_additive.py" beforeDir="false" afterPath="$PROJECT_DIR$/SCRN_batch_free_additive.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SCRN_batch_free_multiplicative.py" beforeDir="false" afterPath="$PROJECT_DIR$/SCRN_batch_free_multiplicative.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +48,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
     <property name="cidr.known.project.marker" value="true" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -63,6 +60,7 @@
       <option name="presentableId" value="Default" />
       <updated>1663688793529</updated>
       <workItem from="1663688796304" duration="1824000" />
+      <workItem from="1663690886347" duration="661000" />
     </task>
     <servers />
   </component>
