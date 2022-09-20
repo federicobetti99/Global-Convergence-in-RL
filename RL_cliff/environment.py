@@ -7,20 +7,19 @@ import numpy as np
 36	37	38	39	40	41	42	43	44	45	46	47
 """
 
-def check_game_over(episode:int,
-    state: int, cliff_pos: np.array, goal_pos: int, number_of_steps: int
-) -> bool:
+
+def check_game_over(episode: int, state: int, cliff_pos: np.array, goal_pos: int, number_of_steps: int) -> bool:
     """
     Function returns reward in the given state
     """
     # Game over when reached goal, fell down cliff, or exceeded 1000 steps
     game_over = (
         True
-        if (state == goal_pos   or   state in cliff_pos or number_of_steps == 99)
+        if (state == goal_pos or state in cliff_pos or number_of_steps == 99)
         else False
     )
     if state == goal_pos and number_of_steps > 1:
-        print("===== Goal reached (episode", episode ,") =====")
+        print("===== Goal reached (episode", episode, ") =====")
 
     return game_over
 
@@ -72,7 +71,6 @@ def encode_vector(index: int, dim: int) -> list:
     vector_encoded[0, index] = 1
 
     return vector_encoded
-
 
 
 def get_state(agent_pos: tuple) -> int:
