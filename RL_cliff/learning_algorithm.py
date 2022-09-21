@@ -36,7 +36,7 @@ def grad_log_pi(action_trajectory, probs_trajectory):
 
         # Encode action
         phi = encode_vector(action, ACTION_DIM)
-        
+
         # Construct weighted state-action vector (average phi over all actions)
         weighted_phi = np.zeros((1, ACTION_DIM))
 
@@ -48,8 +48,8 @@ def grad_log_pi(action_trajectory, probs_trajectory):
         # Return grad (phi - weighted phi)
         grad = phi - weighted_phi
 
-        grad_collection.append(grad[0])   
-    return grad_collection 
+        grad_collection.append(grad[0])
+    return grad_collection
 
 
 def Hessian_log_pi(state_trajectory, action_trajectory, theta):
@@ -68,9 +68,10 @@ def Hessian_log_pi(state_trajectory, action_trajectory, theta):
         action = action_trajectory[t]
         state = state_trajectory[t]
         Z = np.sum(np.exp(theta[0, state]))
-        temp_grad_pi = -np.exp(np.atleast_2d(theta[0, state])).T @ np.ones((1, ACTION_DIM))/Z**2
+        temp_grad_pi = -np.exp(np.atleast_2d(theta[0, state])).T @ np.ones((1, ACTION_DIM)) / Z ** 2
         for action in range(ACTION_DIM):
-            temp_grad_pi[action, action] = (Z*np.exp(theta[0, state, action])-np.exp(theta[0, state, action])**2)/Z**2
+            temp_grad_pi[action, action] = (Z * np.exp(theta[0, state, action]) - np.exp(
+                theta[0, state, action]) ** 2) / Z ** 2
         Hessian = np.zeros((ACTION_DIM, ACTION_DIM))
         for action in range(ACTION_DIM):
             Hessian = Hessian + np.atleast_2d(temp_grad_pi[:, action]).T @ encode_vector(action, ACTION_DIM)
@@ -93,8 +94,8 @@ def grad_trajectory(state_trajectory, action_trajectory, probs_trajectory, rewar
     grad = np.zeros((STATE_DIM, ACTION_DIM))
     for t in range(len(reward_trajectory)):
         cum_reward = compute_cum_rewards(gamma, t, reward_trajectory)
-        grad[state_trajectory[t], :] = grad[state_trajectory[t], :] + cum_reward*grad_collection[t]
-    grad = np.reshape(grad, (1, ACTION_DIM*STATE_DIM))
+        grad[state_trajectory[t], :] = grad[state_trajectory[t], :] + cum_reward * grad_collection[t]
+    grad = np.reshape(grad, (1, ACTION_DIM * STATE_DIM))
     return grad, grad_collection
 
 
@@ -113,17 +114,20 @@ def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, g
     Output: 
     - grad: Hessian of obj. function for a given trajectory
     """
-    
-    grad_log_pi_traj = np.zeros((1, ACTION_DIM*STATE_DIM))
-    Hessian_phi = np.zeros((ACTION_DIM*STATE_DIM, ACTION_DIM*STATE_DIM))
+
+    grad_log_pi_traj = np.zeros((1, ACTION_DIM * STATE_DIM))
+    Hessian_phi = np.zeros((ACTION_DIM * STATE_DIM, ACTION_DIM * STATE_DIM))
     Hessian_log_pi_collect = Hessian_log_pi(state_trajectory, action_trajectory, theta)
     for t in range(len(reward_trajectory)):
         cum_reward = compute_cum_rewards(gamma, t, reward_trajectory)
         s = state_trajectory[t]
-        Hessian_phi[s*ACTION_DIM:(s+1)*ACTION_DIM, s*ACTION_DIM:(s+1)*ACTION_DIM] += cum_reward*Hessian_log_pi_collect[t]
-        grad_log_pi_traj[0, s*ACTION_DIM:(s+1)*ACTION_DIM] += grad_collection[t]
+        Hessian_phi[s * ACTION_DIM:(s + 1) * ACTION_DIM, s * ACTION_DIM:(s + 1) * ACTION_DIM] += cum_reward * \
+                                                                                                 Hessian_log_pi_collect[
+                                                                                                     t]
+        grad_log_pi_traj[0, s * ACTION_DIM:(s + 1) * ACTION_DIM] += grad_collection[t]
 
-    Hessian = np.atleast_2d(grad).T @ grad_log_pi_traj + Hessian_phi  # grad @ np.at-least_2d(grad_log_pi_traj).T + Hessian_phi
+    Hessian = np.atleast_2d(grad).T @ grad_log_pi_traj + Hessian_phi  # grad @ np.at-least_2d(grad_log_pi_traj).T +
+    # Hessian_phi
     return Hessian
 
 
@@ -135,15 +139,15 @@ def cubic_subsolver(grad, hessian, sim_input):
     T_eps = sim_input.T_eps
     g_norm = np.linalg.norm(grad)
     # print(g_norm)
-    if g_norm > l**2 / rho:
-        temp = grad @ hessian @ grad.T / rho / g_norm**2 
-        R_c = -temp + np.sqrt(temp**2 + 2 * g_norm / rho)
+    if g_norm > l ** 2 / rho:
+        temp = grad @ hessian @ grad.T / rho / g_norm ** 2
+        R_c = -temp + np.sqrt(temp ** 2 + 2 * g_norm / rho)
         delta = -R_c * grad / g_norm
     else:
-        delta = np.zeros((1, ACTION_DIM*STATE_DIM))
-        sigma = c_ * (eps * rho)**0.5 / l
+        delta = np.zeros((1, ACTION_DIM * STATE_DIM))
+        sigma = c_ * (eps * rho) ** 0.5 / l
         mu = 1.0 / (20.0 * l)
-        vec = np.random.normal(0, 1, ACTION_DIM*STATE_DIM)  # *2 + torch.ones(grad.size())
+        vec = np.random.normal(0, 1, ACTION_DIM * STATE_DIM)  # *2 + torch.ones(grad.size())
         vec /= np.linalg.norm(vec)
         g_ = grad + sigma * vec
         # g_ = grad
@@ -183,31 +187,31 @@ def discrete_SCRN(sim_input, sim_output) -> (np.array, list):
             entropy_bonus -= prob_action * np.log(prob_action + 1e-5)
 
         return float(entropy_bonus)
-    
+
     def grad_entropy_bonus(action_trajectory, state_trajectory, reward_trajectory, probs_trajectory):
-        cum_grad_log_phi_temp = np.zeros((len(reward_trajectory), ACTION_DIM*STATE_DIM))
+        cum_grad_log_phi_temp = np.zeros((len(reward_trajectory), ACTION_DIM * STATE_DIM))
         cum_grad_log_matrix_temp = np.zeros((STATE_DIM, ACTION_DIM))
-        cum_grad_log_phi = np.zeros((1, ACTION_DIM*STATE_DIM))
+        cum_grad_log_phi = np.zeros((1, ACTION_DIM * STATE_DIM))
         grad = np.zeros((STATE_DIM, ACTION_DIM))
         grad1 = np.zeros((STATE_DIM, ACTION_DIM))
         grad11 = np.zeros((STATE_DIM, ACTION_DIM))
         grad_collection = grad_log_pi(action_trajectory, probs_trajectory)
-        
+
         for tau in range(len(reward_trajectory)):
             grad1[state_trajectory[tau], :] += grad_collection[tau]
             grad11 = np.reshape(grad11, (STATE_DIM, ACTION_DIM))
             grad11 = grad1
-            grad11 = np.reshape(grad11, (1, ACTION_DIM*STATE_DIM))
+            grad11 = np.reshape(grad11, (1, ACTION_DIM * STATE_DIM))
             cum_grad_log_matrix_temp = np.reshape(cum_grad_log_matrix_temp, (STATE_DIM, ACTION_DIM))
             cum_grad_log_matrix_temp = np.zeros((STATE_DIM, ACTION_DIM))
             for psi in range(tau):
                 grad[state_trajectory[psi], :] = grad[state_trajectory[psi], :] + grad_collection[psi]
-            
+
             cum_grad_log_matrix_temp += grad
-            cum_grad_log_matrix_temp = cum_grad_log_matrix_temp*np.log(probs_trajectory[tau] + 1e-5)
-            cum_grad_log_phi_temp[tau, :] = np.reshape(cum_grad_log_matrix_temp, (1, ACTION_DIM*STATE_DIM))
+            cum_grad_log_matrix_temp = cum_grad_log_matrix_temp * np.log(probs_trajectory[tau] + 1e-5)
+            cum_grad_log_phi_temp[tau, :] = np.reshape(cum_grad_log_matrix_temp, (1, ACTION_DIM * STATE_DIM))
             cum_grad_log_phi += gamma ** tau * (grad11[0] + cum_grad_log_phi_temp[tau, :])
-            
+
         return cum_grad_log_phi
 
     # Initialize theta
@@ -219,9 +223,9 @@ def discrete_SCRN(sim_input, sim_output) -> (np.array, list):
     count_goal_pos = np.zeros(1)
 
     # Initialize grad and Hessian
-    grad = np.zeros((STATE_DIM*ACTION_DIM))
-    Hessian = np.zeros((STATE_DIM*ACTION_DIM, STATE_DIM*ACTION_DIM))
-    
+    grad = np.zeros((STATE_DIM * ACTION_DIM))
+    Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
+
     # Iterate over episodes
     for episode in range(num_episodes):
 
@@ -238,7 +242,6 @@ def discrete_SCRN(sim_input, sim_output) -> (np.array, list):
         agent_pos, env, cliff_pos, goal_pos, game_over = init_env()
 
         while not game_over:
-
             # Get state corresponding to agent position
             state = get_state(agent_pos)
 
@@ -264,48 +267,49 @@ def discrete_SCRN(sim_input, sim_output) -> (np.array, list):
 
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward)  # +entropy_bonus
+            reward_trajectory.append(reward)  # + entropy_bonus
             probs_trajectory.append(action_probs)
 
             # Check whether game is over
             game_over = check_game_over(episode, next_state, cliff_pos, goal_pos, steps_cache[episode])
 
             steps_cache[episode] += 1
-         
+
         if next_state == 47:
             # print('state47')
             count_goal_pos += 1
-        
+
         # Computing grad and Hessian for the current trajectory
         grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
                                                           probs_trajectory, reward_trajectory, gamma)
         Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
                                           grad_collection_traj, gamma, theta)
-        grad = grad + grad_traj/Batch_size
-        Hessian = Hessian + Hessian_traj/Batch_size
+        grad = grad + grad_traj / Batch_size
+        Hessian = Hessian + Hessian_traj / Batch_size
         # print(grad)
         # adding entropy regularized term to grad
         if sim_input.SGD == 1:
-            grad_traj = grad_traj  # -grad_entropy_bonus(action_trajectory, state_trajectory,reward_trajectory, probs_trajectory)
-        grad = grad + grad_traj/Batch_size
-        Hessian = Hessian + Hessian_traj/Batch_size
+            grad_traj = grad_traj  # - grad_entropy_bonus(action_trajectory, state_trajectory,reward_trajectory,
+            # probs_trajectory)
+        grad = grad + grad_traj / Batch_size
+        Hessian = Hessian + Hessian_traj / Batch_size
         if episode % sim_input.period == 0 and episode > 0:
-            alpha = alpha0/(episode/sim_input.period)
+            alpha = alpha0 / (episode / sim_input.period)
 
         # Update action probabilities after collecting each batch
         if episode % Batch_size == 0 and episode > 0:
             # print("Batch is collected!")
             if sim_input.SGD == 1:
-                Delta = alpha*grad
+                Delta = alpha * grad
             else:
                 Delta = cubic_subsolver(-grad, -Hessian, sim_input)  # 0.001*grad#
             Delta = np.reshape(Delta, (STATE_DIM, ACTION_DIM))
             # print(grad)
             theta = theta + Delta
-            grad = np.zeros((STATE_DIM*ACTION_DIM))
-            Hessian = np.zeros((STATE_DIM*ACTION_DIM, STATE_DIM*ACTION_DIM))
+            grad = np.zeros((STATE_DIM * ACTION_DIM))
+            Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
-    if float(count_goal_pos/num_episodes) >= 0.7:
+    if float(count_goal_pos / num_episodes) >= 0.7:
         temp_goal = 1
     else:
         temp_goal = 0
@@ -323,7 +327,7 @@ def discrete_SCRN(sim_input, sim_output) -> (np.array, list):
     if sim_input.SGD == 0:
         sim_output.name_cache.append("SCRN")
     else:
-        sim_output.name_cache.append("SGD") 
+        sim_output.name_cache.append("SGD")
 
     return all_probs, sim_output, temp_goal
 
@@ -360,13 +364,13 @@ def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
         return float(entropy_bonus)
 
     def update_action_probabilities(
-        alpha: float,
-        gamma: float,
-        theta: np.array,
-        state_trajectory: list,
-        action_trajectory: list,
-        reward_trajectory: list,
-        probs_trajectory: list,
+            alpha: float,
+            gamma: float,
+            theta: np.array,
+            state_trajectory: list,
+            action_trajectory: list,
+            reward_trajectory: list,
+            probs_trajectory: list,
     ) -> np.array:
 
         for t in range(len(reward_trajectory)):
@@ -393,7 +397,7 @@ def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
             score_function = phi - weighted_phi
 
             # Update theta (only update for current state, no changes for other states)
-            theta[0, state] += alpha * (cum_reward * score_function[0])# + score_function[0])
+            theta[0, state] += alpha * (cum_reward * score_function[0])  # + score_function[0])
         return theta
 
     # Initialize theta
@@ -401,8 +405,8 @@ def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
 
     steps_cache = np.zeros(num_episodes)
     rewards_cache = np.zeros(num_episodes)
-    count_goal_pos=np.zeros(1)
-    temp_goal=np.zeros(1)
+    count_goal_pos = np.zeros(1)
+    temp_goal = np.zeros(1)
 
     # Iterate over episodes
     for episode in range(num_episodes):
@@ -420,7 +424,6 @@ def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
         agent_pos, env, cliff_pos, goal_pos, game_over = init_env()
 
         while not game_over:
-
             # Get state corresponding to agent position
             state = get_state(agent_pos)
 
@@ -453,12 +456,12 @@ def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
             game_over = check_game_over(episode, next_state, cliff_pos, goal_pos, steps_cache[episode])
 
             steps_cache[episode] += 1
-        
+
         if next_state == 47:
-             # print('state47')
-             count_goal_pos += 1
+            # print('state47')
+            count_goal_pos += 1
         if episode % sim_input.period == 0 and episode > 0:
-            alpha = alpha0/(episode/sim_input.period)
+            alpha = alpha0 / (episode / sim_input.period)
 
         # Update action probabilities at end of each episode
         theta = update_action_probabilities(
@@ -470,7 +473,7 @@ def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
             reward_trajectory,
             probs_trajectory,
         )
-    if float(count_goal_pos/num_episodes) >= 0.7:
+    if float(count_goal_pos / num_episodes) >= 0.7:
         temp_goal = 1
     else:
         temp_goal = 0

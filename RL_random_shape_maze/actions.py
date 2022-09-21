@@ -45,6 +45,7 @@ def move_agent(agent_pos: tuple, action: int) -> tuple:
 
     return agent_pos
 
+
 def get_max_qvalue(state: int, q_table: np.array) -> float:
     """Retrieve best Q-value for state from table"""
     maximum_state_value = np.amax(q_table[:, state])
@@ -69,10 +70,11 @@ def get_reward(state: int, cliff_pos: np.array, goal_pos: int) -> int:
 
     return reward
 
+
 def compute_cum_rewards(gamma: float, t: int, rewards: np.array) -> float:
     """Cumulative reward function"""
     cum_reward = 0
-   # cum_reward = rewards[-1] #TEST!!!
+    # cum_reward = rewards[-1] #TEST!!!
     for tau in range(t, len(rewards)):
         cum_reward += gamma ** (tau - t) * rewards[tau]
     return cum_reward
