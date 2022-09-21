@@ -16,7 +16,7 @@ from plot import plot_steps, plot_rewards
 Total_Instances = 64
 numthread = 16
 Instances_per_Thread = int(Total_Instances/numthread)
-num_episodes = 10000
+num_episodes = 1000
 
 run_algorithms = {
     "Discrete policy gradient",
@@ -103,12 +103,12 @@ if __name__ == "__main__":
     for i in range(len(out)):
         for j in range(len(out[0])):
             # REINFORCE
-            if out[i][j][0]:
+            if out[i][j][0] != []:
                 REINFORCE_step += out[i][j][0]/np.sum(np.sum(np.array(out).reshape(numthread, Instances_per_Thread, 3)[:, :, 2]))
             else:
                 REINFORCE_step = REINFORCE_step
             
-            if out[i][j][1]:
+            if out[i][j][1] != []:
                 REINFORCE_reward += out[i][j][1]/np.sum(np.sum(np.array(out).reshape(numthread, Instances_per_Thread, 3)[:, :, 2]))
             else:
                 REINFORCE_reward = REINFORCE_reward
@@ -126,28 +126,28 @@ if __name__ == "__main__":
     out1 = []
     for i in range(len(out)):
         for j in range(len(out[0])):
-            if out[i][j][0]:
+            if out[i][j][0] != []:
                 out0.append(out[i][j][0])
-            if out[i][j][1]:
+            if out[i][j][1] != []:
                 out1.append(out[i][j][1])
     
     sim_DPG_output_step_std = np.std(np.array(out0), axis=0)
-    if not out0:
+    if out0 == []:
         sim_DPG_output_step_std = np.zeros(num_episodes)
     sim_DPG_output_reward_std = np.std(np.array(out1), axis=0)
-    if not out1:
+    if out1 == []:
         sim_DPG_output_reward_std = np.zeros(num_episodes)
 
-    with open('REINFORCE_step.pkl', 'wb') as file:
+    with open('results/REINFORCE_step.pkl', 'wb') as file:
         pickle.dump(REINFORCE_step[0], file)
 
-    with open('REINFORCE_reward.pkl', 'wb') as file:
+    with open('results/REINFORCE_reward.pkl', 'wb') as file:
         pickle.dump(REINFORCE_reward[0], file)
     
-    with open('REINFORCE_step_std.pkl', 'wb') as file:
+    with open('results/REINFORCE_step_std.pkl', 'wb') as file:
         pickle.dump(sim_DPG_output_step_std, file)
     
-    with open('REINFORCE_reward_std.pkl', 'wb') as file:
+    with open('results/REINFORCE_reward_std.pkl', 'wb') as file:
         pickle.dump(sim_DPG_output_reward_std, file)
 
     # Plot output
@@ -171,4 +171,4 @@ if __name__ == "__main__":
     plt.ylabel('true_instances')
     plt.grid(True)
     plt.legend(loc="upper right")
-    plt.savefig('true_instances_cliff_Reinforce.pdf')
+    plt.savefig('results/true_instances_cliff_Reinforce.pdf')
