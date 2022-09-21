@@ -268,8 +268,8 @@ def cubic_subsolver(grad, hessian, sim_input):
     # print(g_norm)
     if g_norm > l ** 2 / rho:
         temp = grad @ hessian @ grad.T / rho / g_norm ** 2
-        R_c = -temp + np.sqrt(temp ** 2 + 2 * g_norm / rho)
-        delta = -R_c * grad / g_norm
+        R_c = - temp + np.sqrt(temp ** 2 + 2 * g_norm / rho)
+        delta = - R_c * grad / g_norm
     else:
         # print("Going into inner loop")
         delta = np.zeros((1, ACTION_DIM * STATE_DIM))
