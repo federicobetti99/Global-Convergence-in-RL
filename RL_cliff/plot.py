@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from environment import env_to_text
+from RL_cliff.environment import env_to_text
 
 
 def plot_rewards(

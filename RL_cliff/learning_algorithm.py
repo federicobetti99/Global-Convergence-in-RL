@@ -1,11 +1,11 @@
 import numpy as np
 
-from actions import (
+from RL_cliff.actions import (
     move_agent,
     get_reward,
     compute_cum_rewards
 )
-from environment import (
+from RL_cliff.environment import (
     init_env,
     mark_path,
     check_game_over,
