@@ -473,12 +473,15 @@ def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
             reward_trajectory,
             probs_trajectory,
         )
+
     if float(count_goal_pos / num_episodes) >= 0.7:
         temp_goal = 1
     else:
         temp_goal = 0
+
     # print('temp_goal:',temp_goal)
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
+
     for state in range(48):
         action_probs = pi(state)
         all_probs[state] = action_probs

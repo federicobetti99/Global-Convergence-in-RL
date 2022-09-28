@@ -3,3 +3,14 @@
 .tmp.driveupload/169199
 .tmp.driveupload/169197
 .tmp.driveupload/169195
+.idea/Global-Convergence-in-RL.iml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/modules.xml
+.idea/vcs.xml
+.tmp.driveupload/169610
+.tmp.driveupload/169612
+.tmp.driveupload/169614
+RL_cliff/__pycache__/actions.cpython-37.pyc
+RL_cliff/__pycache__/environment.cpython-37.pyc
+RL_cliff/__pycache__/learning_algorithm.cpython-37.pyc
+RL_cliff/__pycache__/plot.cpython-37.pyc
