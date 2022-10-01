@@ -1,39 +1,139 @@
 import numpy as np
-
-""" Tile layout (36=start, 47=goal, 37-46=cliff)
-0	1	2	3	4	5	6	7	8	9	10	11
-12	13	14	15	16	17	18	19	20	21	22	23
-24	25	26	27	28	29	30	31	32	33	34	35
-36	37	38	39	40	41	42	43	44	45	46	47
-"""
+import matplotlib.pyplot as plt
 
 
-def check_game_over(episode: int, state: int, cliff_pos: np.array, goal_pos: int, number_of_steps: int) -> bool:
+class CliffEnv:
     """
-    Function returns reward in the given state
+    Tile layout (36=start, 47=goal, 37-46=cliff)
+    0	1	2	3	4	5	6	7	8	9	10	11
+    12	13	14	15	16	17	18	19	20	21	22	23
+    24	25	26	27	28	29	30	31	32	33	34	35
+    36	37	38	39	40	41	42	43	44	45	46	47
     """
-    # Game over when reached goal, fell down cliff, or exceeded 1000 steps
-    game_over = (
-        True
-        if (state == goal_pos or state in cliff_pos or number_of_steps == 99)
-        else False
-    )
-    if state == goal_pos and number_of_steps > 1:
-        print("===== Goal reached (episode", episode, ") =====")
+    def __init__(self, cliff_pos=np.arange(37, 47), goal_pos=47):
+        self.cliff_pos = cliff_pos
+        self.goal_pos = goal_pos
+        self.start_pos = 36
+        self.state = self.start_pos
+        self.end = False
+        self.reward = 0
+        self.number_of_steps = 0
+        self.path = [self.start_pos]
+        self.verbose = 0
 
-    return game_over
+    def reset(self):
+        self.state = self.start_pos
+        self.reward = 0
+        self.number_of_steps = 0
+        self.path = []
+        self.end = False
 
+    def end(self):
+        return self.end
 
-def init_env() -> (tuple, np.array, np.array, int, bool):
-    """Initialize environment and agent position"""
-    agent_pos = (3, 0)  # Left-bottom corner (start)
-    env = np.zeros((4, 12), dtype=int)
-    env = mark_path(agent_pos, env)
-    cliff_states = np.arange(37, 47)  # States for cliff tiles
-    goal_state = 47  # State for right-bottom corner (destination)
-    game_over = False
+    def encode_action(self, action):
+        if action == 0:
+            return "u"
+        elif action == 1:
+            return "d"
+        elif action == 2:
+            return "l"
+        elif action == 3:
+            return "r"
 
-    return agent_pos, env, cliff_states, goal_state, game_over
+    def inverse_encoding(self, action):
+        if action == "u":
+            return 0
+        elif action == "d":
+            return 1
+        elif action == "l":
+            return 2
+        elif action == "r":
+            return 3
+
+    def get_state(self):
+        return self.state
+
+    def set_state(self, state):
+        self.state = state
+
+    def available(self):
+        if self.state == 36:
+            return ["u", "r"]
+        elif self.state == 0:
+            return ["d", "r"]
+        elif self.state % 12 == 0 and self.state != 0 and self.state != 36:
+            return ["u", "d", "r"]
+        elif 1 <= self.state < 12:
+            return ["d", "l", "r"]
+        elif self.state in self.cliff_pos:
+            return ["u", "l", "r"]
+        elif (self.state + 1) % 12 == 0:
+            return ["u", "d", "l"]
+        else:
+            return ["u", "d", "l", "r"]
+
+    def do_action(self, action):
+        action = self.encode_action(action)
+        assert action in ["u", "d", "l", "r"]
+
+        if action not in self.available():
+            raise ValueError("Chosen infeasible action from the current state...")
+
+        if action == "u":
+            self.state -= 12
+        if action == "d":
+            self.state += 12
+        if action == "l":
+            self.state -= 1
+        if action == "r":
+            self.state += 1
+
+        assert 0 <= self.state <= 47
+
+        self.path.append(self.state)
+
+        self.reward -= 0.1
+        self.number_of_steps += 1
+
+        if self.state == 47:
+            self.end = True
+            self.reward += 100
+            if self.verbose:
+                print(f"===== Goal reached in {self.number_of_steps} steps =====")
+        elif self.number_of_steps >= 100:
+            self.end = True
+        elif self.state in self.cliff_pos:
+            self.reward -= 100
+
+        return self.state, self.reward
+
+    def coords(self, state):
+        x = int(state % 12)
+        y = 3 - int(state / 12)
+        return x, y
+
+    def render(self):
+        for hor in range(11):
+            for ver in range(4):
+                plt.plot([hor, hor+1], [ver, ver], color="black", marker="o", linewidth=3, markersize=5)
+        for hor in range(12):
+            for ver in range(3):
+                plt.plot([hor, hor], [ver, ver+1], color="black", marker="o", linewidth=3, markersize=5)
+
+        for j in self.cliff_pos:
+            (x, y) = self.coords(j)
+            plt.plot(x, y, color="r", marker="X", markersize=10)
+
+        (x, y) = self.coords(self.start_pos)
+        plt.plot(x, y, color='green', marker='o', markersize=15)
+        (x, y) = self.coords(self.state)
+        plt.plot(x, y, color='red', marker="o", markersize=15)
+        (x, y) = self.coords(self.goal_pos)
+        plt.plot(x, y, color='blue', marker='*', markersize=15)
+        # Figure specifications
+        plt.axis('off')
+        plt.show()
 
 
 def mark_path(agent: tuple, env: np.array) -> np.array:

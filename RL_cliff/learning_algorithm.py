@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 from RL_cliff.actions import (
     move_agent,
@@ -6,9 +7,8 @@ from RL_cliff.actions import (
     compute_cum_rewards
 )
 from RL_cliff.environment import (
-    init_env,
+    CliffEnv,
     mark_path,
-    check_game_over,
     encode_vector,
     get_state,
 )
@@ -131,12 +131,7 @@ def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, g
     return Hessian
 
 
-def cubic_subsolver(grad, hessian, sim_input):
-    l = sim_input.l
-    rho = sim_input.rho
-    eps = sim_input.eps
-    c_ = sim_input.c_
-    T_eps = sim_input.T_eps
+def cubic_subsolver(grad, hessian, l=1, rho=0.01, eps=1, c_=10, T_eps=10):
     g_norm = np.linalg.norm(grad)
     # print(g_norm)
     if g_norm > l ** 2 / rho:
@@ -150,33 +145,43 @@ def cubic_subsolver(grad, hessian, sim_input):
         vec = np.random.normal(0, 1, ACTION_DIM * STATE_DIM)  # *2 + torch.ones(grad.size())
         vec /= np.linalg.norm(vec)
         g_ = grad + sigma * vec
-        # g_ = grad
         for _ in range(T_eps):
             delta -= mu * (g_ + delta @ hessian + rho / 2 * np.linalg.norm(delta) * delta)
     return delta
 
 
-def discrete_SCRN(sim_input, sim_output) -> (np.array, list):
+def discrete_SCRN(env, num_episodes=1000, alpha=0.001, gamma=0.8, batch_size=16, SGD=0, period=1000,
+                  step_cache=None, reward_cache=None, env_cache=None, name_cache=None) -> (np.array, list):
     """
     SCRN with discrete policy (manual weight updates)
     """
+    if step_cache is None:
+        step_cache = []
+    if reward_cache is None:
+        reward_cache = []
+    if env_cache is None:
+        env_cache = []
+    if name_cache is None:
+        name_cache = []
 
-    num_episodes = sim_input.num_episodes
-    gamma = sim_input.gamma
-    Batch_size = sim_input.batch_size
-    alpha0 = sim_input.alpha
-    alpha = alpha0
+    def policy(env, state, theta) -> np.array:
+        """Off policy computation of pi(state)"""
+        probs = np.zeros(ACTION_DIM)
+        env.set_state(state)
+        for action in range(ACTION_DIM):
+            if env.encode_action(action) in env.available():
+                action_encoded = encode_vector(action, ACTION_DIM)
+                probs[action] = np.exp(theta[0, state].dot(action_encoded[0]))
+        return probs / np.sum(probs)
 
-    def softmax(theta: np.array, action_encoded: list, state: int) -> np.float:
-        """Softmax function"""
-        return np.exp(theta[0, state].dot(action_encoded[0]))
 
-    def pi(state: int) -> np.array:
+    def pi(env, theta) -> np.array:
         """Policy: probability distribution of actions in given state"""
         probs = np.zeros(ACTION_DIM)
         for action in range(ACTION_DIM):
-            action_encoded = encode_vector(action, ACTION_DIM)
-            probs[action] = softmax(theta, action_encoded, state)
+            if env.encode_action(action) in env.available():
+                action_encoded = encode_vector(action, ACTION_DIM)
+                probs[action] = np.exp(theta[0, state].dot(action_encoded[0]))
         return probs / np.sum(probs)
 
     def get_entropy_bonus(action_probs: list) -> float:
@@ -217,10 +222,12 @@ def discrete_SCRN(sim_input, sim_output) -> (np.array, list):
     # Initialize theta
     theta = np.zeros([1, STATE_DIM, ACTION_DIM])
 
+    alpha0 = alpha
     steps_cache = np.zeros(num_episodes)
     rewards_cache = np.zeros(num_episodes)
     temp_goal = np.zeros(1)
     count_goal_pos = np.zeros(1)
+    count_reached_goal = np.zeros(num_episodes)
 
     # Initialize grad and Hessian
     grad = np.zeros((STATE_DIM * ACTION_DIM))
@@ -229,8 +236,10 @@ def discrete_SCRN(sim_input, sim_output) -> (np.array, list):
     # Iterate over episodes
     for episode in range(num_episodes):
 
-        if episode >= 1:
-            print(episode, ":", steps_cache[episode - 1])
+        env.reset()
+
+        if episode % 250 == 0:
+            print(f"Episode {episode}")
 
         # Initialize reward trajectory
         reward_trajectory = []
@@ -238,30 +247,19 @@ def discrete_SCRN(sim_input, sim_output) -> (np.array, list):
         state_trajectory = []
         probs_trajectory = []
 
-        # Initialize environment and agent position
-        agent_pos, env, cliff_pos, goal_pos, game_over = init_env()
-
-        while not game_over:
+        while not env.end:
             # Get state corresponding to agent position
-            state = get_state(agent_pos)
+            state = env.get_state()
 
             # Get probabilities per action from current policy
-            action_probs = pi(state)
+            action_probs = pi(env, theta)
 
             # Select random action according to policy
             action = np.random.choice(4, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            agent_pos = move_agent(agent_pos, action)
+            next_state, reward = env.do_action(action)
 
-            # Mark visited path
-            env = mark_path(agent_pos, env)
-
-            # Determine next state
-            next_state = get_state(agent_pos)
-
-            # Compute and store reward
-            reward = get_reward(next_state, cliff_pos, goal_pos)
             entropy_bonus = get_entropy_bonus(action_probs)
             rewards_cache[episode] += reward  # + entropy_bonus
 
@@ -270,41 +268,37 @@ def discrete_SCRN(sim_input, sim_output) -> (np.array, list):
             reward_trajectory.append(reward)  # + entropy_bonus
             probs_trajectory.append(action_probs)
 
-            # Check whether game is over
-            game_over = check_game_over(episode, next_state, cliff_pos, goal_pos, steps_cache[episode])
-
             steps_cache[episode] += 1
 
         if next_state == 47:
             # print('state47')
             count_goal_pos += 1
+            count_reached_goal[episode] = 1
 
         # Computing grad and Hessian for the current trajectory
         grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
                                                           probs_trajectory, reward_trajectory, gamma)
         Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
                                           grad_collection_traj, gamma, theta)
-        grad = grad + grad_traj / Batch_size
-        Hessian = Hessian + Hessian_traj / Batch_size
-        # print(grad)
+        grad = grad + grad_traj / batch_size
+        Hessian = Hessian + Hessian_traj / batch_size
+
         # adding entropy regularized term to grad
-        if sim_input.SGD == 1:
+        if SGD == 1:
             grad_traj = grad_traj  # - grad_entropy_bonus(action_trajectory, state_trajectory,reward_trajectory,
             # probs_trajectory)
-        grad = grad + grad_traj / Batch_size
-        Hessian = Hessian + Hessian_traj / Batch_size
-        if episode % sim_input.period == 0 and episode > 0:
-            alpha = alpha0 / (episode / sim_input.period)
+        grad = grad + grad_traj / batch_size
+        Hessian = Hessian + Hessian_traj / batch_size
+        if episode % period == 0 and episode > 0:
+            alpha = alpha0 / (episode / period)
 
         # Update action probabilities after collecting each batch
-        if episode % Batch_size == 0 and episode > 0:
-            # print("Batch is collected!")
-            if sim_input.SGD == 1:
+        if episode % batch_size == 0 and episode > 0:
+            if SGD == 1:
                 Delta = alpha * grad
             else:
-                Delta = cubic_subsolver(-grad, -Hessian, sim_input)  # 0.001*grad#
+                Delta = cubic_subsolver(-grad, -Hessian)  # 0.001*grad#
             Delta = np.reshape(Delta, (STATE_DIM, ACTION_DIM))
-            # print(grad)
             theta = theta + Delta
             grad = np.zeros((STATE_DIM * ACTION_DIM))
             Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
@@ -313,33 +307,40 @@ def discrete_SCRN(sim_input, sim_output) -> (np.array, list):
         temp_goal = 1
     else:
         temp_goal = 0
-    # print('temp_goal:',temp_goal)
 
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
     for state in range(48):
-        action_probs = pi(state)
+        action_probs = policy(env, state, theta)
         all_probs[state] = action_probs
 
-    sim_output.step_cache.append(steps_cache)
-    sim_output.reward_cache.append(rewards_cache)
+    step_cache.append(steps_cache)
+    reward_cache.append(rewards_cache)
 
-    sim_output.env_cache.append(env)
-    if sim_input.SGD == 0:
-        sim_output.name_cache.append("SCRN")
+    env_cache.append(env)
+
+    if SGD == 0:
+        name_cache.append("SCRN")
     else:
-        sim_output.name_cache.append("SGD")
+        name_cache.append("SGD")
 
-    return all_probs, sim_output, temp_goal
+    stats = {
+        "steps": steps_cache,
+        "rewards": rewards_cache,
+        "env": env_cache,
+        "name": name_cache,
+        "probs": all_probs,
+        "goals": count_reached_goal
+    }
+
+    return stats
 
 
-def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
+def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.99, batch_size=16, SGD=0, period=100,
+                             step_cache=None, reward_cache=None, env_cache=None, name_cache=None) -> (np.array, list):
     """
     REINFORCE with discrete policy gradient (manual weight updates)
     """
-
-    num_episodes = sim_input.num_episodes
-    gamma = sim_input.gamma
-    alpha0 = sim_input.alpha
+    alpha0 = alpha
     alpha = alpha0
 
     def softmax(theta: np.array, action_encoded: list, state: int) -> np.float:
@@ -407,9 +408,12 @@ def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
     rewards_cache = np.zeros(num_episodes)
     count_goal_pos = np.zeros(1)
     temp_goal = np.zeros(1)
+    count_reached_goal = np.zeros(num_episodes)
 
     # Iterate over episodes
     for episode in range(num_episodes):
+
+        env.reset()
 
         if episode >= 1:
             print(episode, ":", steps_cache[episode - 1])
@@ -420,12 +424,9 @@ def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
         state_trajectory = []
         probs_trajectory = []
 
-        # Initialize environment and agent position
-        agent_pos, env, cliff_pos, goal_pos, game_over = init_env()
-
-        while not game_over:
+        while not env.end:
             # Get state corresponding to agent position
-            state = get_state(agent_pos)
+            state = env.get_state()
 
             # Get probabilities per action from current policy
             action_probs = pi(state)
@@ -434,16 +435,8 @@ def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
             action = np.random.choice(4, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            agent_pos = move_agent(agent_pos, action)
+            next_state, reward = env.do_action(action)
 
-            # Mark visited path
-            env = mark_path(agent_pos, env)
-
-            # Determine next state
-            next_state = get_state(agent_pos)
-
-            # Compute and store reward
-            reward = get_reward(next_state, cliff_pos, goal_pos)
             entropy_bonus = get_entropy_bonus(action_probs)
             rewards_cache[episode] += reward  # + entropy_bonus
 
@@ -452,16 +445,15 @@ def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
             reward_trajectory.append(reward)  # + entropy_bonus)
             probs_trajectory.append(action_probs)
 
-            # Check whether game is over
-            game_over = check_game_over(episode, next_state, cliff_pos, goal_pos, steps_cache[episode])
-
             steps_cache[episode] += 1
 
         if next_state == 47:
             # print('state47')
             count_goal_pos += 1
-        if episode % sim_input.period == 0 and episode > 0:
-            alpha = alpha0 / (episode / sim_input.period)
+            count_reached_goal[episode] = 1
+
+        if episode % period == 0 and episode > 0:
+            alpha = alpha0 / (episode / period)
 
         # Update action probabilities at end of each episode
         theta = update_action_probabilities(
@@ -486,10 +478,19 @@ def discrete_policy_gradient(sim_input, sim_output) -> (np.array, list):
         action_probs = pi(state)
         all_probs[state] = action_probs
 
-    sim_output.step_cache.append(steps_cache)
-    sim_output.reward_cache.append(rewards_cache)
+    step_cache.append(steps_cache)
+    reward_cache.append(rewards_cache)
 
-    sim_output.env_cache.append(env)
-    sim_output.name_cache.append("Discrete policy gradient")
+    env_cache.append(env)
+    name_cache.append("Discrete policy gradient")
 
-    return all_probs, sim_output, temp_goal
+    stats = {
+        "steps": steps_cache,
+        "rewards": rewards_cache,
+        "env": env_cache,
+        "name": name_cache,
+        "probs": all_probs,
+        "goals": count_reached_goal
+    }
+
+    return stats

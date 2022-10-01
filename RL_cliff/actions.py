@@ -18,7 +18,7 @@ def epsilon_greedy_action(state: int, q_table: np.array, epsilon: float) -> int:
         action = np.random.choice(4)
     else:  # Exploit:
         # Select action with largest Q-value
-        action = np.argmax(q_table[:, state])
+        action = np.argmax(q_table[state, :])
 
     return action
 
@@ -57,7 +57,7 @@ def get_reward(state: int, cliff_pos: np.array, goal_pos: int) -> int:
     Compute reward for given state
     """
 
-    # Reward of -1 for each move (including terminating)
+    # Reward of -0.1 for each move (including terminating)
     reward = -0.1
 
     # Reward of +100 for reaching goal
