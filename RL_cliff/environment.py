@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from RL_cliff.actions import epsilon_greedy_action
 
 
 class CliffEnv:
@@ -120,7 +121,6 @@ class CliffEnv:
         for hor in range(12):
             for ver in range(3):
                 plt.plot([hor, hor], [ver, ver+1], color="black", marker="o", linewidth=3, markersize=5)
-
         for j in self.cliff_pos:
             (x, y) = self.coords(j)
             plt.plot(x, y, color="r", marker="X", markersize=10)
@@ -135,6 +135,12 @@ class CliffEnv:
         plt.axis('off')
         plt.show()
 
+    def play(self, probs):
+        self.reset()
+        while not self.end:
+            action = epsilon_greedy_action(self.state, probs, 0)
+            self.do_action(action)
+            self.render()
 
 def mark_path(agent: tuple, env: np.array) -> np.array:
     """
