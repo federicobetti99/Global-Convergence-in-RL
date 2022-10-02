@@ -115,22 +115,29 @@ class CliffEnv:
         return x, y
 
     def render(self):
+        """
+        Render the environment
+        :return:
+        """
+        fig, ax = plt.subplots(figsize=(8, 4))
+        plt.vlines(-0.35, -0.05, 0.35)
+        plt.vlines(11.55, -0.05, 0.35)
+        plt.hlines(-0.05, -0.35, 11.55)
+        plt.hlines(0.35, -0.35, 11.55)
         for hor in range(11):
             for ver in range(4):
-                plt.plot([hor, hor+1], [ver, ver], color="black", marker="o", linewidth=3, markersize=5)
+                plt.plot([hor, hor+1], [0.1 * ver, 0.1 * ver], color="black", marker="o", linewidth=3, markersize=5)
         for hor in range(12):
             for ver in range(3):
-                plt.plot([hor, hor], [ver, ver+1], color="black", marker="o", linewidth=3, markersize=5)
+                plt.plot([hor, hor], [0.1 * ver, 0.1 * (ver+1)], color="black", marker="o", linewidth=3, markersize=5)
         for j in self.cliff_pos:
             (x, y) = self.coords(j)
-            plt.plot(x, y, color="r", marker="X", markersize=10)
+            plt.plot(x, y, color="r", marker="X", markersize=8)
 
         (x, y) = self.coords(self.start_pos)
-        plt.plot(x, y, color='green', marker='o', markersize=15)
-        (x, y) = self.coords(self.state)
-        plt.plot(x, y, color='red', marker="o", markersize=15)
+        plt.plot(x, y, color='green', marker='o', markersize=12)
         (x, y) = self.coords(self.goal_pos)
-        plt.plot(x, y, color='blue', marker='*', markersize=15)
+        plt.plot(x, y, color='blue', marker='*', markersize=12)
         # Figure specifications
         plt.axis('off')
         plt.show()
@@ -141,6 +148,7 @@ class CliffEnv:
             action = epsilon_greedy_action(self.state, probs, 0)
             self.do_action(action)
             self.render()
+
 
 def mark_path(agent: tuple, env: np.array) -> np.array:
     """
