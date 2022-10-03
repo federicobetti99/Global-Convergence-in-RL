@@ -17,6 +17,64 @@ STATE_DIM = 48
 ACTION_DIM = 4
 
 
+def policy(env, state, theta) -> np.array:
+    """Off policy computation of pi(state)"""
+    probs = np.zeros(ACTION_DIM)
+    env.set_state(state)
+    for action in range(ACTION_DIM):
+        if env.encode_action(action) in env.available():
+            action_encoded = encode_vector(action, ACTION_DIM)
+            probs[action] = np.exp(theta[0, state].dot(action_encoded[0]))
+    return probs / np.sum(probs)
+
+
+def pi(env, theta) -> np.array:
+    """Policy: probability distribution of actions in given state"""
+    probs = np.zeros(ACTION_DIM)
+    for action in range(ACTION_DIM):
+        if env.encode_action(action) in env.available():
+            action_encoded = encode_vector(action, ACTION_DIM)
+            probs[action] = np.exp(theta[0, env.get_state()].dot(action_encoded[0]))
+    return probs / np.sum(probs)
+
+
+def get_entropy_bonus(action_probs: list) -> float:
+    entropy_bonus = 0
+    # action_probs=action_probs.numpy()
+    #  action_probs=np.squeeze(action_probs)
+    for prob_action in action_probs:
+        entropy_bonus -= prob_action * np.log(prob_action + 1e-5)
+
+    return float(entropy_bonus)
+
+
+def grad_entropy_bonus(action_trajectory, state_trajectory, reward_trajectory, probs_trajectory, gamma):
+    cum_grad_log_phi_temp = np.zeros((len(reward_trajectory), ACTION_DIM * STATE_DIM))
+    cum_grad_log_matrix_temp = np.zeros((STATE_DIM, ACTION_DIM))
+    cum_grad_log_phi = np.zeros((1, ACTION_DIM * STATE_DIM))
+    grad = np.zeros((STATE_DIM, ACTION_DIM))
+    grad1 = np.zeros((STATE_DIM, ACTION_DIM))
+    grad11 = np.zeros((STATE_DIM, ACTION_DIM))
+    grad_collection = grad_log_pi(action_trajectory, probs_trajectory)
+
+    for tau in range(len(reward_trajectory)):
+        grad1[state_trajectory[tau], :] += grad_collection[tau]
+        grad11 = np.reshape(grad11, (STATE_DIM, ACTION_DIM))
+        grad11 = grad1
+        grad11 = np.reshape(grad11, (1, ACTION_DIM * STATE_DIM))
+        cum_grad_log_matrix_temp = np.reshape(cum_grad_log_matrix_temp, (STATE_DIM, ACTION_DIM))
+        cum_grad_log_matrix_temp = np.zeros((STATE_DIM, ACTION_DIM))
+        for psi in range(tau):
+            grad[state_trajectory[psi], :] = grad[state_trajectory[psi], :] + grad_collection[psi]
+
+        cum_grad_log_matrix_temp += grad
+        cum_grad_log_matrix_temp = cum_grad_log_matrix_temp * np.log(probs_trajectory[tau] + 1e-5)
+        cum_grad_log_phi_temp[tau, :] = np.reshape(cum_grad_log_matrix_temp, (1, ACTION_DIM * STATE_DIM))
+        cum_grad_log_phi += gamma ** tau * (grad11[0] + cum_grad_log_phi_temp[tau, :])
+
+    return cum_grad_log_phi
+
+
 def grad_log_pi(action_trajectory, probs_trajectory):
     """
     This function computes the grad(log(pi(a|s))) for all the pair of (state, action) in the trajectory.
@@ -77,6 +135,24 @@ def Hessian_log_pi(state_trajectory, action_trajectory, theta):
             Hessian = Hessian + np.atleast_2d(temp_grad_pi[:, action]).T @ encode_vector(action, ACTION_DIM)
         Hessian_collection.append(Hessian)
     return Hessian_collection
+
+
+def objective_trajectory(state_trajectory, action_trajectory, probs_trajectory, reward_trajectory, gamma):
+    """
+    This function computes the objective function for a given trajectory, thus an unbiased estimate of J(\theta).
+    Inputs:
+    - action_trajectory: trajectory of actions
+    - probs_trajectory: trajectory of prob. of policy taking each action
+    - reward_trajectory: rewards of a trajectory
+    - gamma: discount factor
+    Output:
+    - obj: obj. function for a given trajectory
+    """
+    obj = 0
+    for t in range(len(reward_trajectory)):
+        cum_reward = compute_cum_rewards(gamma, t, reward_trajectory)
+        obj += cum_reward * probs_trajectory[t]
+    return obj
 
 
 def grad_trajectory(state_trajectory, action_trajectory, probs_trajectory, reward_trajectory, gamma):
@@ -163,60 +239,6 @@ def discrete_SCRN(env, num_episodes=1000, alpha=0.001, gamma=0.8, batch_size=16,
     if name_cache is None:
         name_cache = []
 
-    def policy(env, state, theta) -> np.array:
-        """Off policy computation of pi(state)"""
-        probs = np.zeros(ACTION_DIM)
-        env.set_state(state)
-        for action in range(ACTION_DIM):
-            if env.encode_action(action) in env.available():
-                action_encoded = encode_vector(action, ACTION_DIM)
-                probs[action] = np.exp(theta[0, state].dot(action_encoded[0]))
-        return probs / np.sum(probs)
-
-    def pi(env, theta) -> np.array:
-        """Policy: probability distribution of actions in given state"""
-        probs = np.zeros(ACTION_DIM)
-        for action in range(ACTION_DIM):
-            if env.encode_action(action) in env.available():
-                action_encoded = encode_vector(action, ACTION_DIM)
-                probs[action] = np.exp(theta[0, state].dot(action_encoded[0]))
-        return probs / np.sum(probs)
-
-    def get_entropy_bonus(action_probs: list) -> float:
-        entropy_bonus = 0
-        # action_probs=action_probs.numpy()
-        #  action_probs=np.squeeze(action_probs)
-        for prob_action in action_probs:
-            entropy_bonus -= prob_action * np.log(prob_action + 1e-5)
-
-        return float(entropy_bonus)
-
-    def grad_entropy_bonus(action_trajectory, state_trajectory, reward_trajectory, probs_trajectory):
-        cum_grad_log_phi_temp = np.zeros((len(reward_trajectory), ACTION_DIM * STATE_DIM))
-        cum_grad_log_matrix_temp = np.zeros((STATE_DIM, ACTION_DIM))
-        cum_grad_log_phi = np.zeros((1, ACTION_DIM * STATE_DIM))
-        grad = np.zeros((STATE_DIM, ACTION_DIM))
-        grad1 = np.zeros((STATE_DIM, ACTION_DIM))
-        grad11 = np.zeros((STATE_DIM, ACTION_DIM))
-        grad_collection = grad_log_pi(action_trajectory, probs_trajectory)
-
-        for tau in range(len(reward_trajectory)):
-            grad1[state_trajectory[tau], :] += grad_collection[tau]
-            grad11 = np.reshape(grad11, (STATE_DIM, ACTION_DIM))
-            grad11 = grad1
-            grad11 = np.reshape(grad11, (1, ACTION_DIM * STATE_DIM))
-            cum_grad_log_matrix_temp = np.reshape(cum_grad_log_matrix_temp, (STATE_DIM, ACTION_DIM))
-            cum_grad_log_matrix_temp = np.zeros((STATE_DIM, ACTION_DIM))
-            for psi in range(tau):
-                grad[state_trajectory[psi], :] = grad[state_trajectory[psi], :] + grad_collection[psi]
-
-            cum_grad_log_matrix_temp += grad
-            cum_grad_log_matrix_temp = cum_grad_log_matrix_temp * np.log(probs_trajectory[tau] + 1e-5)
-            cum_grad_log_phi_temp[tau, :] = np.reshape(cum_grad_log_matrix_temp, (1, ACTION_DIM * STATE_DIM))
-            cum_grad_log_phi += gamma ** tau * (grad11[0] + cum_grad_log_phi_temp[tau, :])
-
-        return cum_grad_log_phi
-
     # Initialize theta
     theta = np.zeros([1, STATE_DIM, ACTION_DIM])
 
@@ -228,6 +250,7 @@ def discrete_SCRN(env, num_episodes=1000, alpha=0.001, gamma=0.8, batch_size=16,
     count_reached_goal = np.zeros(num_episodes)
 
     # Initialize grad and Hessian
+    obj = 0
     grad = np.zeros((STATE_DIM * ACTION_DIM))
     Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
@@ -270,11 +293,13 @@ def discrete_SCRN(env, num_episodes=1000, alpha=0.001, gamma=0.8, batch_size=16,
             count_goal_pos += 1
             count_reached_goal[episode] = 1
 
-        # Computing grad and Hessian for the current trajectory
+        # Computing objective, grad and Hessian for the current trajectory
+        obj_traj = objective_trajectory(state_trajectory, action_trajectory, probs_trajectory, reward_trajectory, gamma)
         grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
                                                           probs_trajectory, reward_trajectory, gamma)
         Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
                                           grad_collection_traj, gamma, theta)
+        obj = obj + obj_traj / batch_size
         grad = grad + grad_traj / batch_size
         Hessian = Hessian + Hessian_traj / batch_size
 
@@ -282,6 +307,7 @@ def discrete_SCRN(env, num_episodes=1000, alpha=0.001, gamma=0.8, batch_size=16,
         if SGD == 1:
             grad_traj = grad_traj  # - grad_entropy_bonus(action_trajectory, state_trajectory,reward_trajectory,
             # probs_trajectory)
+        obj = obj + obj_traj / batch_size
         grad = grad + grad_traj / batch_size
         Hessian = Hessian + Hessian_traj / batch_size
         if episode % period == 0 and episode > 0:
@@ -295,6 +321,7 @@ def discrete_SCRN(env, num_episodes=1000, alpha=0.001, gamma=0.8, batch_size=16,
                 Delta = cubic_subsolver(-grad, -Hessian)  # 0.001*grad#
             Delta = np.reshape(Delta, (STATE_DIM, ACTION_DIM))
             theta = theta + Delta
+            obj = 0
             grad = np.zeros((STATE_DIM * ACTION_DIM))
             Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
