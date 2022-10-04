@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from RL_cliff.actions import epsilon_greedy_action
 
 
-class CliffEnv:
+class Cliff:
     """
     Tile layout (36=start, 47=goal, 37-46=cliff)
     0	1	2	3	4	5	6	7	8	9	10	11
@@ -79,23 +79,25 @@ class CliffEnv:
         assert action in ["u", "d", "l", "r"]
 
         if action not in self.available():
-            raise ValueError("Chosen infeasible action from the current state...")
+            new_state = self.get_state()  # do not move
+        else:
+            if action == "u":
+                new_state = self.state - 12
+            elif action == "d":
+                new_state = self.state + 12
+            elif action == "l":
+                new_state = self.state - 1
+            elif action == "r":
+                new_state = self.state + 1
 
-        if action == "u":
-            self.state -= 12
-        if action == "d":
-            self.state += 12
-        if action == "l":
-            self.state -= 1
-        if action == "r":
-            self.state += 1
-
-        assert 0 <= self.state <= 47
+        assert 0 <= new_state <= 47
 
         self.path.append(self.state)
 
         self.reward -= 0.1
         self.number_of_steps += 1
+
+        self.state = new_state
 
         if self.state == 47:
             self.end = True
