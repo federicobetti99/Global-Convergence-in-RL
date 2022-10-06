@@ -8,9 +8,7 @@ from RL_cliff.actions import (
 )
 from RL_cliff.environment import (
     Cliff,
-    mark_path,
-    encode_vector,
-    get_state,
+    encode_vector
 )
 
 STATE_DIM = 48
@@ -138,6 +136,7 @@ def objective_trajectory(state_trajectory, action_trajectory, probs_trajectory, 
     """
     This function computes the objective function for a given trajectory, thus an unbiased estimate of J(\theta).
     Inputs:
+    - state_trajectory: trajectory of states
     - action_trajectory: trajectory of actions
     - probs_trajectory: trajectory of prob. of policy taking each action
     - reward_trajectory: rewards of a trajectory
@@ -240,11 +239,22 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=16
     theta = np.zeros([1, STATE_DIM, ACTION_DIM])
 
     alpha0 = alpha
+    alpha = alpha0
+
     steps_cache = np.zeros(num_episodes)
     rewards_cache = np.zeros(num_episodes)
     objectives = np.zeros(num_episodes)
     gradients = np.zeros(num_episodes)
-    optimum = 100 * gamma ** 12 - 0.1 * gamma / (1-gamma) * (1-gamma ** 11)
+
+    optimal_state_trajectory = [36, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
+    optimal_action_trajectory = [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1]
+    optimal_probs_trajectory = [[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1],
+                                [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1],
+                                [0, 1, 0, 0]]
+    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+    optimum = objective_trajectory(optimal_state_trajectory, optimal_action_trajectory, optimal_probs_trajectory,
+                                   optimal_reward_trajectory, gamma)
+
     temp_goal = np.zeros(1)
     count_goal_pos = np.zeros(1)
     count_reached_goal = np.zeros(num_episodes)
@@ -259,8 +269,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=16
 
         env.reset()
 
-        if episode % 1000 == 0:
-            print(f"===== FINISHED EPISODE {episode} =========")
+        if episode >= 1:
+            print(episode, ": ", steps_cache[episode - 1])
 
         # Initialize reward trajectory
         reward_trajectory = []
@@ -384,25 +394,6 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.001, gamma=0.8, bat
     alpha0 = alpha
     alpha = alpha0
 
-    def policy(env, state, theta) -> np.array:
-        """Off policy computation of pi(state)"""
-        probs = np.zeros(ACTION_DIM)
-        env.set_state(state)
-        for action in range(ACTION_DIM):
-            if env.encode_action(action) in env.available():
-                action_encoded = encode_vector(action, ACTION_DIM)
-                probs[action] = np.exp(theta[0, state].dot(action_encoded[0]))
-        return probs / np.sum(probs)
-
-    def pi(env, theta) -> np.array:
-        """Policy: probability distribution of actions in given state"""
-        probs = np.zeros(ACTION_DIM)
-        for action in range(ACTION_DIM):
-            if env.encode_action(action) in env.available():
-                action_encoded = encode_vector(action, ACTION_DIM)
-                probs[action] = np.exp(theta[0, state].dot(action_encoded[0]))
-        return probs / np.sum(probs)
-
     def get_entropy_bonus(action_probs: list) -> float:
         entropy_bonus = 0
         # action_probs=action_probs.numpy()
@@ -463,7 +454,16 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.001, gamma=0.8, bat
     count_goal_pos = np.zeros(1)
     objectives = np.zeros(num_episodes)
     gradients = np.zeros(num_episodes)
-    optimum = 100 * gamma ** 12 - 0.1 * gamma / (1-gamma) * (1-gamma ** 11)
+
+    optimal_state_trajectory = [36, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 47]
+    optimal_action_trajectory = [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 0]
+    optimal_probs_trajectory = [[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1],
+                                [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1],
+                                [0, 1, 0, 0], [1, 0, 0, 0]]
+    optimal_reward_trajectory = [0, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+    optimum = objective_trajectory(optimal_state_trajectory, optimal_action_trajectory, optimal_probs_trajectory,
+                                   optimal_reward_trajectory, gamma)
+
     temp_goal = np.zeros(1)
     count_reached_goal = np.zeros(num_episodes)
 
@@ -472,8 +472,8 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.001, gamma=0.8, bat
 
         env.reset()
 
-        if episode % 1000 == 0:
-            print(f"========== FINISHED EPISODE {episode} ==============")
+        if episode >= 1:
+            print(episode, ": ", steps_cache[episode-1])
 
         # Initialize reward trajectory
         reward_trajectory = []
@@ -495,11 +495,11 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.001, gamma=0.8, bat
             next_state, reward = env.do_action(action)
 
             entropy_bonus = get_entropy_bonus(action_probs)
-            rewards_cache[episode] += reward  # + entropy_bonus
+            rewards_cache[episode] += reward + entropy_bonus
 
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward)  # + entropy_bonus)
+            reward_trajectory.append(reward + entropy_bonus)
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1

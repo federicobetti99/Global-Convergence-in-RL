@@ -20,7 +20,6 @@ class Cliff:
         self.reward = 0
         self.number_of_steps = 0
         self.path = [self.start_pos]
-        self.verbose = 0
 
     def reset(self):
         self.state = self.start_pos
@@ -32,124 +31,62 @@ class Cliff:
     def end(self):
         return self.end
 
-    def encode_action(self, action):
-        if action == 0:
-            return "u"
-        elif action == 1:
-            return "d"
-        elif action == 2:
-            return "l"
-        elif action == 3:
-            return "r"
-
-    def inverse_encoding(self, action):
-        if action == "u":
-            return 0
-        elif action == "d":
-            return 1
-        elif action == "l":
-            return 2
-        elif action == "r":
-            return 3
-
     def get_state(self):
         return self.state
 
     def set_state(self, state):
         self.state = state
 
-    def available(self):
-        if self.state == 36:
-            return ["u", "r"]
-        elif self.state == 0:
-            return ["d", "r"]
-        elif self.state % 12 == 0 and self.state != 0 and self.state != 36:
-            return ["u", "d", "r"]
-        elif 1 <= self.state < 12:
-            return ["d", "l", "r"]
-        elif self.state in self.cliff_pos:
-            return ["u", "l", "r"]
-        elif (self.state + 1) % 12 == 0:
-            return ["u", "d", "l"]
-        else:
-            return ["u", "d", "l", "r"]
+    def do_action(self, action: int):
+        """
+        Move agent to new position based on current position and action
+        """
+        (pos_x, pos_y) = self.state_to_position()
 
-    def do_action(self, action):
-        action = self.encode_action(action)
-        assert action in ["u", "d", "l", "r"]
+        if action == 0:  # Up
+            pos_y = pos_y - 1 if pos_y > 0 else pos_y
+        elif action == 1:  # Down
+            pos_y = pos_y + 1 if pos_y < 3 else pos_y
+        elif action == 2:  # Left
+            pos_x = pos_x - 1 if pos_x > 0 else pos_x
+        elif action == 3:  # Right
+            pos_x = pos_x + 1 if pos_x < 11 else pos_x
+        else:  # Infeasible move
+            raise Exception("Infeasible move")
 
-        if action not in self.available():
-            new_state = self.get_state()  # do not move
-        else:
-            if action == "u":
-                new_state = self.state - 12
-            elif action == "d":
-                new_state = self.state + 12
-            elif action == "l":
-                new_state = self.state - 1
-            elif action == "r":
-                new_state = self.state + 1
-
-        assert 0 <= new_state <= 47
-
-        self.path.append(self.state)
-
-        self.reward -= 0.1
+        self.state = self.position_to_state((pos_x, pos_y))
         self.number_of_steps += 1
-
-        self.state = new_state
 
         if self.state == 47:
             self.end = True
-            self.reward += 100
-            if self.verbose:
-                print(f"===== Goal reached in {self.number_of_steps} steps =====")
+            self.reward = 100
+            print(f"===== Goal reached in {self.number_of_steps} steps =====")
         elif self.number_of_steps >= 100:
             self.end = True
+            self.reward = -0.1
         elif self.state in self.cliff_pos:
-            self.reward -= 100
+            self.reward = -100
+            self.end = True
+        else:
+            self.reward = -0.1
 
         return self.state, self.reward
 
-    def coords(self, state):
-        x = int(state % 12)
-        y = 3 - int(state / 12)
-        return x, y
-
-    def render(self):
+    def position_to_state(self, agent_pos: tuple) -> int:
         """
-        Render the environment
-        :return:
+        Obtain state corresponding to agent position
         """
-        fig, ax = plt.subplots(figsize=(8, 4))
-        plt.vlines(-0.35, -0.05, 0.35)
-        plt.vlines(11.55, -0.05, 0.35)
-        plt.hlines(-0.05, -0.35, 11.55)
-        plt.hlines(0.35, -0.35, 11.55)
-        for hor in range(11):
-            for ver in range(4):
-                plt.plot([hor, hor+1], [0.1 * ver, 0.1 * ver], color="black", marker="o", linewidth=3, markersize=5)
-        for hor in range(12):
-            for ver in range(3):
-                plt.plot([hor, hor], [0.1 * ver, 0.1 * (ver+1)], color="black", marker="o", linewidth=3, markersize=5)
-        for j in self.cliff_pos:
-            (x, y) = self.coords(j)
-            plt.plot(x, y, color="r", marker="X", markersize=8)
+        x_dim = 12
+        (pos_x, pos_y) = agent_pos
+        state = x_dim * pos_y + pos_x
 
-        (x, y) = self.coords(self.start_pos)
-        plt.plot(x, y, color='green', marker='o', markersize=12)
-        (x, y) = self.coords(self.goal_pos)
-        plt.plot(x, y, color='blue', marker='*', markersize=12)
-        # Figure specifications
-        plt.axis('off')
-        plt.show()
+        return state
 
-    def play(self, probs):
-        self.reset()
-        while not self.end:
-            action = epsilon_greedy_action(self.state, probs, 0)
-            self.do_action(action)
-            self.render()
+    def state_to_position(self):
+        pos_y = int(self.get_state() / 12)
+        pos_x = self.get_state() % 12
+
+        return pos_x, pos_y
 
 
 def mark_path(agent: tuple, env: np.array) -> np.array:
@@ -187,28 +124,3 @@ def encode_vector(index: int, dim: int) -> list:
     vector_encoded[0, index] = 1
 
     return vector_encoded
-
-
-def get_state(agent_pos: tuple) -> int:
-    """
-    Obtain state corresponding to agent position
-    """
-    x_dim = 12
-    (pos_x, pos_y) = agent_pos
-    state = x_dim * pos_x + pos_y
-
-    return state
-
-
-def get_position(state: int) -> tuple:
-    """
-    Obtain agent position corresponding to state
-    """
-    x_dim = 12
-
-    pos_x = int(np.floor(state / x_dim))
-    pos_y = state % x_dim
-
-    agent_pos = (pos_x, pos_y)
-
-    return agent_pos
