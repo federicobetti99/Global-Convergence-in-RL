@@ -1,11 +1,10 @@
 import numpy as np
-import time
 
 from RL_cliff.actions import (
     move_agent,
-    get_reward,
     compute_cum_rewards
 )
+
 from RL_cliff.environment import (
     Cliff,
     encode_vector
@@ -132,7 +131,7 @@ def Hessian_log_pi(state_trajectory, action_trajectory, theta):
     return Hessian_collection
 
 
-def objective_trajectory(state_trajectory, action_trajectory, probs_trajectory, reward_trajectory, gamma):
+def objective_trajectory(reward_trajectory, gamma):
     """
     This function computes the objective function for a given trajectory, thus an unbiased estimate of J(\theta).
     Inputs:
@@ -146,8 +145,7 @@ def objective_trajectory(state_trajectory, action_trajectory, probs_trajectory, 
     """
     obj = 0
     for t in range(len(reward_trajectory)):
-        cum_reward = compute_cum_rewards(gamma, t, reward_trajectory)
-        obj += cum_reward * probs_trajectory[t][action_trajectory[t]]
+        obj += gamma ** t * reward_trajectory[t]
     return obj
 
 
@@ -221,7 +219,7 @@ def cubic_subsolver(grad, hessian, l=10, rho=30, eps=1e-3, c_=1, T_eps=10):
     return delta
 
 
-def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=16, SGD=0, period=1000,
+def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16, SGD=0, period=1000,
                   step_cache=None, reward_cache=None, env_cache=None, name_cache=None) -> (np.array, list):
     """
     SCRN with discrete policy (manual weight updates)
@@ -246,14 +244,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=16
     objectives = np.zeros(num_episodes)
     gradients = np.zeros(num_episodes)
 
-    optimal_state_trajectory = [36, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
-    optimal_action_trajectory = [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1]
-    optimal_probs_trajectory = [[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1],
-                                [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1],
-                                [0, 1, 0, 0]]
     optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
-    optimum = objective_trajectory(optimal_state_trajectory, optimal_action_trajectory, optimal_probs_trajectory,
-                                   optimal_reward_trajectory, gamma)
+    optimum = objective_trajectory(optimal_reward_trajectory, gamma)
 
     temp_goal = np.zeros(1)
     count_goal_pos = np.zeros(1)
@@ -291,7 +283,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=16
             # Move agent to next position
             next_state, reward = env.do_action(action)
 
-            entropy_bonus = get_entropy_bonus(action_probs)
+            # entropy_bonus = get_entropy_bonus(action_probs)
             rewards_cache[episode] += reward  # + entropy_bonus
 
             state_trajectory.append(state)
@@ -307,7 +299,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=16
             count_reached_goal[episode] = 1
 
         # Computing objective, grad and Hessian for the current trajectory
-        obj_traj = objective_trajectory(state_trajectory, action_trajectory, probs_trajectory, reward_trajectory, gamma)
+        obj_traj = objective_trajectory(reward_trajectory, gamma)
         grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
                                                           probs_trajectory, reward_trajectory, gamma)
         Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
@@ -377,7 +369,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=16
     return stats
 
 
-def discrete_policy_gradient(env, num_episodes=1000, alpha=0.001, gamma=0.8, batch_size=1, SGD=0, period=100,
+def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=16, SGD=0, period=1000,
                              step_cache=None, reward_cache=None, env_cache=None, name_cache=None) -> (np.array, list):
     """
     REINFORCE with discrete policy gradient (manual weight updates)
@@ -442,7 +434,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.001, gamma=0.8, bat
             # Update theta (only update for current state, no changes for other states)
             theta[0, state] += alpha * (cum_reward * score_function[0])  # + score_function[0])
             gradients[state, :] = cum_reward * score_function[0]
-            obj += cum_reward * action_probs[action]
+            obj += gamma ** t * reward_trajectory[t]
 
         return theta, obj, gradients
 
@@ -455,14 +447,8 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.001, gamma=0.8, bat
     objectives = np.zeros(num_episodes)
     gradients = np.zeros(num_episodes)
 
-    optimal_state_trajectory = [36, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 47]
-    optimal_action_trajectory = [0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 0]
-    optimal_probs_trajectory = [[1, 0, 0, 0], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1],
-                                [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1],
-                                [0, 1, 0, 0], [1, 0, 0, 0]]
-    optimal_reward_trajectory = [0, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
-    optimum = objective_trajectory(optimal_state_trajectory, optimal_action_trajectory, optimal_probs_trajectory,
-                                   optimal_reward_trajectory, gamma)
+    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+    optimum = objective_trajectory(optimal_reward_trajectory, gamma)
 
     temp_goal = np.zeros(1)
     count_reached_goal = np.zeros(num_episodes)
@@ -495,11 +481,11 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.001, gamma=0.8, bat
             next_state, reward = env.do_action(action)
 
             entropy_bonus = get_entropy_bonus(action_probs)
-            rewards_cache[episode] += reward + entropy_bonus
+            rewards_cache[episode] += reward # + entropy_bonus
 
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward + entropy_bonus)
+            reward_trajectory.append(reward) # + entropy_bonus)
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1
