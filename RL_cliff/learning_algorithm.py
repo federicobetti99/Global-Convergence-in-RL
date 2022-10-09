@@ -1,12 +1,10 @@
 import numpy as np
 
 from RL_cliff.actions import (
-    move_agent,
     compute_cum_rewards
 )
 
 from RL_cliff.environment import (
-    Cliff,
     encode_vector
 )
 
@@ -44,7 +42,7 @@ def get_entropy_bonus(action_probs: list) -> float:
 
 def grad_entropy_bonus(action_trajectory, state_trajectory, reward_trajectory, probs_trajectory, gamma):
     cum_grad_log_phi_temp = np.zeros((len(reward_trajectory), ACTION_DIM * STATE_DIM))
-    cum_grad_log_matrix_temp = np.zeros((STATE_DIM, ACTION_DIM))
+    # cum_grad_log_matrix_temp = np.zeros((STATE_DIM, ACTION_DIM))
     cum_grad_log_phi = np.zeros((1, ACTION_DIM * STATE_DIM))
     grad = np.zeros((STATE_DIM, ACTION_DIM))
     grad1 = np.zeros((STATE_DIM, ACTION_DIM))
@@ -56,7 +54,7 @@ def grad_entropy_bonus(action_trajectory, state_trajectory, reward_trajectory, p
         grad11 = np.reshape(grad11, (STATE_DIM, ACTION_DIM))
         grad11 = grad1
         grad11 = np.reshape(grad11, (1, ACTION_DIM * STATE_DIM))
-        cum_grad_log_matrix_temp = np.reshape(cum_grad_log_matrix_temp, (STATE_DIM, ACTION_DIM))
+        # cum_grad_log_matrix_temp = np.reshape(cum_grad_log_matrix_temp, (STATE_DIM, ACTION_DIM))
         cum_grad_log_matrix_temp = np.zeros((STATE_DIM, ACTION_DIM))
         for psi in range(tau):
             grad[state_trajectory[psi], :] = grad[state_trajectory[psi], :] + grad_collection[psi]
@@ -117,7 +115,7 @@ def Hessian_log_pi(state_trajectory, action_trajectory, theta):
     Hessian_collection = []
     # computing Hessian_log_pi for a trajectory
     for t in range(len(state_trajectory)):
-        action = action_trajectory[t]
+        # action = action_trajectory[t]
         state = state_trajectory[t]
         Z = np.sum(np.exp(theta[0, state]))
         temp_grad_pi = -np.exp(np.atleast_2d(theta[0, state])).T @ np.ones((1, ACTION_DIM)) / Z ** 2
@@ -243,11 +241,12 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
     rewards_cache = np.zeros(num_episodes)
     objectives = np.zeros(num_episodes)
     gradients = np.zeros(num_episodes)
+    Hessians = np.zeros([num_episodes, STATE_DIM * ACTION_DIM])
+    history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
 
     optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
     optimum = objective_trajectory(optimal_reward_trajectory, gamma)
 
-    temp_goal = np.zeros(1)
     count_goal_pos = np.zeros(1)
     count_reached_goal = np.zeros(num_episodes)
 
@@ -310,6 +309,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
 
         objectives[episode] = obj_traj
         gradients[episode] = np.linalg.norm(grad_traj)
+        Hessians[episode] = np.linalg.eig(Hessian_traj)[0]
 
         # adding entropy regularized term to grad
         if SGD == 1:
@@ -333,10 +333,9 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
             grad = np.zeros((STATE_DIM * ACTION_DIM))
             Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
-    if float(count_goal_pos / num_episodes) >= 0.7:
-        temp_goal = 1
-    else:
-        temp_goal = 0
+        for state in range(48):
+            action_probs = policy(env, state, theta)
+            history_probs[episode][state, :] = action_probs
 
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
     for state in range(48):
@@ -358,7 +357,9 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
         "rewards": rewards_cache,
         "env": env_cache,
         "theta": theta,
+        "history_probs": history_probs,
         "objectives": objectives,
+        "Hessians": Hessians,
         "gradients": gradients,
         "optimum": optimum,
         "name": name_cache,
@@ -446,11 +447,11 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
     count_goal_pos = np.zeros(1)
     objectives = np.zeros(num_episodes)
     gradients = np.zeros(num_episodes)
+    history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
 
     optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
     optimum = objective_trajectory(optimal_reward_trajectory, gamma)
 
-    temp_goal = np.zeros(1)
     count_reached_goal = np.zeros(num_episodes)
 
     # Iterate over episodes
@@ -480,12 +481,12 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             # Move agent to next position
             next_state, reward = env.do_action(action)
 
-            entropy_bonus = get_entropy_bonus(action_probs)
-            rewards_cache[episode] += reward # + entropy_bonus
+            # entropy_bonus = get_entropy_bonus(action_probs)
+            rewards_cache[episode] += reward  # + entropy_bonus
 
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward) # + entropy_bonus)
+            reward_trajectory.append(reward)  # + entropy_bonus)
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1
@@ -509,16 +510,14 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             probs_trajectory,
         )
 
+        for state in range(48):
+            action_probs = policy(env, state, theta)
+            history_probs[episode][state, :] = action_probs
+
         objectives[episode] = obj
         gradients[episode] = np.linalg.norm(gradient)
 
-    if float(count_goal_pos / num_episodes) >= 0.7:
-        temp_goal = 1
-    else:
-        temp_goal = 0
-
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
-
     for state in range(48):
         action_probs = policy(env, state, theta)
         all_probs[state] = action_probs
@@ -533,6 +532,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
         "steps": steps_cache,
         "rewards": rewards_cache,
         "theta": theta,
+        "history_probs": history_probs,
         "objectives": objectives,
         "gradients": gradients,
         "optimum": optimum,
