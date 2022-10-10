@@ -447,6 +447,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
     count_goal_pos = np.zeros(1)
     objectives = np.zeros(num_episodes)
     gradients = np.zeros(num_episodes)
+    Hessians = np.zeros([num_episodes, STATE_DIM * ACTION_DIM])
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
 
     optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
@@ -481,12 +482,12 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             # Move agent to next position
             next_state, reward = env.do_action(action)
 
-            # entropy_bonus = get_entropy_bonus(action_probs)
-            rewards_cache[episode] += reward  # + entropy_bonus
+            entropy_bonus = get_entropy_bonus(action_probs)
+            rewards_cache[episode] += reward + entropy_bonus
 
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward)  # + entropy_bonus)
+            reward_trajectory.append(reward + entropy_bonus)
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1
@@ -510,12 +511,18 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             probs_trajectory,
         )
 
+        grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
+                                                          probs_trajectory, reward_trajectory, gamma)
+        Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
+                                          grad_collection_traj, gamma, theta)
+
         for state in range(48):
             action_probs = policy(env, state, theta)
             history_probs[episode][state, :] = action_probs
 
         objectives[episode] = obj
         gradients[episode] = np.linalg.norm(gradient)
+        Hessians[episode] = np.linalg.eig(Hessian_traj)[0]
 
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
     for state in range(48):
@@ -535,6 +542,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
         "history_probs": history_probs,
         "objectives": objectives,
         "gradients": gradients,
+        "Hessians": Hessians,
         "optimum": optimum,
         "name": name_cache,
         "probs": all_probs,
