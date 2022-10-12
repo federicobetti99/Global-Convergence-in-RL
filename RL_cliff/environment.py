@@ -41,7 +41,7 @@ class Cliff:
         """
         Move agent to new position based on current position and action
         """
-        (pos_x, pos_y) = self.state_to_position()
+        (pos_x, pos_y) = self.state_to_position(self.get_state())
 
         if action == 0:  # Up
             pos_y = pos_y - 1 if pos_y > 0 else pos_y
@@ -82,9 +82,9 @@ class Cliff:
 
         return state
 
-    def state_to_position(self):
-        pos_y = int(self.get_state() / 12)
-        pos_x = self.get_state() % 12
+    def state_to_position(self, state: int):
+        pos_y = int(state / 12)
+        pos_x = state % 12
 
         return pos_x, pos_y
 

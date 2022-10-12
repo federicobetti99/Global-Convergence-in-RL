@@ -8,6 +8,9 @@ from RL_cliff.environment import (
     encode_vector
 )
 
+import time
+import matplotlib.pyplot as plt
+
 STATE_DIM = 48
 ACTION_DIM = 4
 
@@ -167,6 +170,67 @@ def grad_trajectory(state_trajectory, action_trajectory, probs_trajectory, rewar
     return grad, grad_collection
 
 
+def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
+    """
+    Off training function to estimate objective and gradient under current policy
+    :param env: environment
+    :param theta: parameter for the policy
+    :param num_episodes: batch size
+    :return:
+    """
+    sample_traj = ()
+    obj = 0
+    grad = np.zeros((1, ACTION_DIM * STATE_DIM))
+
+    for episode in range(num_episodes):
+
+        env.reset()
+
+        # Initialize reward trajectory
+        reward_trajectory = []
+        action_trajectory = []
+        state_trajectory = []
+        probs_trajectory = []
+
+        while not env.end:
+            # Get state corresponding to agent position
+            state = env.get_state()
+
+            # Get probabilities per action from current policy
+            action_probs = pi(env, theta)
+
+            # Select random action according to policy
+            action = np.random.choice(4, p=np.squeeze(action_probs))
+
+            # Move agent to next position
+            next_state, reward = env.do_action(action)
+
+            state_trajectory.append(state)
+            action_trajectory.append(action)
+            reward_trajectory.append(reward)  # + entropy_bonus
+            probs_trajectory.append(action_probs)
+
+        if episode == 0:
+            sample_traj = (state_trajectory, action_trajectory)
+
+        # Computing objective, grad and Hessian for the current trajectory
+        obj_traj = objective_trajectory(reward_trajectory, gamma)
+        grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
+                                                          probs_trajectory, reward_trajectory, gamma)
+
+        obj += obj_traj / num_episodes
+        grad += grad_traj / num_episodes
+
+    return obj, grad, sample_traj
+
+
+def show_trajectory(env, state_trajectory):
+    for state in state_trajectory:
+        state = env.state_to_position(state)
+        plt.plot(state[0], state[1], marker='X', markersize=10)
+    plt.show()
+
+
 def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad, grad_collection, gamma, theta):
     """
     This function computes the grad of objective function for a given trajectory.
@@ -217,7 +281,7 @@ def cubic_subsolver(grad, hessian, l=10, rho=30, eps=1e-3, c_=1, T_eps=10):
     return delta
 
 
-def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16, SGD=0, period=1000,
+def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16, SGD=0, period=1000, test_freq=50,
                   step_cache=None, reward_cache=None, env_cache=None, name_cache=None) -> (np.array, list):
     """
     SCRN with discrete policy (manual weight updates)
@@ -255,6 +319,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
     grad = np.zeros((STATE_DIM * ACTION_DIM))
     Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
+    estimates = {"objectives": [], "gradients": [], "sample_traj": []}
+
     # Iterate over episodes
     for episode in range(num_episodes):
 
@@ -283,11 +349,11 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
             next_state, reward = env.do_action(action)
 
             # entropy_bonus = get_entropy_bonus(action_probs)
-            rewards_cache[episode] += reward  # + entropy_bonus
+            rewards_cache[episode] += reward   # + entropy_bonus
 
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward)  # + entropy_bonus
+            reward_trajectory.append(reward)  # + entropy_bonus)
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1
@@ -313,8 +379,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
 
         # adding entropy regularized term to grad
         if SGD == 1:
-            grad_traj = grad_traj  # - grad_entropy_bonus(action_trajectory, state_trajectory,reward_trajectory,
-            # probs_trajectory)
+            grad_traj = grad_traj - grad_entropy_bonus(action_trajectory, state_trajectory,reward_trajectory, probs_trajectory, gamma)
         obj = obj + obj_traj / batch_size
         grad = grad + grad_traj / batch_size
         Hessian = Hessian + Hessian_traj / batch_size
@@ -337,6 +402,12 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
             action_probs = policy(env, state, theta)
             history_probs[episode][state, :] = action_probs
 
+        if episode % test_freq == 0:
+            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=100)
+            estimates["objectives"].append(estimate_obj)
+            estimates["gradients"].append(np.linalg.norm(estimate_grad))
+            estimates["sample_traj"].append(sample_traj)
+
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
     for state in range(48):
         action_probs = policy(env, state, theta)
@@ -357,6 +428,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
         "rewards": rewards_cache,
         "env": env_cache,
         "theta": theta,
+        "estimates": estimates,
         "history_probs": history_probs,
         "objectives": objectives,
         "Hessians": Hessians,
