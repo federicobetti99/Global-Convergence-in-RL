@@ -34,6 +34,43 @@ def pi(env, theta) -> np.array:
     return probs / np.sum(probs)
 
 
+def update_action_probabilities(alpha: float, gamma: float, theta: np.array, state_trajectory: list,
+                                action_trajectory: list, reward_trajectory: list, probs_trajectory: list) -> np.array:
+
+    gradients = np.zeros((STATE_DIM, ACTION_DIM))
+    obj = 0
+
+    for t in range(len(reward_trajectory)):
+        state = state_trajectory[t]
+        action = action_trajectory[t]
+        cum_reward = compute_cum_rewards(gamma, t, reward_trajectory)
+
+        # Determine action probabilities with policy
+        #  action_probs = pi(state)
+        action_probs = probs_trajectory[t]
+
+        # Encode action
+        phi = encode_vector(action, ACTION_DIM)
+
+        # Construct weighted state-action vector (average phi over all actions)
+        weighted_phi = np.zeros((1, ACTION_DIM))
+
+        # For demonstration only, simply copies probability vector
+        for action in range(ACTION_DIM):
+            action_input = encode_vector(action, ACTION_DIM)
+            weighted_phi[0] += action_probs[action] * action_input[0]
+
+        # Return score function (phi - weighted phi)
+        score_function = phi - weighted_phi
+
+        # Update theta (only update for current state, no changes for other states)
+        theta[0, state] += alpha * (cum_reward * score_function[0])  # + score_function[0])
+        gradients[state, :] = cum_reward * score_function[0]
+        obj += gamma ** t * reward_trajectory[t]
+
+    return theta, obj, gradients
+
+
 def get_entropy_bonus(action_probs: list) -> float:
     entropy_bonus = 0
     # action_probs=action_probs.numpy()
@@ -179,8 +216,8 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
     :return:
     """
     sample_traj = ()
-    obj = 0
-    grad = np.zeros((1, ACTION_DIM * STATE_DIM))
+    obj = []
+    grad = []
 
     for episode in range(num_episodes):
 
@@ -218,16 +255,23 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
         grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
                                                           probs_trajectory, reward_trajectory, gamma)
 
-        obj += obj_traj / num_episodes
-        grad += grad_traj / num_episodes
+        obj.append(obj_traj)
+        grad.append(np.linalg.norm(grad_traj))
 
     return obj, grad, sample_traj
 
 
 def show_trajectory(env, state_trajectory):
+    states = []
+    plt.figure(figsize=(4, 4))
+    plt.yticks(np.arange(0, 3, step=1))
+    plt.xticks(np.arange(0, 12, step=1))
     for state in state_trajectory:
         state = env.state_to_position(state)
-        plt.plot(state[0], state[1], marker='X', markersize=10)
+        states.append(state)
+        plt.plot(state[0], state[1], marker='X', color="g", markersize=10)
+        if len(states) >= 2:
+            plt.arrow(states[-2][0], states[-2][1], states[-1][0]-states[-2][0], states[-1][1]-states[-2][1])
     plt.show()
 
 
@@ -303,9 +347,11 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
 
     steps_cache = np.zeros(num_episodes)
     rewards_cache = np.zeros(num_episodes)
-    objectives = np.zeros(num_episodes)
-    gradients = np.zeros(num_episodes)
+
+    objectives = []
+    gradients = []
     Hessians = np.zeros([num_episodes, STATE_DIM * ACTION_DIM])
+
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
 
     optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
@@ -373,9 +419,9 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
         grad = grad + grad_traj / batch_size
         Hessian = Hessian + Hessian_traj / batch_size
 
-        objectives[episode] = obj_traj
-        gradients[episode] = np.linalg.norm(grad_traj)
-        Hessians[episode] = np.linalg.eig(Hessian_traj)[0]
+        # objectives[episode] = obj_traj
+        # gradients[episode] = np.linalg.norm(grad_traj)
+        # Hessians[episode] = np.linalg.eig(Hessian_traj)[0]
 
         # adding entropy regularized term to grad
         if SGD == 1:
@@ -403,9 +449,9 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
             history_probs[episode][state, :] = action_probs
 
         if episode % test_freq == 0:
-            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=100)
-            estimates["objectives"].append(estimate_obj)
-            estimates["gradients"].append(np.linalg.norm(estimate_grad))
+            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=10)
+            objectives.append(np.mean(estimate_obj))
+            gradients.append(np.mean(estimate_grad))
             estimates["sample_traj"].append(sample_traj)
 
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
@@ -442,7 +488,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
     return stats
 
 
-def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=16, SGD=0, period=1000,
+def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=16, SGD=0, period=1000, test_freq=50,
                              step_cache=None, reward_cache=None, env_cache=None, name_cache=None) -> (np.array, list):
     """
     REINFORCE with discrete policy gradient (manual weight updates)
@@ -459,67 +505,17 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
     alpha0 = alpha
     alpha = alpha0
 
-    def get_entropy_bonus(action_probs: list) -> float:
-        entropy_bonus = 0
-        # action_probs=action_probs.numpy()
-        #  action_probs=np.squeeze(action_probs)
-        for prob_action in action_probs:
-            entropy_bonus -= prob_action * np.log(prob_action + 1e-5)
-
-        return float(entropy_bonus)
-
-    def update_action_probabilities(
-            alpha: float,
-            gamma: float,
-            theta: np.array,
-            state_trajectory: list,
-            action_trajectory: list,
-            reward_trajectory: list,
-            probs_trajectory: list,
-    ) -> np.array:
-
-        gradients = np.zeros((STATE_DIM, ACTION_DIM))
-        obj = 0
-
-        for t in range(len(reward_trajectory)):
-            state = state_trajectory[t]
-            action = action_trajectory[t]
-            cum_reward = compute_cum_rewards(gamma, t, reward_trajectory)
-
-            # Determine action probabilities with policy
-            #  action_probs = pi(state)
-            action_probs = probs_trajectory[t]
-
-            # Encode action
-            phi = encode_vector(action, ACTION_DIM)
-
-            # Construct weighted state-action vector (average phi over all actions)
-            weighted_phi = np.zeros((1, ACTION_DIM))
-
-            # For demonstration only, simply copies probability vector
-            for action in range(ACTION_DIM):
-                action_input = encode_vector(action, ACTION_DIM)
-                weighted_phi[0] += action_probs[action] * action_input[0]
-
-            # Return score function (phi - weighted phi)
-            score_function = phi - weighted_phi
-
-            # Update theta (only update for current state, no changes for other states)
-            theta[0, state] += alpha * (cum_reward * score_function[0])  # + score_function[0])
-            gradients[state, :] = cum_reward * score_function[0]
-            obj += gamma ** t * reward_trajectory[t]
-
-        return theta, obj, gradients
-
     # Initialize theta
     theta = np.zeros([1, STATE_DIM, ACTION_DIM])
 
     steps_cache = np.zeros(num_episodes)
     rewards_cache = np.zeros(num_episodes)
     count_goal_pos = np.zeros(1)
-    objectives = np.zeros(num_episodes)
-    gradients = np.zeros(num_episodes)
+
+    objectives = []
+    gradients = []
     Hessians = np.zeros([num_episodes, STATE_DIM * ACTION_DIM])
+
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
 
     optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
@@ -592,9 +588,14 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             action_probs = policy(env, state, theta)
             history_probs[episode][state, :] = action_probs
 
-        objectives[episode] = obj
-        gradients[episode] = np.linalg.norm(gradient)
-        Hessians[episode] = np.linalg.eig(Hessian_traj)[0]
+        # objectives[episode] = obj
+        # gradients[episode] = np.linalg.norm(gradient)
+        # Hessians[episode] = np.linalg.eig(Hessian_traj)[0]
+
+        if episode % test_freq == 0:
+            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=10)
+            objectives.append(np.mean(estimate_obj))
+            gradients.append(np.mean(estimate_grad))
 
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
     for state in range(48):
