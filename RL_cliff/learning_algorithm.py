@@ -263,15 +263,20 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
 
 def show_trajectory(env, state_trajectory):
     states = []
-    plt.figure(figsize=(4, 4))
-    plt.yticks(np.arange(0, 3, step=1))
-    plt.xticks(np.arange(0, 12, step=1))
+    plt.figure(figsize=(6, 3))
+    plt.yticks(np.arange(0, 4), [])
+    plt.xticks(np.arange(0, 12), [])
+    for i in range(4):
+        plt.axhline(y=0.2 * i, xmin=0, xmax=0.3 * 12)
+    for j in range(12):
+        plt.axvline(x=0.2 * j, ymin=0, ymax=0.3 * 4)
     for state in state_trajectory:
         state = env.state_to_position(state)
         states.append(state)
-        plt.plot(state[0], state[1], marker='X', color="g", markersize=10)
+        plt.plot(0.2 * state[0], 0.2 * state[1], marker='X', color="g", markersize=10)
         if len(states) >= 2:
-            plt.arrow(states[-2][0], states[-2][1], states[-1][0]-states[-2][0], states[-1][1]-states[-2][1])
+            plt.arrow(0.2 * states[-2][0], 0.2 * states[-2][1],
+                      0.2 * (states[-1][0]-states[-2][0]), 0.2 * (states[-1][1]-states[-2][1]))
     plt.show()
 
 
@@ -325,7 +330,7 @@ def cubic_subsolver(grad, hessian, l=10, rho=30, eps=1e-3, c_=1, T_eps=10):
     return delta
 
 
-def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16, SGD=0, period=1000, test_freq=50,
+def discrete_SCRN(env, num_episodes=10000, alpha=0.005, gamma=0.8, batch_size=1, SGD=0, period=1000, test_freq=50,
                   step_cache=None, reward_cache=None, env_cache=None, name_cache=None) -> (np.array, list):
     """
     SCRN with discrete policy (manual weight updates)
@@ -425,7 +430,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
 
         # adding entropy regularized term to grad
         if SGD == 1:
-            grad_traj = grad_traj - grad_entropy_bonus(action_trajectory, state_trajectory,reward_trajectory, probs_trajectory, gamma)
+            grad_traj = grad_traj - grad_entropy_bonus(action_trajectory, state_trajectory,
+                                                       reward_trajectory, probs_trajectory, gamma)
         obj = obj + obj_traj / batch_size
         grad = grad + grad_traj / batch_size
         Hessian = Hessian + Hessian_traj / batch_size
@@ -449,7 +455,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.01, gamma=0.8, batch_size=16,
             history_probs[episode][state, :] = action_probs
 
         if episode % test_freq == 0:
-            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=10)
+            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
             objectives.append(np.mean(estimate_obj))
             gradients.append(np.mean(estimate_grad))
             estimates["sample_traj"].append(sample_traj)
@@ -593,7 +599,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
         # Hessians[episode] = np.linalg.eig(Hessian_traj)[0]
 
         if episode % test_freq == 0:
-            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=10)
+            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
             objectives.append(np.mean(estimate_obj))
             gradients.append(np.mean(estimate_grad))
 
