@@ -73,8 +73,6 @@ def update_action_probabilities(alpha: float, gamma: float, theta: np.array, sta
 
 def get_entropy_bonus(action_probs: list) -> float:
     entropy_bonus = 0
-    # action_probs=action_probs.numpy()
-    #  action_probs=np.squeeze(action_probs)
     for prob_action in action_probs:
         entropy_bonus -= prob_action * np.log(prob_action + 1e-5)
     return float(entropy_bonus)
