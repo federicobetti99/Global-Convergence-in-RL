@@ -8,9 +8,6 @@ from RL_cliff.environment import (
     encode_vector
 )
 
-import time
-import matplotlib.pyplot as plt
-
 STATE_DIM = 48
 ACTION_DIM = 4
 
@@ -257,25 +254,6 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
         grad.append(np.linalg.norm(grad_traj))
 
     return obj, grad, sample_traj
-
-
-def show_trajectory(env, state_trajectory):
-    states = []
-    plt.figure(figsize=(6, 3))
-    plt.yticks(np.arange(0, 4), [])
-    plt.xticks(np.arange(0, 12), [])
-    for i in range(4):
-        plt.axhline(y=0.2 * i, xmin=0, xmax=0.3 * 12)
-    for j in range(12):
-        plt.axvline(x=0.2 * j, ymin=0, ymax=0.3 * 4)
-    for state in state_trajectory:
-        state = env.state_to_position(state)
-        states.append(state)
-        plt.plot(0.2 * state[0], 0.2 * state[1], marker='X', color="g", markersize=10)
-        if len(states) >= 2:
-            plt.arrow(0.2 * states[-2][0], 0.2 * states[-2][1],
-                      0.2 * (states[-1][0]-states[-2][0]), 0.2 * (states[-1][1]-states[-2][1]))
-    plt.show()
 
 
 def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad, grad_collection, gamma, theta):
