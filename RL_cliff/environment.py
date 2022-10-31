@@ -11,7 +11,7 @@ class Cliff:
     24	25	26	27	28	29	30	31	32	33	34	35
     36	37	38	39	40	41	42	43	44	45	46	47
     """
-    def __init__(self, cliff_pos=np.arange(37, 47), goal_pos=47):
+    def __init__(self, cliff_pos=np.hstack(([14, 15, 17, 18], np.arange(26, 31))), goal_pos=16):
         self.cliff_pos = cliff_pos
         self.goal_pos = goal_pos
         self.start_pos = 36
@@ -57,7 +57,7 @@ class Cliff:
         self.state = self.position_to_state((pos_x, pos_y))
         self.number_of_steps += 1
 
-        if self.state == 47:
+        if self.state == self.goal_pos:
             self.end = True
             self.reward = 100
             print(f"===== Goal reached in {self.number_of_steps} steps =====")
@@ -67,6 +67,7 @@ class Cliff:
         elif self.state in self.cliff_pos:
             self.reward = -100
             self.end = True
+            print(f"===== Agent fallen in cliff in position {self.get_state()} =====")
         else:
             self.reward = -0.1
 
@@ -87,6 +88,9 @@ class Cliff:
         pos_x = state % 12
 
         return pos_x, pos_y
+
+    def get_goal_pos(self):
+        return self.goal_pos
 
 
 def mark_path(agent: tuple, env: np.array) -> np.array:

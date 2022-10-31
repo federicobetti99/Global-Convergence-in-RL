@@ -232,7 +232,7 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
             action_probs = pi(env, theta)
 
             # Select random action according to policy
-            action = np.random.choice(4, p=np.squeeze(action_probs))
+            action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
             next_state, reward = env.do_action(action)
@@ -335,7 +335,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.005, gamma=0.8, batch_size=1,
 
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
 
-    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
     optimum = objective_trajectory(optimal_reward_trajectory, gamma)
 
     count_goal_pos = np.zeros(1)
@@ -370,22 +370,22 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.005, gamma=0.8, batch_size=1,
             action_probs = pi(env, theta)
 
             # Select random action according to policy
-            action = np.random.choice(4, p=np.squeeze(action_probs))
+            action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
             next_state, reward = env.do_action(action)
 
-            # entropy_bonus = get_entropy_bonus(action_probs)
-            rewards_cache[episode] += reward   # + entropy_bonus
+            entropy_bonus = get_entropy_bonus(action_probs)
+            rewards_cache[episode] += reward
 
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward)  # + entropy_bonus)
+            reward_trajectory.append(reward)
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1
 
-        if next_state == 47:
+        if next_state == env.get_goal_pos():
             # print('state47')
             count_goal_pos += 1
             count_reached_goal[episode] = 1
@@ -500,7 +500,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
 
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
 
-    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
     optimum = objective_trajectory(optimal_reward_trajectory, gamma)
 
     count_reached_goal = np.zeros(num_episodes)
@@ -527,22 +527,22 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             action_probs = pi(env, theta)
 
             # Select random action according to policy
-            action = np.random.choice(4, p=np.squeeze(action_probs))
+            action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
             next_state, reward = env.do_action(action)
 
             entropy_bonus = get_entropy_bonus(action_probs)
-            rewards_cache[episode] += reward + entropy_bonus
+            rewards_cache[episode] += reward
 
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward + entropy_bonus)
+            reward_trajectory.append(reward)
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1
 
-        if next_state == 47:
+        if next_state == env.get_goal_pos():
             # print('state47')
             count_goal_pos += 1
             count_reached_goal[episode] = 1
@@ -569,10 +569,6 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
         for state in range(48):
             action_probs = policy(env, state, theta)
             history_probs[episode][state, :] = action_probs
-
-        # objectives[episode] = obj
-        # gradients[episode] = np.linalg.norm(gradient)
-        # Hessians[episode] = np.linalg.eig(Hessian_traj)[0]
 
         if episode % test_freq == 0:
             estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
