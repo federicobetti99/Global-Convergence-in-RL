@@ -5,13 +5,13 @@ from RL_cliff.actions import epsilon_greedy_action
 
 class Cliff:
     """
-    Tile layout (36=start, 47=goal, 37-46=cliff)
+    Tile layout (36=start, 47=goal, 37-46=default_cliff)
     0	1	2	3	4	5	6	7	8	9	10	11
     12	13	14	15	16	17	18	19	20	21	22	23
     24	25	26	27	28	29	30	31	32	33	34	35
     36	37	38	39	40	41	42	43	44	45	46	47
     """
-    def __init__(self, cliff_pos=np.hstack(([14, 15, 17, 18], np.arange(26, 31))), goal_pos=16):
+    def __init__(self, cliff_pos=np.arange(37, 47), goal_pos=47):
         self.cliff_pos = cliff_pos
         self.goal_pos = goal_pos
         self.start_pos = 36
