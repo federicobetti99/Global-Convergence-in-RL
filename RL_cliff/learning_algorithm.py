@@ -476,8 +476,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     return stats
 
 
-def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=16, SGD=0, period=1000, test_freq=50,
-                             step_cache=None, reward_cache=None, env_cache=None, name_cache=None) -> (np.array, list):
+def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=16, SGD=0, entropy_bonus=False,
+                             period=1000, test_freq=50, step_cache=None, reward_cache=None, env_cache=None, name_cache=None) -> (np.array, list):
     """
     REINFORCE with discrete policy gradient (manual weight updates)
     """
@@ -537,12 +537,15 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             # Move agent to next position
             next_state, reward = env.do_action(action)
 
-            entropy_bonus = get_entropy_bonus(action_probs)
-            rewards_cache[episode] += reward+entropy_bonus
+            if entropy_bonus:
+                entropy = get_entropy_bonus(action_probs)
+                reward += entropy
+
+            rewards_cache[episode] += reward
 
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward+entropy_bonus)
+            reward_trajectory.append(reward)
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1
