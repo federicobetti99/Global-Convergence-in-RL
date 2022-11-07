@@ -5,10 +5,12 @@ from RL_cliff.actions import (
 )
 
 from RL_cliff.environment import (
-    encode_vector
+    encode_vector,
+    Cliff,
+    RandomMaze
 )
 
-STATE_DIM = 48
+STATE_DIM = 121
 ACTION_DIM = 4
 
 
@@ -216,7 +218,7 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
 
     for episode in range(num_episodes):
 
-        env.reset()
+        state = env.reset()
 
         # Initialize reward trajectory
         reward_trajectory = []
@@ -235,7 +237,7 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
             action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            next_state, reward = env.do_action(action)
+            next_state, reward, _, _, _ = env.step(action)
 
             state_trajectory.append(state)
             action_trajectory.append(action)
@@ -350,7 +352,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     # Iterate over episodes
     for episode in range(num_episodes):
 
-        env.reset()
+        state = env.reset()
 
         if episode >= 1:
             print(episode, ": ", steps_cache[episode - 1])
@@ -372,9 +374,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            next_state, reward = env.do_action(action)
+            next_state, reward, _, _, _ = env.step(action)
 
-            entropy_bonus = get_entropy_bonus(action_probs)
             rewards_cache[episode] += reward
 
             state_trajectory.append(state)
@@ -384,10 +385,10 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
 
             steps_cache[episode] += 1
 
-        if next_state == env.get_goal_pos():
-            # print('state47')
-            count_goal_pos += 1
-            count_reached_goal[episode] = 1
+        # if next_state == env.get_goal_pos():
+        # print('state47')
+        # count_goal_pos += 1
+        # count_reached_goal[episode] = 1
 
         # Computing objective, grad and Hessian for the current trajectory
         obj_traj = objective_trajectory(reward_trajectory, gamma)
@@ -425,19 +426,19 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             grad = np.zeros((STATE_DIM * ACTION_DIM))
             Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
-        for state in range(48):
-            action_probs = policy(env, state, theta)
-            history_probs[episode][state, :] = action_probs
+        # for state in range(48):
+        #    action_probs = policy(env, state, theta)
+        #    history_probs[episode][state, :] = action_probs
 
         if episode % test_freq == 0:
             estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
             tau_estimates.append((optimum-np.mean(estimate_obj))/np.mean(estimate_grad))
             estimates["sample_traj"].append(sample_traj)
 
-    all_probs = np.zeros([STATE_DIM, ACTION_DIM])
-    for state in range(48):
-        action_probs = policy(env, state, theta)
-        all_probs[state] = action_probs
+    # all_probs = np.zeros([STATE_DIM, ACTION_DIM])
+    # for state in range(48):
+    #    action_probs = policy(env, state, theta)
+    #    all_probs[state] = action_probs
 
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
@@ -446,11 +447,11 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
 
     good_policy = False
 
-    while not env.end:
-        action = np.argmax(history_probs[-1][env.get_state(), :])
-        next_state, reward = env.do_action(action)
-        if next_state == env.get_goal_pos():
-            good_policy = True
+    # while not env.end:
+    #     action = np.argmax(history_probs[-1][env.get_state(), :])
+    #     next_state, reward = env.do_action(action)
+    #     if next_state == env.get_goal_pos():
+    #         good_policy = True
 
     if SGD == 0:
         name_cache.append("SCRN")
@@ -468,7 +469,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
         "Hessians": Hessians,
         "optimum": optimum,
         "name": name_cache,
-        "probs": all_probs,
+        # "probs": all_probs,
         "goals": count_reached_goal,
         "good_policy": good_policy,
     }
@@ -505,7 +506,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
 
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
 
-    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+    optimal_reward_trajectory = env.get_optimal_path()
     optimum = objective_trajectory(optimal_reward_trajectory, gamma)
 
     count_reached_goal = np.zeros(num_episodes)
@@ -513,7 +514,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
     # Iterate over episodes
     for episode in range(num_episodes):
 
-        env.reset()
+        state = env.reset()
 
         if episode >= 1:
             print(episode, ": ", steps_cache[episode-1])
@@ -535,7 +536,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            next_state, reward = env.do_action(action)
+            next_state, reward, _, _, _ = env.step(action)
 
             if entropy_bonus:
                 entropy = get_entropy_bonus(action_probs)
@@ -550,10 +551,10 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
 
             steps_cache[episode] += 1
 
-        if next_state == env.get_goal_pos():
+        # if next_state == env.get_goal_pos():
             # print('state47')
-            count_goal_pos += 1
-            count_reached_goal[episode] = 1
+        #    count_goal_pos += 1
+        #    count_reached_goal[episode] = 1
 
         if episode % period == 0 and episode > 0:
             alpha = alpha0 / (episode / period)
@@ -574,26 +575,26 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
         Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
                                           grad_collection_traj, gamma, theta)
 
-        for state in range(48):
-            action_probs = policy(env, state, theta)
-            history_probs[episode][state, :] = action_probs
+        # for state in range(48):
+        #    action_probs = policy(env, state, theta)
+        #    history_probs[episode][state, :] = action_probs
 
         if episode % test_freq == 0:
             estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
             tau_estimates.append((optimum-np.mean(estimate_obj))/np.mean(estimate_grad))
 
-    all_probs = np.zeros([STATE_DIM, ACTION_DIM])
-    for state in range(48):
-        action_probs = policy(env, state, theta)
-        all_probs[state] = action_probs
+    # all_probs = np.zeros([STATE_DIM, ACTION_DIM])
+    # for state in range(48):
+    #    action_probs = policy(env, state, theta)
+    #    all_probs[state] = action_probs
 
     good_policy = False
 
-    while not env.end:
-        action = np.argmax(history_probs[-1][env.get_state(), :])
-        next_state, reward = env.do_action(action)
-        if next_state == env.get_goal_pos():
-            good_policy = True
+    # while not env.end:
+    #    action = np.argmax(history_probs[-1][env.get_state(), :])
+    #    next_state, reward = env.do_action(action)
+    #    if next_state == env.get_goal_pos():
+    #        good_policy = True
 
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
@@ -610,7 +611,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
         "Hessians": Hessians,
         "optimum": optimum,
         "name": name_cache,
-        "probs": all_probs,
+        # "probs": all_probs,
         "goals": count_reached_goal,
         "good_policy": good_policy
     }
