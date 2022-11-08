@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9ebf9292-2519-4a1f-a647-57338450e6ee" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/algorithms/learning_algorithm.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/algorithms/training_utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environments/cliff.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environments/gym_utils.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/environments/random_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff/main_parallel_cliff_REINFORCE.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff/main_parallel_cliff_SCRN.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff/main_parallel_cliff_SGD.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff/plot.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff/plot_cliff.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff_with_entropy/actions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff_with_entropy/environment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff_with_entropy/learning_algorithm.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff_with_entropy/main_parallel_cliff_REINFORCE.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff_with_entropy/main_parallel_cliff_SCRN.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff_with_entropy/main_parallel_cliff_SGD.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff_with_entropy/plot.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_cliff_with_entropy/plot_cliff.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/=0.15.0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/actions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/environment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/learning_algorithms.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/main_parallel_maze_REINFORCE.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/main_parallel_maze_SCRN.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/main_parallel_maze_SGD.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/examples/DoubleTMaze-v0.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/examples/MorrisWaterMaze-v0.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/examples/RandomMaze-v0.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/examples/RandomShapeMaze-v0.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/examples/SimpleEmptyMaze-v0.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/examples/UMaze-v0.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/examples/navigation_env.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/color_style.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/env.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/generators/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/generators/double_t_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/generators/morris_water_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/generators/random_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/generators/random_shape_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/generators/t_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/generators/u_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/motion.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/object.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/solvers/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/mazelab/solvers/dijkstra_solver.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/setup.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab-master/test/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/color_style.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/env.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/generators/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/generators/double_t_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/generators/morris_water_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/generators/random_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/generators/random_shape_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/generators/t_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/generators/u_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/motion.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/object.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/solvers/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/mazelab/solvers/dijkstra_solver.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/plot.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_maze/plot_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/=0.15.0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/actions.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/environment.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/learning_algorithms.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/main_parallel_maze_REINFORCE.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/main_parallel_maze_SCRN.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/main_parallel_maze_SGD.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/examples/DoubleTMaze-v0.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/examples/MorrisWaterMaze-v0.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/examples/RandomMaze-v0.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/examples/RandomShapeMaze-v0.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/examples/SimpleEmptyMaze-v0.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/examples/UMaze-v0.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/examples/navigation_env.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/color_style.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/env.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/generators/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/generators/double_t_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/generators/morris_water_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/generators/random_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/generators/random_shape_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/generators/t_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/generators/u_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/motion.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/object.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/solvers/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/mazelab/solvers/dijkstra_solver.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/setup.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab-master/test/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/color_style.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/env.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/generators/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/generators/double_t_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/generators/morris_water_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/generators/random_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/generators/random_shape_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/generators/t_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/generators/u_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/motion.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/object.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/solvers/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/mazelab/solvers/dijkstra_solver.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/plot.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/RL_random_shape_maze/plot_maze.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/SCR/SCR-PL-alpha2-varying-tau.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/SCR/SCR-SGD-polynomial.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/SCR/SCRN-vs-SGD-adaptive-batch.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/SCR/SCRN_batch_free_additive.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/SCR/SCRN_batch_free_multiplicative.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/Synthetic functions/SCRN_SGD_varying_alpha.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rest/Synthetic functions/SCRN_SGD_varying_tau.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/run-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/run-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff/actions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff/environment.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff/learning_algorithm.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff/main_parallel_cliff_REINFORCE.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff/main_parallel_cliff_SCRN.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff/main_parallel_cliff_SGD.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff/plot.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff/plot_cliff.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff_with_entropy/actions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff_with_entropy/environment.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff_with_entropy/learning_algorithm.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff_with_entropy/main_parallel_cliff_REINFORCE.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff_with_entropy/main_parallel_cliff_SCRN.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff_with_entropy/main_parallel_cliff_SGD.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff_with_entropy/plot.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_cliff_with_entropy/plot_cliff.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/=0.15.0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/actions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/environment.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/learning_algorithms.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/main_parallel_maze_REINFORCE.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/main_parallel_maze_SCRN.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/main_parallel_maze_SGD.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/examples/DoubleTMaze-v0.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/examples/MorrisWaterMaze-v0.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/examples/RandomMaze-v0.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/examples/RandomShapeMaze-v0.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/examples/SimpleEmptyMaze-v0.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/examples/UMaze-v0.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/examples/navigation_env.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/color_style.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/env.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/generators/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/generators/double_t_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/generators/morris_water_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/generators/random_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/generators/random_shape_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/generators/t_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/generators/u_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/motion.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/object.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/solvers/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/mazelab/solvers/dijkstra_solver.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/setup.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab-master/test/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/color_style.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/env.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/generators/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/generators/double_t_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/generators/morris_water_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/generators/random_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/generators/random_shape_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/generators/t_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/generators/u_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/motion.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/object.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/solvers/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/mazelab/solvers/dijkstra_solver.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/plot.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_maze/plot_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/=0.15.0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/actions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/environment.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/learning_algorithms.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/main_parallel_maze_REINFORCE.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/main_parallel_maze_SCRN.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/main_parallel_maze_SGD.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/examples/DoubleTMaze-v0.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/examples/MorrisWaterMaze-v0.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/examples/RandomMaze-v0.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/examples/RandomShapeMaze-v0.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/examples/SimpleEmptyMaze-v0.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/examples/UMaze-v0.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/examples/navigation_env.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/color_style.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/env.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/generators/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/generators/double_t_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/generators/morris_water_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/generators/random_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/generators/random_shape_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/generators/t_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/generators/u_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/motion.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/object.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/solvers/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/mazelab/solvers/dijkstra_solver.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/setup.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab-master/test/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/color_style.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/env.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/generators/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/generators/double_t_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/generators/morris_water_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/generators/random_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/generators/random_shape_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/generators/t_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/generators/u_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/motion.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/object.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/solvers/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/mazelab/solvers/dijkstra_solver.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/plot.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RL_random_shape_maze/plot_maze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SCR/SCR-PL-alpha2-varying-tau.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SCR/SCR-SGD-polynomial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SCR/SCRN-vs-SGD-adaptive-batch.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SCR/SCRN_batch_free_additive.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SCR/SCRN_batch_free_multiplicative.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Synthetic functions/SCRN_SGD_varying_alpha.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Synthetic functions/SCRN_SGD_varying_tau.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/run.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/run.ipynb" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2HGbiyDPaI1gn5Lj33NFn4HsPDl" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="cf.first.check.clang-format" value="false" />
+    <property name="cidr.known.project.marker" value="true" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Federico Betti\Documents\GitHub\Global-Convergence-in-RL\utils" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9ebf9292-2519-4a1f-a647-57338450e6ee" name="Changes" comment="" />
+      <created>1667914501874</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1667914501874</updated>
+      <workItem from="1667914505810" duration="8000" />
+      <workItem from="1667914542674" duration="10672000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+</project>

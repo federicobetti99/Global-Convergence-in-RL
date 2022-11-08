@@ -1,27 +1,52 @@
 import numpy as np
 
-from RL_cliff.actions import (
-    compute_cum_rewards
-)
-
-from RL_cliff.environment import (
-    encode_vector,
-    Cliff,
-    RandomMaze
-)
 
 STATE_DIM = 121
 ACTION_DIM = 4
 
 
-def policy(env, state, theta) -> np.array:
-    """Off policy computation of pi(state)"""
-    probs = np.zeros(ACTION_DIM)
-    env.set_state(state)
-    for action in range(ACTION_DIM):
-        action_encoded = encode_vector(action, ACTION_DIM)
-        probs[action] = np.exp(theta[0, state].dot(action_encoded[0]))
-    return probs / np.sum(probs)
+def encode_vector(index: int, dim: int) -> list:
+    """Encode vector as one-hot vector"""
+    vector_encoded = np.zeros((1, dim))
+    vector_encoded[0, index] = 1
+
+    return vector_encoded
+
+
+def epsilon_greedy_action(state: int, q_table: np.array, epsilon: float) -> int:
+    """
+    Select action based on the ε-greedy policy
+    Random action with prob. ε, greedy action with prob. 1-ε
+    """
+
+    # Random uniform sample from [0,1]
+    sample = np.random.random()
+
+    # Set to 'explore' if sample <= ε
+    explore = True if sample <= epsilon else False
+
+    if explore:  # Explore
+        # Select random action
+        action = np.random.choice(4)
+    else:  # Exploit:
+        # Select action with largest Q-value
+        action = np.argmax(q_table[state, :])
+
+    return action
+
+
+def get_max_qvalue(state: int, q_table: np.array) -> float:
+    """Retrieve best Q-value for state from table"""
+    maximum_state_value = np.amax(q_table[:, state])
+    return maximum_state_value
+
+
+def compute_cum_rewards(gamma: float, t: int, rewards: np.array) -> float:
+    """Cumulative reward function"""
+    cum_reward = 0
+    for tau in range(t, len(rewards)):
+        cum_reward += gamma ** (tau - t) * rewards[tau]
+    return cum_reward
 
 
 def pi(env, theta) -> np.array:
@@ -35,7 +60,6 @@ def pi(env, theta) -> np.array:
 
 def update_action_probabilities(alpha: float, gamma: float, theta: np.array, state_trajectory: list,
                                 action_trajectory: list, reward_trajectory: list, probs_trajectory: list) -> np.array:
-
     gradients = np.zeros((STATE_DIM, ACTION_DIM))
     obj = 0
 
@@ -187,12 +211,12 @@ def objective_trajectory(reward_trajectory, gamma):
 def grad_trajectory(state_trajectory, action_trajectory, probs_trajectory, reward_trajectory, gamma):
     """
     This function computes the grad of objective function for a given trajectory.
-    Inputs: 
+    Inputs:
     - action_trajectory: trajectory of actions
     - probs_trajectory: trajectory of prob. of policy taking each action
     - reward_trajectory: rewards of a trajectory
     - gamma: discount factor
-    Output: 
+    Output:
     - grad: grad of obj. function for a given trajectory
     """
     grad_collection = grad_log_pi(action_trajectory, probs_trajectory)
@@ -261,7 +285,7 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
 def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad, grad_collection, gamma, theta):
     """
     This function computes the grad of objective function for a given trajectory.
-    Inputs: 
+    Inputs:
     - state_trajectory: states of a trajectory
     - reward_trajectory: rewards of a trajectory
     - grad_collection: a list of grad of log(pi(.|.))
@@ -270,10 +294,9 @@ def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, g
     - grad_collection: a list of grad of log(pi(.|.))
     - gamma: discount factor
     - theta: parameters of policy
-    Output: 
+    Output:
     - grad: Hessian of obj. function for a given trajectory
     """
-
     grad_log_pi_traj = np.zeros((1, ACTION_DIM * STATE_DIM))
     Hessian_phi = np.zeros((ACTION_DIM * STATE_DIM, ACTION_DIM * STATE_DIM))
     Hessian_log_pi_collect = Hessian_log_pi(state_trajectory, action_trajectory, theta)
@@ -306,314 +329,3 @@ def cubic_subsolver(grad, hessian, l=10, rho=30, eps=1e-3, c_=1, T_eps=10):
         for _ in range(T_eps):
             delta -= mu * (g_ + delta @ hessian + rho / 2 * np.linalg.norm(delta) * delta)
     return delta
-
-
-def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1, SGD=0, period=1000, test_freq=50,
-                  step_cache=None, reward_cache=None, env_cache=None, name_cache=None) -> (np.array, list):
-    """
-    SCRN with discrete policy (manual weight updates)
-    """
-    if step_cache is None:
-        step_cache = []
-    if reward_cache is None:
-        reward_cache = []
-    if env_cache is None:
-        env_cache = []
-    if name_cache is None:
-        name_cache = []
-
-    # Initialize theta
-    theta = np.zeros([1, STATE_DIM, ACTION_DIM])
-
-    alpha0 = alpha
-    alpha = alpha0
-
-    steps_cache = np.zeros(num_episodes)
-    rewards_cache = np.zeros(num_episodes)
-
-    tau_estimates = []
-    Hessians = np.zeros([num_episodes, STATE_DIM * ACTION_DIM])
-
-    history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
-
-    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
-    optimum = objective_trajectory(optimal_reward_trajectory, gamma)
-
-    count_goal_pos = np.zeros(1)
-    count_reached_goal = np.zeros(num_episodes)
-
-    # Initialize grad and Hessian
-    obj = 0
-    grad = np.zeros((STATE_DIM * ACTION_DIM))
-    Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
-
-    estimates = {"objectives": [], "gradients": [], "sample_traj": []}
-
-    # Iterate over episodes
-    for episode in range(num_episodes):
-
-        state = env.reset()
-
-        if episode >= 1:
-            print(episode, ": ", steps_cache[episode - 1])
-
-        # Initialize reward trajectory
-        reward_trajectory = []
-        action_trajectory = []
-        state_trajectory = []
-        probs_trajectory = []
-
-        while not env.end:
-            # Get state corresponding to agent position
-            state = env.get_state()
-
-            # Get probabilities per action from current policy
-            action_probs = pi(env, theta)
-
-            # Select random action according to policy
-            action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
-
-            # Move agent to next position
-            next_state, reward, _, _, _ = env.step(action)
-
-            rewards_cache[episode] += reward
-
-            state_trajectory.append(state)
-            action_trajectory.append(action)
-            reward_trajectory.append(reward)
-            probs_trajectory.append(action_probs)
-
-            steps_cache[episode] += 1
-
-        # if next_state == env.get_goal_pos():
-        # print('state47')
-        # count_goal_pos += 1
-        # count_reached_goal[episode] = 1
-
-        # Computing objective, grad and Hessian for the current trajectory
-        obj_traj = objective_trajectory(reward_trajectory, gamma)
-        grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
-                                                          probs_trajectory, reward_trajectory, gamma)
-        Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
-                                          grad_collection_traj, gamma, theta)
-        obj = obj + obj_traj / batch_size
-        grad = grad + grad_traj / batch_size
-        Hessian = Hessian + Hessian_traj / batch_size
-
-        # objectives[episode] = obj_traj
-        # gradients[episode] = np.linalg.norm(grad_traj)
-        # Hessians[episode] = np.linalg.eig(Hessian_traj)[0]
-
-        # adding entropy regularized term to grad
-        if SGD == 1:
-            grad_traj = grad_traj  # - grad_entropy_bonus(action_trajectory, state_trajectory,
-                                   # reward_trajectory, probs_trajectory, gamma)
-        obj = obj + obj_traj / batch_size
-        grad = grad + grad_traj / batch_size
-        Hessian = Hessian + Hessian_traj / batch_size
-        if episode % period == 0 and episode > 0:
-            alpha = alpha0 / (episode / period)
-
-        # Update action probabilities after collecting each batch
-        if episode % batch_size == 0 and episode > 0:
-            if SGD == 1:
-                Delta = alpha * grad
-            else:
-                Delta = cubic_subsolver(-grad, -Hessian)  # 0.001*grad#
-            Delta = np.reshape(Delta, (STATE_DIM, ACTION_DIM))
-            theta = theta + Delta
-            obj = 0
-            grad = np.zeros((STATE_DIM * ACTION_DIM))
-            Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
-
-        # for state in range(48):
-        #    action_probs = policy(env, state, theta)
-        #    history_probs[episode][state, :] = action_probs
-
-        if episode % test_freq == 0:
-            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
-            tau_estimates.append((optimum-np.mean(estimate_obj))/np.mean(estimate_grad))
-            estimates["sample_traj"].append(sample_traj)
-
-    # all_probs = np.zeros([STATE_DIM, ACTION_DIM])
-    # for state in range(48):
-    #    action_probs = policy(env, state, theta)
-    #    all_probs[state] = action_probs
-
-    step_cache.append(steps_cache)
-    reward_cache.append(rewards_cache)
-
-    env_cache.append(env)
-
-    good_policy = False
-
-    # while not env.end:
-    #     action = np.argmax(history_probs[-1][env.get_state(), :])
-    #     next_state, reward = env.do_action(action)
-    #     if next_state == env.get_goal_pos():
-    #         good_policy = True
-
-    if SGD == 0:
-        name_cache.append("SCRN")
-    else:
-        name_cache.append("SGD")
-
-    stats = {
-        "steps": steps_cache,
-        "rewards": rewards_cache,
-        "env": env_cache,
-        "theta": theta,
-        "taus": tau_estimates,
-        "estimates": estimates,
-        "history_probs": history_probs,
-        "Hessians": Hessians,
-        "optimum": optimum,
-        "name": name_cache,
-        # "probs": all_probs,
-        "goals": count_reached_goal,
-        "good_policy": good_policy,
-    }
-
-    return stats
-
-
-def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=16, SGD=0, entropy_bonus=False,
-                             period=1000, test_freq=50, step_cache=None, reward_cache=None, env_cache=None, name_cache=None) -> (np.array, list):
-    """
-    REINFORCE with discrete policy gradient (manual weight updates)
-    """
-    if step_cache is None:
-        step_cache = []
-    if reward_cache is None:
-        reward_cache = []
-    if env_cache is None:
-        env_cache = []
-    if name_cache is None:
-        name_cache = []
-
-    alpha0 = alpha
-    alpha = alpha0
-
-    # Initialize theta
-    theta = np.zeros([1, STATE_DIM, ACTION_DIM])
-
-    steps_cache = np.zeros(num_episodes)
-    rewards_cache = np.zeros(num_episodes)
-    count_goal_pos = np.zeros(1)
-
-    tau_estimates = []
-    Hessians = np.zeros([num_episodes, STATE_DIM * ACTION_DIM])
-
-    history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
-
-    optimal_reward_trajectory = env.get_optimal_path()
-    optimum = objective_trajectory(optimal_reward_trajectory, gamma)
-
-    count_reached_goal = np.zeros(num_episodes)
-
-    # Iterate over episodes
-    for episode in range(num_episodes):
-
-        state = env.reset()
-
-        if episode >= 1:
-            print(episode, ": ", steps_cache[episode-1])
-
-        # Initialize reward trajectory
-        reward_trajectory = []
-        action_trajectory = []
-        state_trajectory = []
-        probs_trajectory = []
-
-        while not env.end:
-            # Get state corresponding to agent position
-            state = env.get_state()
-
-            # Get probabilities per action from current policy
-            action_probs = pi(env, theta)
-
-            # Select random action according to policy
-            action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
-
-            # Move agent to next position
-            next_state, reward, _, _, _ = env.step(action)
-
-            if entropy_bonus:
-                entropy = get_entropy_bonus(action_probs)
-                reward += entropy
-
-            rewards_cache[episode] += reward
-
-            state_trajectory.append(state)
-            action_trajectory.append(action)
-            reward_trajectory.append(reward)
-            probs_trajectory.append(action_probs)
-
-            steps_cache[episode] += 1
-
-        # if next_state == env.get_goal_pos():
-            # print('state47')
-        #    count_goal_pos += 1
-        #    count_reached_goal[episode] = 1
-
-        if episode % period == 0 and episode > 0:
-            alpha = alpha0 / (episode / period)
-
-        # Update action probabilities at end of each episode
-        theta, obj, gradient = update_action_probabilities(
-            alpha,
-            gamma,
-            theta,
-            state_trajectory,
-            action_trajectory,
-            reward_trajectory,
-            probs_trajectory,
-        )
-
-        grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
-                                                          probs_trajectory, reward_trajectory, gamma)
-        Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
-                                          grad_collection_traj, gamma, theta)
-
-        # for state in range(48):
-        #    action_probs = policy(env, state, theta)
-        #    history_probs[episode][state, :] = action_probs
-
-        if episode % test_freq == 0:
-            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
-            tau_estimates.append((optimum-np.mean(estimate_obj))/np.mean(estimate_grad))
-
-    # all_probs = np.zeros([STATE_DIM, ACTION_DIM])
-    # for state in range(48):
-    #    action_probs = policy(env, state, theta)
-    #    all_probs[state] = action_probs
-
-    good_policy = False
-
-    # while not env.end:
-    #    action = np.argmax(history_probs[-1][env.get_state(), :])
-    #    next_state, reward = env.do_action(action)
-    #    if next_state == env.get_goal_pos():
-    #        good_policy = True
-
-    step_cache.append(steps_cache)
-    reward_cache.append(rewards_cache)
-
-    env_cache.append(env)
-    name_cache.append("Discrete policy gradient")
-
-    stats = {
-        "steps": steps_cache,
-        "rewards": rewards_cache,
-        "theta": theta,
-        "history_probs": history_probs,
-        "taus": tau_estimates,
-        "Hessians": Hessians,
-        "optimum": optimum,
-        "name": name_cache,
-        # "probs": all_probs,
-        "goals": count_reached_goal,
-        "good_policy": good_policy
-    }
-
-    return stats

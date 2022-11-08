@@ -71,3 +71,32 @@ def show_trajectory(env, state_trajectory):
             plt.arrow(0.2 * states[-2][0], 0.2 * states[-2][1],
                       0.2 * (states[-1][0]-states[-2][0]), 0.2 * (states[-1][1]-states[-2][1]))
     plt.show()
+
+
+def mark_path(agent: tuple, env: np.array) -> np.array:
+    """
+    Store path taken by agent
+    Only needed for visualization
+    """
+    (posY, posX) = agent
+    env[posY][posX] += 1
+
+    return env
+
+
+def env_to_text(env: np.array) -> str:
+    """
+    Convert environment to text format
+    Needed for visualization in console
+    """
+    env = np.where(env >= 1, 1, env)
+
+    env = np.array2string(env, precision=0, separator=" ", suppress_small=False)
+    env = env.replace("[[", " |")
+    env = env.replace("]]", "|")
+    env = env.replace("[", "|")
+    env = env.replace("]", "|")
+    env = env.replace("1", "x")
+    env = env.replace("0", " ")
+
+    return env
