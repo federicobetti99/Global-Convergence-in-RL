@@ -1,7 +1,9 @@
-from algorithms.training_utils import *
+from taxi.training_utils import *
+import gym
 
-STATE_DIM = 121
-ACTION_DIM = 4
+env = gym.make("Taxi-v3")
+STATE_DIM = env.observation_space.n
+ACTION_DIM = env.action_space.n
 
 
 def policy(env, state, theta) -> np.array:
@@ -69,18 +71,20 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
         state_trajectory = []
         probs_trajectory = []
 
-        while not env.end:
+        done = False
+
+        while not done:
             # Get state corresponding to agent position
-            state = env.get_state()
+            # state = env.get_state()
 
             # Get probabilities per action from current policy
-            action_probs = pi(env, theta)
+            action_probs = pi(state, theta)
 
             # Select random action according to policy
             action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            next_state, reward, _, _, _ = env.step(action)
+            next_state, reward, done, _, _ = env.step(action)
 
             rewards_cache[episode] += reward
 
@@ -90,6 +94,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1
+
+            state = next_state
 
         # Computing objective, grad and Hessian for the current trajectory
         obj_traj = objective_trajectory(reward_trajectory, gamma)
@@ -224,18 +230,20 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
         state_trajectory = []
         probs_trajectory = []
 
-        while not env.end:
+        done = False
+
+        while not done:
             # Get state corresponding to agent position
-            state = env.get_state()
+            # state = env.get_state()
 
             # Get probabilities per action from current policy
-            action_probs = pi(env, theta)
+            action_probs = pi(state, theta)
 
             # Select random action according to policy
             action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            next_state, reward, _, _, _ = env.step(action)
+            next_state, reward, done, _, _ = env.step(action)
 
             if entropy_bonus:
                 entropy = get_entropy_bonus(action_probs)
@@ -249,6 +257,8 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1
+
+            state = next_state
 
         if episode % period == 0 and episode > 0:
             alpha = alpha0 / (episode / period)
