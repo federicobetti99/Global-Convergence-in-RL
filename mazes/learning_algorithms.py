@@ -1,6 +1,6 @@
 from mazes.training_utils import *
 
-STATE_DIM = 121
+STATE_DIM = 25
 ACTION_DIM = 4
 
 
@@ -42,10 +42,6 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
 
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
 
-    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1,
-                                 -0.1, -0.1, -0.1, -0.1, 100]
-    optimum = objective_trajectory(optimal_reward_trajectory, gamma)
-
     count_goal_pos = np.zeros(1)
     count_reached_goal = np.zeros(num_episodes)
 
@@ -54,12 +50,25 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     grad = np.zeros((STATE_DIM * ACTION_DIM))
     Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
+    optimum = 100
+
     estimates = {"objectives": [], "gradients": [], "sample_traj": []}
+
+    # env.compute_optimal_actions()
 
     # Iterate over episodes
     for episode in range(num_episodes):
 
         state, _ = env.reset()
+
+        # optimal_trajectory = []
+
+        # while not env.end:
+        #     optimal_action = env.get_optimal_actions()[env.get_state()]
+        #     next_state, reward, _, _, _ = env.step(optimal_action)
+        #     optimal_trajectory.append(reward)
+        #
+        # optimum = objective_trajectory(optimal_trajectory, gamma)
 
         if episode >= 1:
             print(episode, ": ", steps_cache[episode - 1])
@@ -69,6 +78,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
         action_trajectory = []
         state_trajectory = []
         probs_trajectory = []
+
+        # env.reset_position(state)
 
         while not env.end:
             # Get state corresponding to agent position

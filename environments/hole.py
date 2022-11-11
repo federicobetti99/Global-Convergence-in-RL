@@ -8,10 +8,10 @@ class Hole(BaseMaze):
         self.x = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
-                           [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
-                           [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
-                           [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+                           [0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0],
+                           [0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0],
+                           [0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0],
+                           [0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0],
                            [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -51,11 +51,64 @@ class RandomHole(BaseEnv):
         self.end = False
         self.maximum_number_steps = 100
 
+        self.optimal_actions = {k: 0 for k in range(self.num_states)}
+
     def end(self):
         return self.end
 
     def get_num_states_actions(self):
         return self.num_states, len(self.motions)
+
+    def compute_optimal_actions(self):
+        for i in range(22):
+            self.optimal_actions[i] = 1
+        for i in range(22, 26):
+            self.optimal_actions[i] = 3
+        for i in range(26, 29):
+            self.optimal_actions[i] = 1
+        for i in range(29, 33):
+            self.optimal_actions[i] = 2
+        for i in range(33, 35):
+            self.optimal_actions[i] = 0
+        for i in range(37, 40):
+            self.optimal_actions[i] = 1
+        for i in range(42, 44):
+            self.optimal_actions[i] = 0
+        for i in range(44, 46):
+            self.optimal_actions[i] = 0
+        for i in range(48, 51):
+            self.optimal_actions[i] = 1
+        for i in range(53, 55):
+            self.optimal_actions[i] = 0
+        for i in range(55, 57):
+            self.optimal_actions[i] = 0
+        for i in range(59, 62):
+            self.optimal_actions[i] = 1
+        for i in range(64, 66):
+            self.optimal_actions[i] = 0
+        for i in range(66, 68):
+            self.optimal_actions[i] = 0
+        self.optimal_actions[70] = 2
+        self.optimal_actions[72] = 3
+        for i in range(75, 77):
+            self.optimal_actions[i] = 0
+        for i in range(77, 79):
+            self.optimal_actions[i] = 0
+        for i in range(86, 88):
+            self.optimal_actions[i] = 0
+        for i in range(88, 90):
+            self.optimal_actions[i] = 0
+        for i in range(90, 94):
+            self.optimal_actions[i] = 2
+        for i in range(94, 97):
+            self.optimal_actions[i] = 3
+        for i in range(97, 99):
+            self.optimal_actions[i] = 0
+        for i in range(99, 121):
+            self.optimal_actions[i] = 0
+
+    def get_optimal_actions(self):
+        return self.optimal_actions
 
     def step(self, action):
         motion = self.motions[action]
@@ -83,6 +136,9 @@ class RandomHole(BaseEnv):
 
         return self.maze.to_value(), reward, self.end, truncated, {}
 
+    def set_state(self, state):
+        self.maze.objects.agent.positions = state
+
     def get_state(self):
         size_maze = self.maze.size
         (pos_x, pos_y) = self.maze.objects.agent.positions[0]
@@ -90,11 +146,20 @@ class RandomHole(BaseEnv):
         return state
 
     def reset(self):
-        self.maze.objects.agent.positions = self.start_idx
+        free_positions = np.where(self.maze.x == 0)
+        free_positions = [item[0] * self.maze.size[0] + item[1] for item in zip(free_positions[0], free_positions[1])]
+        random_state = np.random.choice(free_positions)
+        random_state = [random_state % self.maze.size[0], int(random_state / self.maze.size[0])]
+        self.maze.objects.agent.positions = [random_state]
         self.maze.objects.goal.positions = self.goal_idx
         self.end = False
         self.num_steps = 0
         return self.maze.to_value(), {}
+
+    def reset_position(self, state):
+        agent_initial_pos = np.where(state == 2)
+        self.maze.objects.agent.positions = [[agent_initial_pos[0], agent_initial_pos[1]]]
+        self.num_steps = 0
 
     def _is_valid(self, position):
         nonnegative = position[0] >= 0 and position[1] >= 0

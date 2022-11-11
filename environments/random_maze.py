@@ -5,17 +5,11 @@ from gym.spaces import Discrete
 
 class Maze(BaseMaze):
     def __init__(self, **kwargs):
-        self.x = np.array([[0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1],
-                           [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-                           [1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1],
-                           [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
-                           [0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0],
-                           [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1],
-                           [1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1],
-                           [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-                           [1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0]])
+        self.x = np.array([[0, 0, 0, 1, 0],
+                           [0, 0, 0, 0, 0],
+                           [0, 0, 1, 0, 1],
+                           [0, 0, 0, 1, 0],
+                           [0, 1, 0, 0, 0]])
         super().__init__(**kwargs)
 
     @property
@@ -23,8 +17,8 @@ class Maze(BaseMaze):
         return self.x.shape
 
     def make_objects(self):
-        free = Object('free', 0, color.free, False, np.stack(np.where(self.x == 0), axis=1))
-        obstacle = Object('obstacle', 1, color.obstacle, True, np.stack(np.where(self.x == 1), axis=1))
+        free = Object('free', 0, color.free, False, list(np.stack(np.where(self.x == 0), axis=1)))
+        obstacle = Object('obstacle', 1, color.obstacle, True, list(np.stack(np.where(self.x == 1), axis=1)))
         agent = Object('agent', 2, color.agent, False, [])
         goal = Object('goal', 3, color.goal, False, [])
         return free, obstacle, agent, goal
@@ -40,8 +34,8 @@ class RandomMaze(BaseEnv):
         self.motions = VonNeumannMotion()
         self.x = self.maze.x
 
-        self.start_idx = [[0, 0]]
-        self.goal_idx = [[10, 10]]
+        self.start_idx = [[4, 0]]
+        self.goal_idx = [[4, 4]]
 
         self.observation_space = Box(low=0, high=len(self.maze.objects), shape=self.maze.size, dtype=np.uint8)
         self.num_states = self.maze.size[0] * self.maze.size[1]
@@ -69,14 +63,14 @@ class RandomMaze(BaseEnv):
             if valid:  # non exiting nor going into the obstacle
                 self.maze.objects.agent.positions = [new_position]
                 if self._is_goal(new_position):
-                    reward = +1
+                    reward = +100
                     self.end = True
                     print(f"==== Goal reached in {self.num_steps} steps ====")
                 else:
                     reward = -0.1
             else:
                 truncated = True
-                reward = -1
+                reward = -100
                 self.end = True
 
         return self.maze.to_value(), reward, self.end, truncated, {}

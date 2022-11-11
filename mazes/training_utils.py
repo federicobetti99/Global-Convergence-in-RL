@@ -1,7 +1,7 @@
 import numpy as np
 
 
-STATE_DIM = 121
+STATE_DIM = 25
 ACTION_DIM = 4
 
 
