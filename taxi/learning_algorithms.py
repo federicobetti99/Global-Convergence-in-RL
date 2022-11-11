@@ -73,6 +73,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
 
         done = False
 
+        count = 0
+
         while not done:
             # Get state corresponding to agent position
             # state = env.get_state()
@@ -85,6 +87,11 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
 
             # Move agent to next position
             next_state, reward, done, _, _ = env.step(action)
+
+            count += 1
+
+            if count == 100:
+                done = True
 
             rewards_cache[episode] += reward
 
@@ -140,9 +147,9 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             estimates["sample_traj"].append(sample_traj)
 
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
-    for state in range(48):
-        action_probs = policy(env, state, theta)
-        all_probs[state] = action_probs
+    # for state in range(48):
+    #    action_probs = policy(env, state, theta)
+    #    all_probs[state] = action_probs
 
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
@@ -150,12 +157,14 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     env_cache.append(env)
 
     good_policy = False
-
-    while not env.end:
-        action = np.argmax(history_probs[-1][env.get_state(), :])
-        next_state, reward, _, _, _ = env.step(action)
-        if next_state == env._is_goal(next_state):
-            good_policy = True
+    # done = False
+    #
+    # while not done:
+    #     action = np.argmax(history_probs[-1][env.get_state(), :])
+    #     next_state, reward, _, _, _ = env.step(action)
+    #     if next_state == env._is_goal(next_state):
+    #         good_policy = True
+    #         done = True
 
     if SGD == 0:
         name_cache.append("SCRN")
@@ -219,7 +228,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
     # Iterate over episodes
     for episode in range(num_episodes):
 
-        state = env.reset()
+        state, _ = env.reset()
 
         if episode >= 1:
             print(episode, ": ", steps_cache[episode - 1])
@@ -232,6 +241,8 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
 
         done = False
 
+        count = 0
+
         while not done:
             # Get state corresponding to agent position
             # state = env.get_state()
@@ -243,7 +254,11 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            next_state, reward, done, _, _ = env.step(action)
+            next_state, reward, done, _ = env.step(action)
+
+            count += 1
+            if count == 100:
+                done = True
 
             if entropy_bonus:
                 entropy = get_entropy_bonus(action_probs)
@@ -289,17 +304,18 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             tau_estimates.append((optimum - np.mean(estimate_obj)) / np.mean(estimate_grad))
 
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
-    for state in range(48):
-        action_probs = policy(env, state, theta)
-        all_probs[state] = action_probs
+    # for state in range(48):
+    #    action_probs = policy(env, state, theta)
+    #    all_probs[state] = action_probs
 
     good_policy = False
-
-    while not env.end:
-        action = np.argmax(history_probs[-1][env.get_state(), :])
-        next_state, reward = env.do_action(action)
-        if next_state == env._is_goal(next_state):
-            good_policy = True
+    # done = False
+    #
+    # while not done:
+    #     action = np.argmax(history_probs[-1][env.get_state(), :])
+    #     next_state, reward, done, _ = env.do_action(action)
+    #     if next_state == env._is_goal(next_state):
+    #         good_policy = True
 
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)

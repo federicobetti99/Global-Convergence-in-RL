@@ -3,21 +3,21 @@ from gym.spaces import Box
 from gym.spaces import Discrete
 
 
-class Cliff(BaseMaze):
+class Hole(BaseMaze):
     def __init__(self, **kwargs):
         self.x = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+                           [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+                           [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+                           [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+                           [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]])
-        self.start_idx = [[10, 0]]
-        self.goal_idx = [[10, 10]]
+                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+        self.start_idx = [[0, 0]]
+        self.goal_idx = [[6, 5]]
         super().__init__(**kwargs)
 
     @property
@@ -32,18 +32,18 @@ class Cliff(BaseMaze):
         return free, obstacle, agent, goal
 
 
-class RandomCliff(BaseEnv):
+class RandomHole(BaseEnv):
     def __init__(self):
         super().__init__()
 
         self.num_steps = 0
-        self.maze = Cliff()
+        self.maze = Hole()
         self.env_id = 'RandomCliff'
         self.motions = VonNeumannMotion()
         self.x = self.maze.x
 
-        self.start_idx = [[10, 0]]
-        self.goal_idx = [[10, 10]]
+        self.start_idx = [[0, 0]]
+        self.goal_idx = [[6, 5]]
 
         self.observation_space = Box(low=0, high=len(self.maze.objects), shape=self.maze.size, dtype=np.uint8)
         self.num_states = self.maze.size[0] * self.maze.size[1]

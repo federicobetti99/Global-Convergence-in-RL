@@ -233,6 +233,7 @@ def grad_trajectory(state_trajectory, action_trajectory, probs_trajectory, rewar
 def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
     """
     Off training function to estimate objective and gradient under current policy
+    :param gamma: discount factor for future rewards
     :param env: environment
     :param theta: parameter for the policy
     :param num_episodes: batch size
@@ -253,6 +254,7 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
         probs_trajectory = []
 
         done = False
+        count = 0
 
         while not done:
             # Get state corresponding to agent position
@@ -266,6 +268,10 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
 
             # Move agent to next position
             next_state, reward, done, _, _ = env.step(action)
+
+            count += 1
+            if count == 100:
+                done = True
 
             state_trajectory.append(state)
             action_trajectory.append(action)

@@ -42,7 +42,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
 
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
 
-    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1,
+                                 -0.1, -0.1, -0.1, -0.1, 100]
     optimum = objective_trajectory(optimal_reward_trajectory, gamma)
 
     count_goal_pos = np.zeros(1)
@@ -134,9 +135,9 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             estimates["sample_traj"].append(sample_traj)
 
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
-    for state in range(48):
-        action_probs = policy(env, state, theta)
-        all_probs[state] = action_probs
+    # for state in range(48):
+    #    action_probs = policy(env, state, theta)
+    #    all_probs[state] = action_probs
 
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
@@ -205,7 +206,8 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
 
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
 
-    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1,
+                                 -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
     optimum = objective_trajectory(optimal_reward_trajectory, gamma)
 
     count_reached_goal = np.zeros(num_episodes)
@@ -279,9 +281,9 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             tau_estimates.append((optimum - np.mean(estimate_obj)) / np.mean(estimate_grad))
 
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
-    for state in range(48):
-        action_probs = policy(env, state, theta)
-        all_probs[state] = action_probs
+    # for state in range(48):
+    #    action_probs = policy(env, state, theta)
+    #    all_probs[state] = action_probs
 
     good_policy = False
 
