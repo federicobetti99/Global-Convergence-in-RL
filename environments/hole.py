@@ -16,7 +16,7 @@ class Hole(BaseMaze):
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-        self.start_idx = [[0, 0]]
+        self.start_idx = [[10, 0]]
         self.goal_idx = [[6, 5]]
         super().__init__(**kwargs)
 
@@ -42,7 +42,7 @@ class RandomHole(BaseEnv):
         self.motions = VonNeumannMotion()
         self.x = self.maze.x
 
-        self.start_idx = [[0, 0]]
+        self.start_idx = [[10, 0]]
         self.goal_idx = [[6, 5]]
 
         self.observation_space = Box(low=0, high=len(self.maze.objects), shape=self.maze.size, dtype=np.uint8)
@@ -88,8 +88,8 @@ class RandomHole(BaseEnv):
             self.optimal_actions[i] = 0
         for i in range(66, 68):
             self.optimal_actions[i] = 0
-        self.optimal_actions[70] = 2
-        self.optimal_actions[72] = 3
+        self.optimal_actions[70] = 3
+        self.optimal_actions[72] = 2
         for i in range(75, 77):
             self.optimal_actions[i] = 0
         for i in range(77, 79):
@@ -156,10 +156,10 @@ class RandomHole(BaseEnv):
         self.num_steps = 0
         return self.maze.to_value(), {}
 
-    def reset_position(self, state):
-        agent_initial_pos = np.where(state == 2)
-        self.maze.objects.agent.positions = [[agent_initial_pos[0], agent_initial_pos[1]]]
+    def reset_position(self):
+        self.maze.objects.agent.positions = self.start_idx
         self.num_steps = 0
+        self.end = False
 
     def _is_valid(self, position):
         nonnegative = position[0] >= 0 and position[1] >= 0

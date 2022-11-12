@@ -100,3 +100,14 @@ def env_to_text(env: np.array) -> str:
     env = env.replace("0", " ")
 
     return env
+
+
+def running_average(stats, key):
+    """
+    Computes the running average of the quantities stored in stats[key]
+    :param stats: statistics collected during training
+    :param key: key
+    :return:
+        - the running average (computed after each item) of stats[key]
+    """
+    return [np.sum(stats[key][:i]) / (i+1) for i in range(len(stats[key]))]

@@ -51,11 +51,23 @@ class RandomCliff(BaseEnv):
         self.end = False
         self.maximum_number_steps = 100
 
+        self.optimal_actions = {k: 0 for k in range(self.num_states)}
+
     def end(self):
         return self.end
 
     def get_num_states_actions(self):
         return self.num_states, len(self.motions)
+
+    def compute_optimal_actions(self):
+        for i in range(11):
+            for j in range(10):
+                self.optimal_actions[i*11 + j] = 3
+            self.optimal_actions[i*11 + 10] = 1
+        self.optimal_actions[110] = 0
+
+    def get_optimal_actions(self):
+        return self.optimal_actions
 
     def step(self, action):
         motion = self.motions[action]
@@ -95,6 +107,11 @@ class RandomCliff(BaseEnv):
         self.end = False
         self.num_steps = 0
         return self.maze.to_value(), {}
+
+    def reset_position(self):
+        self.maze.objects.agent.positions = self.start_idx
+        self.num_steps = 0
+        self.end = False
 
     def _is_valid(self, position):
         nonnegative = position[0] >= 0 and position[1] >= 0

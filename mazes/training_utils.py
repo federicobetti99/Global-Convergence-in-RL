@@ -1,7 +1,7 @@
 import numpy as np
 
 
-STATE_DIM = 25
+STATE_DIM = 121
 ACTION_DIM = 4
 
 
@@ -10,7 +10,7 @@ def encode_vector(index: int, dim: int) -> list:
     vector_encoded = np.zeros((1, dim))
     vector_encoded[0, index] = 1
 
-    return vector_encoded
+    return list(vector_encoded)
 
 
 def epsilon_greedy_action(state: int, q_table: np.array, epsilon: float) -> int:
@@ -232,6 +232,7 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
     """
     Off training function to estimate objective and gradient under current policy
     :param env: environment
+    :param gamma: discount factor for future rewards
     :param theta: parameter for the policy
     :param num_episodes: batch size
     :return:
@@ -240,9 +241,20 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
     obj = []
     grad = []
 
+    env.compute_optimal_actions()
+
+    env.reset_position()
+    reward_trajectory = []
+    while not env.end:
+        optimal_action = env.get_optimal_actions()[env.get_state()]
+        next_state, reward, _, _, _ = env.step(optimal_action)
+        reward_trajectory.append(reward)
+
+    optimum = objective_trajectory(reward_trajectory, gamma)
+
     for episode in range(num_episodes):
 
-        state = env.reset()
+        env.reset_position()
 
         # Initialize reward trajectory
         reward_trajectory = []
@@ -279,7 +291,7 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
         obj.append(obj_traj)
         grad.append(np.linalg.norm(grad_traj))
 
-    return obj, grad, sample_traj
+    return optimum, obj, grad, sample_traj
 
 
 def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad, grad_collection, gamma, theta):
@@ -304,8 +316,7 @@ def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, g
         cum_reward = compute_cum_rewards(gamma, t, reward_trajectory)
         s = state_trajectory[t]
         Hessian_phi[s * ACTION_DIM:(s + 1) * ACTION_DIM, s * ACTION_DIM:(s + 1) * ACTION_DIM] += cum_reward * \
-                                                                                                 Hessian_log_pi_collect[
-                                                                                                     t]
+                    Hessian_log_pi_collect[t]
         grad_log_pi_traj[0, s * ACTION_DIM:(s + 1) * ACTION_DIM] += grad_collection[t]
 
     Hessian = np.atleast_2d(grad).T @ grad_log_pi_traj + Hessian_phi  # grad @ np.at-least_2d(grad_log_pi_traj).T +

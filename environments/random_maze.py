@@ -5,11 +5,17 @@ from gym.spaces import Discrete
 
 class Maze(BaseMaze):
     def __init__(self, **kwargs):
-        self.x = np.array([[0, 0, 0, 1, 0],
-                           [0, 0, 0, 0, 0],
-                           [0, 0, 1, 0, 1],
-                           [0, 0, 0, 1, 0],
-                           [0, 1, 0, 0, 0]])
+        self.x = np.array([[0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0],
+                           [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+                           [0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0],
+                           [0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0],
+                           [0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+                           [0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0],
+                           [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
+                           [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+                           [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+                           [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]])
         super().__init__(**kwargs)
 
     @property
@@ -34,8 +40,8 @@ class RandomMaze(BaseEnv):
         self.motions = VonNeumannMotion()
         self.x = self.maze.x
 
-        self.start_idx = [[4, 0]]
-        self.goal_idx = [[4, 4]]
+        self.start_idx = [[0, 0]]
+        self.goal_idx = [[10, 10]]
 
         self.observation_space = Box(low=0, high=len(self.maze.objects), shape=self.maze.size, dtype=np.uint8)
         self.num_states = self.maze.size[0] * self.maze.size[1]
@@ -82,11 +88,20 @@ class RandomMaze(BaseEnv):
         return state
 
     def reset(self):
-        self.maze.objects.agent.positions = self.start_idx
+        free_positions = np.where(self.maze.x == 0)
+        free_positions = [item[0] * self.maze.size[0] + item[1] for item in zip(free_positions[0], free_positions[1])]
+        random_state = np.random.choice(free_positions)
+        random_state = [random_state % self.maze.size[0], int(random_state / self.maze.size[0])]
+        self.maze.objects.agent.positions = [random_state]
         self.maze.objects.goal.positions = self.goal_idx
         self.end = False
         self.num_steps = 0
         return self.maze.to_value(), {}
+
+    def reset_position(self):
+        self.maze.objects.agent.positions = self.start_idx
+        self.num_steps = 0
+        self.end = False
 
     def _is_valid(self, position):
         nonnegative = position[0] >= 0 and position[1] >= 0

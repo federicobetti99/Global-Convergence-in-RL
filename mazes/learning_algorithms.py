@@ -1,6 +1,6 @@
 from mazes.training_utils import *
 
-STATE_DIM = 25
+STATE_DIM = 121
 ACTION_DIM = 4
 
 
@@ -50,8 +50,6 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     grad = np.zeros((STATE_DIM * ACTION_DIM))
     Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
-    optimum = 100
-
     estimates = {"objectives": [], "gradients": [], "sample_traj": []}
 
     # env.compute_optimal_actions()
@@ -61,17 +59,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
 
         state, _ = env.reset()
 
-        # optimal_trajectory = []
-
-        # while not env.end:
-        #     optimal_action = env.get_optimal_actions()[env.get_state()]
-        #     next_state, reward, _, _, _ = env.step(optimal_action)
-        #     optimal_trajectory.append(reward)
-        #
-        # optimum = objective_trajectory(optimal_trajectory, gamma)
-
         if episode >= 1:
-            print(episode, ": ", steps_cache[episode - 1])
+            print(episode, ": ", steps_cache[episode - 1], ", Reward: ", rewards_cache[episode-1])
 
         # Initialize reward trajectory
         reward_trajectory = []
@@ -135,20 +124,13 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             grad = np.zeros((STATE_DIM * ACTION_DIM))
             Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
-        # for state in range(48):
-        #    action_probs = policy(env, state, theta)
-        #    history_probs[episode][state, :] = action_probs
-
         if episode % test_freq == 0:
-            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta,
-                                                                                       num_episodes=50)
+            optimum, estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta,
+                                                                                                num_episodes=50)
             tau_estimates.append((optimum - np.mean(estimate_obj)) / np.mean(estimate_grad))
             estimates["sample_traj"].append(sample_traj)
 
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
-    # for state in range(48):
-    #    action_probs = policy(env, state, theta)
-    #    all_probs[state] = action_probs
 
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
@@ -177,11 +159,10 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
         "estimates": estimates,
         "history_probs": history_probs,
         "Hessians": Hessians,
-        "optimum": optimum,
         "name": name_cache,
         "probs": all_probs,
         "goals": count_reached_goal,
-        "good_policy": good_policy,
+        "good_policy": good_policy
     }
 
     return stats
@@ -207,29 +188,20 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
 
     # Initialize theta
     theta = np.zeros([1, STATE_DIM, ACTION_DIM])
-
     steps_cache = np.zeros(num_episodes)
     rewards_cache = np.zeros(num_episodes)
-    count_goal_pos = np.zeros(1)
-
     tau_estimates = []
     Hessians = np.zeros([num_episodes, STATE_DIM * ACTION_DIM])
-
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
-
-    optimal_reward_trajectory = [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1,
-                                 -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
-    optimum = objective_trajectory(optimal_reward_trajectory, gamma)
-
     count_reached_goal = np.zeros(num_episodes)
 
     # Iterate over episodes
     for episode in range(num_episodes):
 
-        state = env.reset()
+        state, _ = env.reset()
 
         if episode >= 1:
-            print(episode, ": ", steps_cache[episode - 1])
+            print(episode, ": ", steps_cache[episode - 1], ", Reward: ", rewards_cache[episode-1])
 
         # Initialize reward trajectory
         reward_trajectory = []
@@ -282,19 +254,12 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
         Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
                                           grad_collection_traj, gamma, theta)
 
-        # for state in range(48):
-        #    action_probs = policy(env, state, theta)
-        #    history_probs[episode][state, :] = action_probs
-
         if episode % test_freq == 0:
-            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta,
-                                                                                       num_episodes=50)
+            optimum, estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta,
+                                                                                                num_episodes=50)
             tau_estimates.append((optimum - np.mean(estimate_obj)) / np.mean(estimate_grad))
 
     all_probs = np.zeros([STATE_DIM, ACTION_DIM])
-    # for state in range(48):
-    #    action_probs = policy(env, state, theta)
-    #    all_probs[state] = action_probs
 
     good_policy = False
 
@@ -317,7 +282,6 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
         "history_probs": history_probs,
         "taus": tau_estimates,
         "Hessians": Hessians,
-        "optimum": optimum,
         "name": name_cache,
         "probs": all_probs,
         "goals": count_reached_goal,
