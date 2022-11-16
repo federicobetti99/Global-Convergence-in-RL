@@ -5,17 +5,12 @@ from gym.spaces import Discrete
 
 class Maze(BaseMaze):
     def __init__(self, **kwargs):
-        self.x = np.array([[0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0],
-                           [0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
-                           [0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0],
-                           [0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0],
-                           [0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-                           [0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-                           [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1],
-                           [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-                           [1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0]])
+        self.x = np.array([[0, 0, 0, 1, 0, 0],
+                           [0, 0, 0, 0, 0, 1],
+                           [0, 0, 0, 0, 1, 0],
+                           [1, 0, 0, 0, 0, 1],
+                           [0, 1, 0, 0, 1, 0],
+                           [1, 0, 0, 0, 0, 0]])
         super().__init__(**kwargs)
 
     @property
@@ -41,7 +36,7 @@ class RandomMaze(BaseEnv):
         self.x = self.maze.x
 
         self.start_idx = [[0, 0]]
-        self.goal_idx = [[10, 10]]
+        self.goal_idx = [[5, 5]]
 
         self.observation_space = Box(low=0, high=len(self.maze.objects), shape=self.maze.size, dtype=np.uint8)
         self.num_states = self.maze.size[0] * self.maze.size[1]
@@ -49,8 +44,34 @@ class RandomMaze(BaseEnv):
         self.end = False
         self.maximum_number_steps = 100
 
+        self.optimal_actions = {k: 0 for k in range(self.num_states)}
+
     def end(self):
         return self.end
+
+    def compute_optimal_actions(self):
+        for i in range(3):
+            self.optimal_actions[i] = 1
+        for i in range(4, 6):
+            self.optimal_actions[i] = 1
+        for i in range(6, 10):
+            self.optimal_actions[i] = 1
+        self.optimal_actions[10] = 2
+        self.optimal_actions[12] = 3
+        for i in range(13, 16):
+            self.optimal_actions[i] = 1
+        self.optimal_actions[19] = 3
+        for i in range(20, 22):
+            self.optimal_actions[i] = 1
+        self.optimal_actions[22] = 2
+        self.optimal_actions[26] = 1
+        self.optimal_actions[27] = 1
+        self.optimal_actions[29] = 1
+        for i in range(31, 35):
+            self.optimal_actions[i] = 3
+
+    def get_optimal_actions(self):
+        return self.optimal_actions
 
     def get_num_states_actions(self):
         return self.num_states, len(self.motions)
@@ -59,25 +80,30 @@ class RandomMaze(BaseEnv):
         motion = self.motions[action]
         current_position = self.maze.objects.agent.positions[0]
         new_position = [current_position[0] + motion[0], current_position[1] + motion[1]]
-        valid = self._is_valid(new_position)
+        within_maze, passable = self._is_valid(new_position)
         truncated = False
         self.num_steps += 1
         if self.num_steps >= self.maximum_number_steps:
             self.end = True
             reward = -0.1
         else:
-            if valid:  # non exiting nor going into the obstacle
+            if within_maze:
                 self.maze.objects.agent.positions = [new_position]
                 if self._is_goal(new_position):
                     reward = +100
                     self.end = True
                     print(f"==== Goal reached in {self.num_steps} steps ====")
+                elif not passable:
+                    reward = -100
+                    truncated = True
+                    self.end = True
                 else:
                     reward = -0.1
+                    self.end = False
             else:
-                truncated = True
-                reward = -100
-                self.end = True
+                self.maze.objects.agent.positions = [current_position]
+                reward = -0.1
+                self.end = False
 
         return self.maze.to_value(), reward, self.end, truncated, {}
 
@@ -88,11 +114,7 @@ class RandomMaze(BaseEnv):
         return state
 
     def reset(self):
-        free_positions = np.where(self.maze.x == 0)
-        free_positions = [item[0] * self.maze.size[0] + item[1] for item in zip(free_positions[0], free_positions[1])]
-        random_state = np.random.choice(free_positions)
-        random_state = [random_state % self.maze.size[0], int(random_state / self.maze.size[0])]
-        self.maze.objects.agent.positions = [random_state]
+        self.maze.objects.agent.positions = self.start_idx
         self.maze.objects.goal.positions = self.goal_idx
         self.end = False
         self.num_steps = 0
@@ -106,14 +128,12 @@ class RandomMaze(BaseEnv):
     def _is_valid(self, position):
         nonnegative = position[0] >= 0 and position[1] >= 0
         within_edge = position[0] < self.maze.size[0] and position[1] < self.maze.size[1]
-        if nonnegative and within_edge:
+        within_maze = nonnegative and within_edge
+        if within_maze:
             passable = not self.maze.to_impassable()[position[0]][position[1]]
-            if passable:
-                return True
-            else:
-                return False
         else:
-            return False
+            passable = False
+        return within_maze, passable
 
     def _is_goal(self, position):
         out = False

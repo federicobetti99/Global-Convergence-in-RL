@@ -1,7 +1,8 @@
+import time
+
 import numpy as np
 
-
-STATE_DIM = 121
+STATE_DIM = 36
 ACTION_DIM = 4
 
 
@@ -252,6 +253,8 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
 
     optimum = objective_trajectory(reward_trajectory, gamma)
 
+    counts = []
+
     for episode in range(num_episodes):
 
         env.reset_position()
@@ -261,6 +264,8 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
         action_trajectory = []
         state_trajectory = []
         probs_trajectory = []
+
+        count = 0
 
         while not env.end:
             # Get state corresponding to agent position
@@ -274,6 +279,8 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
 
             # Move agent to next position
             next_state, reward, _, _, _ = env.step(action)
+
+            count += 1
 
             state_trajectory.append(state)
             action_trajectory.append(action)
@@ -290,8 +297,9 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
 
         obj.append(obj_traj)
         grad.append(np.linalg.norm(grad_traj))
+        counts.append(count)
 
-    return optimum, obj, grad, sample_traj
+    return optimum, obj, grad, sample_traj, counts
 
 
 def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad, grad_collection, gamma, theta):

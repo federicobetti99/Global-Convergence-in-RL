@@ -102,7 +102,11 @@ class RandomCliff(BaseEnv):
         return state
 
     def reset(self):
-        self.maze.objects.agent.positions = self.start_idx
+        free_positions = np.where(self.maze.x == 0)
+        free_positions = [item[0] * self.maze.size[0] + item[1] for item in zip(free_positions[0], free_positions[1])]
+        random_state = np.random.choice(free_positions)
+        random_state = [random_state % self.maze.size[0], int(random_state / self.maze.size[0])]
+        self.maze.objects.agent.positions = [random_state]
         self.maze.objects.goal.positions = self.goal_idx
         self.end = False
         self.num_steps = 0
