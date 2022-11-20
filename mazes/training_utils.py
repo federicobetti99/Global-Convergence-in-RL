@@ -246,15 +246,13 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
 
     for episode in range(num_episodes):
 
-        env.reset_position()
+        env.reset()
 
         # Initialize reward trajectory
         reward_trajectory = []
         action_trajectory = []
         state_trajectory = []
         probs_trajectory = []
-
-        count = 0
 
         while not env.end:
             # Get state corresponding to agent position
@@ -268,8 +266,6 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
 
             # Move agent to next position
             next_state, reward, _, _, _ = env.step(action)
-
-            count += 1
 
             state_trajectory.append(state)
             action_trajectory.append(action)
@@ -286,9 +282,8 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
 
         obj.append(obj_traj)
         grad.append(np.linalg.norm(grad_traj))
-        counts.append(count)
 
-    return optimum, obj, grad, sample_traj, counts
+    return obj, grad, sample_traj
 
 
 def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad, grad_collection, gamma, theta):

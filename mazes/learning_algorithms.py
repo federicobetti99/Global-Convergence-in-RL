@@ -42,7 +42,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
 
     env.compute_optimal_actions()
 
-    env.reset_position()
+    env.reset()
     reward_trajectory = []
     while not env.end:
         optimal_action = env.get_optimal_actions()[env.get_state()]
