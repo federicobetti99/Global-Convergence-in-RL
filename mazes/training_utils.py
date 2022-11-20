@@ -242,17 +242,6 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
     obj = []
     grad = []
 
-    env.compute_optimal_actions()
-
-    env.reset_position()
-    reward_trajectory = []
-    while not env.end:
-        optimal_action = env.get_optimal_actions()[env.get_state()]
-        next_state, reward, _, _, _ = env.step(optimal_action)
-        reward_trajectory.append(reward)
-
-    optimum = objective_trajectory(reward_trajectory, gamma)
-
     counts = []
 
     for episode in range(num_episodes):

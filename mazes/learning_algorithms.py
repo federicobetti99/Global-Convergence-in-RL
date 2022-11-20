@@ -39,7 +39,17 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
     objective_estimates = []
     gradients_estimates = []
-    steps_estimates = []
+
+    env.compute_optimal_actions()
+
+    env.reset_position()
+    reward_trajectory = []
+    while not env.end:
+        optimal_action = env.get_optimal_actions()[env.get_state()]
+        next_state, reward, _, _, _ = env.step(optimal_action)
+        reward_trajectory.append(reward)
+
+    optimum = objective_trajectory(reward_trajectory, gamma)
 
     # Iterate over episodes
     for episode in range(num_episodes):
@@ -105,12 +115,10 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
         if episode % test_freq == 0:
-            optimum, estimate_obj, estimate_grad, \
-                sample_traj, steps = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
+            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
             tau_estimates.append((optimum - np.mean(estimate_obj)) / np.mean(estimate_grad))
             objective_estimates.append(np.mean(estimate_obj))
             gradients_estimates.append(np.mean(estimate_grad))
-            steps_estimates.append(np.mean(steps))
 
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
@@ -129,7 +137,6 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
         "taus": tau_estimates,
         "obj_estimates": objective_estimates,
         "grad_estimates": gradients_estimates,
-        "steps_estimates": steps_estimates,
         "history_probs": history_probs,
         "Hessians": Hessians,
         "name": name_cache,
@@ -154,15 +161,27 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
 
     # Initialize theta and stats collecting builtins
     theta = np.zeros([1, STATE_DIM, ACTION_DIM])
+
     steps_cache = np.zeros(num_episodes)
     rewards_cache = np.zeros(num_episodes)
+
     tau_estimates = []
     Hessians = np.zeros([num_episodes, STATE_DIM * ACTION_DIM])
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
     count_reached_goal = np.zeros(num_episodes)
     objective_estimates = []
     gradients_estimates = []
-    steps_estimates = []
+
+    env.compute_optimal_actions()
+
+    env.reset_position()
+    reward_trajectory = []
+    while not env.end:
+        optimal_action = env.get_optimal_actions()[env.get_state()]
+        next_state, reward, _, _, _ = env.step(optimal_action)
+        reward_trajectory.append(reward)
+
+    optimum = objective_trajectory(reward_trajectory, gamma)
 
     # Iterate over episodes
     for episode in range(num_episodes):
@@ -224,12 +243,10 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
                                           grad_collection_traj, gamma, theta)
 
         if episode % test_freq == 0:
-            optimum, estimate_obj, estimate_grad, sample_traj, steps = estimate_objective_and_gradient(env,
-                                                                                    gamma, theta, num_episodes=50)
+            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
             tau_estimates.append((optimum - np.mean(estimate_obj)) / np.mean(estimate_grad))
             objective_estimates.append(np.mean(estimate_obj))
             gradients_estimates.append(np.mean(estimate_grad))
-            steps_estimates.append(np.mean(steps))
 
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
@@ -244,7 +261,6 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
         "taus": tau_estimates,
         "obj_estimates": objective_estimates,
         "grad_estimates": gradients_estimates,
-        "steps_estimates": steps_estimates,
         "Hessians": Hessians,
         "name": name_cache,
         "goals": count_reached_goal
