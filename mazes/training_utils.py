@@ -2,7 +2,7 @@ import time
 
 import numpy as np
 
-STATE_DIM = 36
+STATE_DIM = 121
 ACTION_DIM = 4
 
 

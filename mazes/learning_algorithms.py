@@ -1,6 +1,6 @@
 from mazes.training_utils import *
 
-STATE_DIM = 36
+STATE_DIM = 121
 ACTION_DIM = 4
 
 
