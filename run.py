@@ -2,7 +2,7 @@ import pickle
 from utils.utils import *
 import matplotlib.pyplot as plt
 
-environment = "cliff"  # among random maze, cliff, hole or taxi
+environment = "maze"  # among random maze, cliff, hole or taxi
 
 if environment == "taxi":  # select taxi environment from gym
     from taxi.training_utils import *
