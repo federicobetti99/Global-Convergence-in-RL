@@ -6,11 +6,11 @@ from gym.spaces import Discrete
 class Hole(BaseMaze):
     def __init__(self, **kwargs):
         self.x = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0],
-                           [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+                           [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
         self.start_idx = [[3, 0]]
-        self.goal_idx = [[1, 5]]
+        self.goal_idx = [[1, 3]]
         super().__init__(**kwargs)
 
     @property
@@ -53,16 +53,16 @@ class RandomHole(BaseEnv):
         return self.num_states, len(self.motions)
 
     def compute_optimal_actions(self):
-        for i in range(4):
+        for i in range(3):
             self.optimal_actions[i] = 3
-        for i in range(4, 7):
+        for i in range(3, 4):
             self.optimal_actions[i] = 1
-        for i in range(7, 11):
+        for i in range(4, 11):
             self.optimal_actions[i] = 2
         for i in range(11, 13):
             self.optimal_actions[i] = 0
-        self.optimal_actions[15] = 3
-        self.optimal_actions[17] = 2
+        for i in range(15, 21):
+            self.optimal_actions[i] = 0
         for i in range(20, 22):
             self.optimal_actions[i] = 0
         for i in range(22, 24):
@@ -71,11 +71,9 @@ class RandomHole(BaseEnv):
             self.optimal_actions[i] = 0
         for i in range(33, 35):
             self.optimal_actions[i] = 0
-        for i in range(35, 39):
-            self.optimal_actions[i] = 2
-        for i in range(39, 42):
+        for i in range(35, 38):
             self.optimal_actions[i] = 3
-        for i in range(42, 44):
+        for i in range(38, 44):
             self.optimal_actions[i] = 0
 
     def get_optimal_actions(self):

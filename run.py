@@ -2,7 +2,7 @@ import pickle
 from utils.utils import *
 import matplotlib.pyplot as plt
 
-environment = "maze"  # among random maze, cliff, hole or taxi
+environment = "hole"  # among random maze, cliff, hole or taxi
 
 if environment == "taxi":  # select taxi environment from gym
     from taxi.training_utils import *
@@ -75,11 +75,11 @@ QOI_SPG = average_stats["SPG"]["steps"]
 STD_SPG = std_stats["SPG"]["steps"]
 QOI_ESPG = average_stats["SPG Entropy"]["steps"]
 STD_ESPG = std_stats["SPG Entropy"]["steps"]
-plt.plot(QOI_SCRN, label="SCRN")
+plt.plot(np.arange(0, num_episodes), QOI_SCRN, label="SCRN")
 plt.fill_between(np.arange(0, num_episodes), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-plt.plot(QOI_SPG, label="SPG")
+plt.plot(np.arange(0, num_episodes), QOI_SPG, label="SPG")
 plt.fill_between(np.arange(0, num_episodes), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-plt.plot(QOI_ESPG, label="SPG Entropy")
+plt.plot(np.arange(0, num_episodes), QOI_ESPG, label="SPG Entropy")
 plt.fill_between(np.arange(0, num_episodes), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
 plt.legend(loc="best", fontsize=15)
 plt.xticks(fontsize=15)
@@ -95,11 +95,11 @@ QOI_SPG = average_stats["SPG"]["taus"]
 STD_SPG = std_stats["SPG"]["taus"]
 QOI_ESPG = average_stats["SPG Entropy"]["taus"]
 STD_ESPG = std_stats["SPG Entropy"]["taus"]
-plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label="SCRN")
+plt.semilogy(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label="SCRN")
 plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label="SPG")
+plt.semilogy(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label="SPG")
 plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label="SPG Entropy")
+plt.semilogy(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label="SPG Entropy")
 plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
 plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
@@ -115,11 +115,11 @@ QOI_SPG = average_stats["SPG"]["rewards"]
 STD_SPG = std_stats["SPG"]["rewards"]
 QOI_ESPG = average_stats["SPG Entropy"]["rewards"]
 STD_ESPG = std_stats["SPG Entropy"]["rewards"]
-plt.plot(QOI_SCRN, label="SCRN")
+plt.plot(np.arange(0, num_episodes), QOI_SCRN, label="SCRN")
 plt.fill_between(np.arange(0, num_episodes), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-plt.plot(QOI_SPG, label="SPG")
+plt.plot(np.arange(0, num_episodes), QOI_SPG, label="SPG")
 plt.fill_between(np.arange(0, num_episodes), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-plt.plot(QOI_ESPG, label="SPG Entropy")
+plt.plot(np.arange(0, num_episodes), QOI_ESPG, label="SPG Entropy")
 plt.fill_between(np.arange(0, num_episodes), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
 plt.legend(loc="best", fontsize=15)
 plt.xticks(fontsize=15)
@@ -135,12 +135,12 @@ QOI_SPG = average_stats["SPG"]["obj_estimates"]
 STD_SPG = std_stats["SPG"]["obj_estimates"]
 QOI_ESPG = average_stats["SPG Entropy"]["obj_estimates"]
 STD_ESPG = std_stats["SPG Entropy"]["obj_estimates"]
-plt.plot(QOI_SCRN, label="SCRN")
-plt.fill_between(np.arange(0, num_episodes), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-plt.plot(QOI_SPG, label="SPG")
-plt.fill_between(np.arange(0, num_episodes), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-plt.plot(QOI_ESPG, label="SPG Entropy")
-plt.fill_between(np.arange(0, num_episodes), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
+plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label="SCRN")
+plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
+plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label="SPG")
+plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
+plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label="SPG Entropy")
+plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
 plt.legend(loc="best", fontsize=15)
 plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
@@ -155,15 +155,15 @@ QOI_SPG = average_stats["SPG"]["grad_estimates"]
 STD_SPG = std_stats["SPG"]["grad_estimates"]
 QOI_ESPG = average_stats["SPG Entropy"]["grad_estimates"]
 STD_ESPG = std_stats["SPG Entropy"]["grad_estimates"]
-plt.plot(QOI_SCRN, label="SCRN")
-plt.fill_between(np.arange(0, num_episodes), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-plt.plot(QOI_SPG, label="SPG")
-plt.fill_between(np.arange(0, num_episodes), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-plt.plot(QOI_ESPG, label="SPG Entropy")
-plt.fill_between(np.arange(0, num_episodes), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
+plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label="SCRN")
+plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
+plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label="SPG")
+plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
+plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label="SPG Entropy")
+plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
 plt.legend(loc="best", fontsize=15)
 plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
 plt.xlabel("Number of episodes", fontsize=20)
-plt.ylabel("Gradient norms during training", fontsize=20)
+plt.ylabel(r"$\vert \vert \nabla J(\theta) \vert \vert$", fontsize=20)
 plt.savefig(f"figures/{environment}/gradients.png")
