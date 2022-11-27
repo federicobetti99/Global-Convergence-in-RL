@@ -5,12 +5,15 @@ from gym.spaces import Discrete
 
 class Hole(BaseMaze):
     def __init__(self, **kwargs):
-        self.x = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-        self.start_idx = [[3, 0]]
-        self.goal_idx = [[1, 3]]
+        self.x = np.array([[0, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 1, 0, 1, 0, 0],
+                           [0, 0, 1, 0, 1, 0, 0],
+                           [0, 0, 1, 1, 1, 0, 0],
+                           [0, 0, 0, 0, 0, 0, 0]])
+        self.start_idx = [[6, 0]]
+        self.goal_idx = [[4, 3]]
         super().__init__(**kwargs)
 
     @property
@@ -35,8 +38,8 @@ class RandomHole(BaseEnv):
         self.motions = VonNeumannMotion()
         self.x = self.maze.x
 
-        self.start_idx = [[3, 0]]
-        self.goal_idx = [[1, 5]]
+        self.start_idx = [[6, 0]]
+        self.goal_idx = [[4, 3]]
 
         self.observation_space = Box(low=0, high=len(self.maze.objects), shape=self.maze.size, dtype=np.uint8)
         self.num_states = self.maze.size[0] * self.maze.size[1]
@@ -57,23 +60,21 @@ class RandomHole(BaseEnv):
             self.optimal_actions[i] = 3
         for i in range(3, 4):
             self.optimal_actions[i] = 1
-        for i in range(4, 11):
+        for i in range(4, 7):
             self.optimal_actions[i] = 2
-        for i in range(11, 13):
+        for i in range(7, 9):
             self.optimal_actions[i] = 0
-        for i in range(15, 21):
+        for i in range(12, 14):
             self.optimal_actions[i] = 0
-        for i in range(20, 22):
+        for i in range(14, 16):
             self.optimal_actions[i] = 0
-        for i in range(22, 24):
+        for i in range(19, 21):
             self.optimal_actions[i] = 0
-        for i in range(31, 33):
+        for i in range(21, 23):
             self.optimal_actions[i] = 0
-        for i in range(33, 35):
-            self.optimal_actions[i] = 0
-        for i in range(35, 38):
+        for i in range(23, 26):
             self.optimal_actions[i] = 3
-        for i in range(38, 44):
+        for i in range(26, 28):
             self.optimal_actions[i] = 0
 
     def get_optimal_actions(self):
@@ -83,14 +84,14 @@ class RandomHole(BaseEnv):
         motion = self.motions[action]
         current_position = self.maze.objects.agent.positions[0]
         new_position = [current_position[0] + motion[0], current_position[1] + motion[1]]
-        within_maze, passable = self._is_valid(new_position)
+        inside_maze, passable = self._is_valid(new_position)
         truncated = False
         self.num_steps += 1
         if self.num_steps >= self.maximum_number_steps:
             self.end = True
             reward = -0.1
         else:
-            if within_maze:
+            if inside_maze:  # non exiting nor going into the obstacle
                 self.maze.objects.agent.positions = [new_position]
                 if self._is_goal(new_position):
                     reward = +100
@@ -98,11 +99,9 @@ class RandomHole(BaseEnv):
                     print(f"==== Goal reached in {self.num_steps} steps ====")
                 elif not passable:
                     reward = -100
-                    truncated = True
                     self.end = True
                 else:
                     reward = -0.1
-                    self.end = False
             else:
                 self.maze.objects.agent.positions = [current_position]
                 reward = -0.1
@@ -126,21 +125,14 @@ class RandomHole(BaseEnv):
         self.num_steps = 0
         return self.maze.to_value(), {}
 
-    def reset_position(self):
-        self.maze.objects.agent.positions = self.start_idx
-        self.maze.objects.goal.positions = self.goal_idx
-        self.num_steps = 0
-        self.end = False
-
     def _is_valid(self, position):
         nonnegative = position[0] >= 0 and position[1] >= 0
         within_edge = position[0] < self.maze.size[0] and position[1] < self.maze.size[1]
-        within_maze = nonnegative and within_edge
-        if within_maze:
+        if nonnegative and within_edge:
             passable = not self.maze.to_impassable()[position[0]][position[1]]
         else:
             passable = False
-        return within_maze, passable
+        return nonnegative and within_edge, passable
 
     def _is_goal(self, position):
         out = False

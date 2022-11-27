@@ -1,6 +1,6 @@
 from mazes.training_utils import *
 
-STATE_DIM = 121
+STATE_DIM = 54
 ACTION_DIM = 4
 
 
@@ -14,7 +14,8 @@ def policy(env, state, theta) -> np.array:
     return probs / np.sum(probs)
 
 
-def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1, SGD=0, period=1000, test_freq=50) \
+def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1, SGD=0, entropy_bonus=False,
+                  period=1000, test_freq=50) \
         -> (np.array, list):
     """
     SCRN with discrete policy (manual weight updates)
@@ -82,7 +83,10 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
 
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward)
+            if entropy_bonus:
+                reward_trajectory.append(reward + get_entropy_bonus(action_probs))
+            else:
+                reward_trajectory.append(reward)
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1
@@ -174,7 +178,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
 
     env.compute_optimal_actions()
 
-    env.reset_position()
+    env.reset()
     reward_trajectory = []
     while not env.end:
         optimal_action = env.get_optimal_actions()[env.get_state()]
@@ -209,16 +213,14 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
 
             # Move agent to next position
             next_state, reward, _, _, _ = env.step(action)
-
-            if entropy_bonus:
-                entropy = get_entropy_bonus(action_probs)
-                reward += entropy
-
             rewards_cache[episode] += reward
 
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward)
+            if entropy_bonus:
+                reward_trajectory.append(reward + get_entropy_bonus(action_probs))
+            else:
+                reward_trajectory.append(reward)
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1
@@ -239,8 +241,6 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
 
         grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
                                                           probs_trajectory, reward_trajectory, gamma)
-        Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
-                                          grad_collection_traj, gamma, theta)
 
         if episode % test_freq == 0:
             estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)

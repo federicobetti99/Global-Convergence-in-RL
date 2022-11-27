@@ -10,14 +10,9 @@ class Cliff(BaseMaze):
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                            [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]])
-        self.start_idx = [[10, 0]]
-        self.goal_idx = [[10, 10]]
+        self.start_idx = [[5, 0]]
+        self.goal_idx = [[5, 10]]
         super().__init__(**kwargs)
 
     @property
@@ -42,8 +37,8 @@ class RandomCliff(BaseEnv):
         self.motions = VonNeumannMotion()
         self.x = self.maze.x
 
-        self.start_idx = [[10, 0]]
-        self.goal_idx = [[10, 10]]
+        self.start_idx = [[5, 0]]
+        self.goal_idx = [[5, 10]]
 
         self.observation_space = Box(low=0, high=len(self.maze.objects), shape=self.maze.size, dtype=np.uint8)
         self.num_states = self.maze.size[0] * self.maze.size[1]
@@ -60,11 +55,11 @@ class RandomCliff(BaseEnv):
         return self.num_states, len(self.motions)
 
     def compute_optimal_actions(self):
-        for i in range(11):
+        for i in range(7):
             for j in range(10):
                 self.optimal_actions[i*11 + j] = 3
             self.optimal_actions[i*11 + 10] = 1
-        self.optimal_actions[110] = 0
+        self.optimal_actions[66] = 0
 
     def get_optimal_actions(self):
         return self.optimal_actions
