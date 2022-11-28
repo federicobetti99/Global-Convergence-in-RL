@@ -44,34 +44,12 @@ class RandomMaze(BaseEnv):
         self.end = False
         self.maximum_number_steps = 100
 
-        self.optimal_actions = {k: 0 for k in range(self.num_states)}
-
     def end(self):
         return self.end
 
-    def compute_optimal_actions(self):
-        for i in range(3):
-            self.optimal_actions[i] = 1
-        for i in range(4, 6):
-            self.optimal_actions[i] = 1
-        for i in range(6, 10):
-            self.optimal_actions[i] = 1
-        self.optimal_actions[10] = 2
-        self.optimal_actions[12] = 3
-        for i in range(13, 16):
-            self.optimal_actions[i] = 1
-        self.optimal_actions[19] = 3
-        for i in range(20, 22):
-            self.optimal_actions[i] = 1
-        self.optimal_actions[22] = 2
-        self.optimal_actions[26] = 1
-        self.optimal_actions[27] = 1
-        self.optimal_actions[29] = 1
-        for i in range(31, 35):
-            self.optimal_actions[i] = 3
-
-    def get_optimal_actions(self):
-        return self.optimal_actions
+    @staticmethod
+    def get_optimal_path():
+        return [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
 
     def get_num_states_actions(self):
         return self.num_states, len(self.motions)

@@ -1,14 +1,9 @@
 import pickle
-from utils.utils import *
 import matplotlib.pyplot as plt
 
-environment = "maze"  # among random maze, cliff, hole or taxi
+environment = "umaze"  # among random_maze, Umaze, hole, cliff
 
-if environment == "taxi":  # select taxi environment from gym
-    from taxi.training_utils import *
-    from taxi.learning_algorithms import *
-    env = gym.make("Taxi-v3")
-elif environment == "maze":  # select random maze
+if environment == "random_maze":  # select random maze
     from mazes.training_utils import *
     from mazes.learning_algorithms import *
     from environments.random_maze import *
@@ -29,6 +24,15 @@ elif environment == "hole":  # select hole environment
     env_id = "Hole-v0"
     gym.envs.register(id=env_id, entry_point=RandomHole, max_episode_steps=100)
     env = gym.make(env_id)
+elif environment == "umaze":
+    from mazes.training_utils import *
+    from mazes.learning_algorithms import *
+    from environments.umaze import *
+    env_id = "Umaze-v0"
+    gym.envs.register(id=env_id, entry_point=UMaze, max_episode_steps=100)
+    env = gym.make(env_id)
+else:
+    raise ValueError("Please, select an available environment from the list in run.py")
 
 train = True
 test_freq = 50
@@ -52,11 +56,13 @@ else:
     with open("results.pkl", "rb") as f:
         average_stats = pickle.load(f)
 
+
 average_stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}}
 std_stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}}
+
 average_stats["SCRN"] = {key: np.mean([stats["SCRN"][i][key] for i in range(num_avg)], axis=0)
                          for key in ["steps", "rewards", "taus", "obj_estimates", "grad_estimates"]}
-average_stats["SPG"] =  {key: np.mean([stats["SPG"][i][key] for i in range(num_avg)], axis=0)
+average_stats["SPG"] = {key: np.mean([stats["SPG"][i][key] for i in range(num_avg)], axis=0)
                          for key in ["steps", "rewards", "taus", "obj_estimates", "grad_estimates"]}
 average_stats["SPG Entropy"] = {key: np.mean([stats["SPG Entropy"][i][key] for i in range(num_avg)], axis=0)
                                 for key in ["steps", "rewards", "taus", "obj_estimates", "grad_estimates"]}
@@ -64,10 +70,12 @@ std_stats["SCRN"] = {key: np.std([stats["SCRN"][i][key] for i in range(num_avg)]
                      for key in ["steps", "rewards", "taus", "obj_estimates", "grad_estimates"]}
 std_stats["SPG"] = {key: np.std([stats["SPG"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
                     for key in ["steps", "rewards", "taus", "obj_estimates", "grad_estimates"]}
-std_stats["SPG Entropy"] = {key: np.std([stats["SPG Entropy"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
+std_stats["SPG Entropy"] = {key: np.std([stats["SPG Entropy"][i][key] for i in range(num_avg)], axis=0) /
+                                 np.sqrt(num_avg)
                             for key in ["steps", "rewards", "taus", "obj_estimates", "grad_estimates"]}
 
 plt.rcParams.update(plt.rcParamsDefault)
+
 plt.figure()
 QOI_SCRN = average_stats["SCRN"]["steps"]
 STD_SCRN = std_stats["SCRN"]["steps"]

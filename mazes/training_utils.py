@@ -1,5 +1,3 @@
-import time
-
 import numpy as np
 
 STATE_DIM = 54
@@ -241,8 +239,6 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
     sample_traj = ()
     obj = []
     grad = []
-
-    counts = []
 
     for episode in range(num_episodes):
 

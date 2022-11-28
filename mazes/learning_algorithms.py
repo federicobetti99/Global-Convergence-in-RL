@@ -15,8 +15,7 @@ def policy(env, state, theta) -> np.array:
 
 
 def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1, SGD=0, entropy_bonus=False,
-                  period=1000, test_freq=50) \
-        -> (np.array, list):
+                  period=1000, test_freq=50) -> (np.array, list):
     """
     SCRN with discrete policy (manual weight updates)
     """
@@ -34,23 +33,13 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     tau_estimates = []
     Hessians = np.zeros([num_episodes, STATE_DIM * ACTION_DIM])
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
-    count_goal_pos = np.zeros(1)
     count_reached_goal = np.zeros(num_episodes)
     grad = np.zeros((STATE_DIM * ACTION_DIM))
     Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
     objective_estimates = []
     gradients_estimates = []
 
-    env.compute_optimal_actions()
-
-    env.reset()
-    reward_trajectory = []
-    while not env.end:
-        optimal_action = env.get_optimal_actions()[env.get_state()]
-        next_state, reward, _, _, _ = env.step(optimal_action)
-        reward_trajectory.append(reward)
-
-    optimum = objective_trajectory(reward_trajectory, gamma)
+    optimum = objective_trajectory(env.get_optimal_path(), gamma)
 
     # Iterate over episodes
     for episode in range(num_episodes):
@@ -92,7 +81,6 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             steps_cache[episode] += 1
 
         # Computing objective, grad and Hessian for the current trajectory
-        obj_traj = objective_trajectory(reward_trajectory, gamma)
         grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
                                                           probs_trajectory, reward_trajectory, gamma)
         Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
@@ -119,7 +107,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
         if episode % test_freq == 0:
-            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
+            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta,
+                                                                                       num_episodes=50)
             tau_estimates.append((optimum - np.mean(estimate_obj)) / np.mean(estimate_grad))
             objective_estimates.append(np.mean(estimate_obj))
             gradients_estimates.append(np.mean(estimate_grad))
@@ -176,16 +165,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
     objective_estimates = []
     gradients_estimates = []
 
-    env.compute_optimal_actions()
-
-    env.reset()
-    reward_trajectory = []
-    while not env.end:
-        optimal_action = env.get_optimal_actions()[env.get_state()]
-        next_state, reward, _, _, _ = env.step(optimal_action)
-        reward_trajectory.append(reward)
-
-    optimum = objective_trajectory(reward_trajectory, gamma)
+    optimum = objective_trajectory(env.get_optimal_path(), gamma)
 
     # Iterate over episodes
     for episode in range(num_episodes):
@@ -239,11 +219,9 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             probs_trajectory,
         )
 
-        grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
-                                                          probs_trajectory, reward_trajectory, gamma)
-
         if episode % test_freq == 0:
-            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
+            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta,
+                                                                                       num_episodes=50)
             tau_estimates.append((optimum - np.mean(estimate_obj)) / np.mean(estimate_grad))
             objective_estimates.append(np.mean(estimate_obj))
             gradients_estimates.append(np.mean(estimate_grad))
