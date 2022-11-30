@@ -1,7 +1,7 @@
 import pickle
 import matplotlib.pyplot as plt
 
-environment = "umaze"  # among random_maze, Umaze, hole, cliff
+environment = "hole"  # among random_maze, Umaze, hole, cliff
 
 if environment == "random_maze":  # select random maze
     from mazes.training_utils import *

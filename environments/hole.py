@@ -5,15 +5,14 @@ from gym.spaces import Discrete
 
 class Hole(BaseMaze):
     def __init__(self, **kwargs):
-        self.x = np.array([[0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 1, 0, 1, 0, 0],
-                           [0, 0, 1, 0, 1, 0, 0],
-                           [0, 0, 1, 1, 1, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0]])
-        self.start_idx = [[6, 0]]
-        self.goal_idx = [[4, 3]]
+        self.x = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 0, 1, 0, 1, 0, 0, 0],
+                           [0, 0, 0, 1, 0, 1, 0, 0, 0],
+                           [0, 0, 0, 1, 1, 1, 0, 0, 0],
+                           [0, 0, 0, 0, 0, 0, 0, 0, 0]])
+        self.start_idx = [[5, 0]]
+        self.goal_idx = [[3, 4]]
         super().__init__(**kwargs)
 
     @property
@@ -38,8 +37,8 @@ class RandomHole(BaseEnv):
         self.motions = VonNeumannMotion()
         self.x = self.maze.x
 
-        self.start_idx = [[6, 0]]
-        self.goal_idx = [[4, 3]]
+        self.start_idx = [[5, 0]]
+        self.goal_idx = [[3, 4]]
 
         self.observation_space = Box(low=0, high=len(self.maze.objects), shape=self.maze.size, dtype=np.uint8)
         self.num_states = self.maze.size[0] * self.maze.size[1]
@@ -55,7 +54,7 @@ class RandomHole(BaseEnv):
 
     @staticmethod
     def get_optimal_path():
-        return [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+        return [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
 
     def step(self, action):
         motion = self.motions[action]
