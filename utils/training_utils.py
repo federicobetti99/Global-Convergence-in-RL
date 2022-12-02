@@ -69,8 +69,8 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=50):
     :param num_episodes: batch size
     :return:
     """
-    obj = []
-    grad = []
+    obj = 0
+    grad = np.zeros((STATE_DIM, ACTION_DIM))
 
     for episode in range(num_episodes):
 
@@ -97,21 +97,18 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=50):
 
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward)  # + entropy_bonus
+            reward_trajectory.append(reward)
             probs_trajectory.append(action_probs)
 
-        # Computing objective, grad and Hessian for the current trajectory
+        # Computing objective and grad for the current trajectory
         obj_traj = objective_trajectory(reward_trajectory, gamma)
         grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
                                                           probs_trajectory, reward_trajectory, gamma)
 
-        obj.append(obj_traj)
-        grad.append(grad_traj)
+        obj += obj_traj / num_episodes
+        grad += np.reshape(grad_traj, (STATE_DIM, ACTION_DIM)) / num_episodes
 
-    obj_estimate = np.mean(np.array(obj))
-    grad_estimate = np.linalg.norm(np.mean(np.array(grad)))
-
-    return obj_estimate, grad_estimate
+    return obj, np.linalg.norm(grad)
 
 
 ######### UTILITIES FOR GRADIENT COMPUTATION #########
