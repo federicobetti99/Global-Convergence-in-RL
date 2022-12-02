@@ -107,11 +107,11 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
         if episode % test_freq == 0:
-            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta,
-                                                                                       num_episodes=50)
-            tau_estimates.append((optimum - np.mean(estimate_obj)) / np.mean(estimate_grad))
-            objective_estimates.append(np.mean(estimate_obj))
-            gradients_estimates.append(np.mean(estimate_grad))
+            estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta,
+                                                                          num_episodes=50)
+            tau_estimates.append((optimum - estimate_obj) / estimate_grad)
+            objective_estimates.append(estimate_obj)
+            gradients_estimates.append(estimate_grad)
 
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
@@ -139,8 +139,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     return stats
 
 
-def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=16, SGD=0, entropy_bonus=False,
-                             period=1000, test_freq=50) -> (np.array, list):
+def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_phases_params=None,
+                             entropy_bonus=False, period=1000, test_freq=50) -> (np.array, list):
     """
     REINFORCE with discrete policy gradient (manual weight updates)
     """
@@ -159,11 +159,22 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
     rewards_cache = np.zeros(num_episodes)
 
     tau_estimates = []
-    Hessians = np.zeros([num_episodes, STATE_DIM * ACTION_DIM])
+    grad = np.zeros((1, STATE_DIM, ACTION_DIM))
     history_probs = np.zeros([num_episodes, STATE_DIM, ACTION_DIM])
     count_reached_goal = np.zeros(num_episodes)
     objective_estimates = []
     gradients_estimates = []
+
+    if two_phases_params is not None:
+        initial_batch_size = two_phases_params["B1"]
+        final_batch_size = two_phases_params["B2"]
+        change_step = two_phases_params["T"]
+    else:
+        initial_batch_size = 1
+        final_batch_size = 1
+        change_step = num_episodes
+
+    batch_size = initial_batch_size
 
     optimum = objective_trajectory(env.get_optimal_path(), gamma)
 
@@ -194,7 +205,6 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
             # Move agent to next position
             next_state, reward, _, _, _ = env.step(action)
             rewards_cache[episode] += reward
-
             state_trajectory.append(state)
             action_trajectory.append(action)
             if entropy_bonus:
@@ -208,23 +218,30 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
         if episode % period == 0 and episode > 0:
             alpha = alpha0 / (episode / period)
 
+        if episode > change_step:
+            batch_size = final_batch_size
+
+        grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
+                                                          probs_trajectory, reward_trajectory, gamma)
+
+        if entropy_bonus:
+            grad_traj = grad_traj - grad_entropy_bonus(action_trajectory, state_trajectory, reward_trajectory,
+                                                       probs_trajectory, gamma)
+        grad_traj = np.reshape(grad_traj, (1, STATE_DIM, ACTION_DIM))
+        grad = grad + grad_traj / batch_size
+
         # Update action probabilities at end of each episode
-        theta, obj, gradient = update_action_probabilities(
-            alpha,
-            gamma,
-            theta,
-            state_trajectory,
-            action_trajectory,
-            reward_trajectory,
-            probs_trajectory,
-        )
+        if episode % batch_size == 0 and episode > 0:
+            grad = np.reshape(grad, (STATE_DIM, ACTION_DIM))
+            theta = theta + alpha * grad
+            grad = np.zeros((1, STATE_DIM, ACTION_DIM))
 
         if episode % test_freq == 0:
-            estimate_obj, estimate_grad, sample_traj = estimate_objective_and_gradient(env, gamma, theta,
+            estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta,
                                                                                        num_episodes=50)
-            tau_estimates.append((optimum - np.mean(estimate_obj)) / np.mean(estimate_grad))
-            objective_estimates.append(np.mean(estimate_obj))
-            gradients_estimates.append(np.mean(estimate_grad))
+            tau_estimates.append((optimum - estimate_obj) / estimate_grad)
+            objective_estimates.append(estimate_obj)
+            gradients_estimates.append(estimate_grad)
 
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
@@ -239,7 +256,6 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, batc
         "taus": tau_estimates,
         "obj_estimates": objective_estimates,
         "grad_estimates": gradients_estimates,
-        "Hessians": Hessians,
         "name": name_cache,
         "goals": count_reached_goal
     }

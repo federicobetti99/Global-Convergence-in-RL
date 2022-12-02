@@ -57,40 +57,11 @@ def pi(env, theta) -> np.array:
     return probs / np.sum(probs)
 
 
-def update_action_probabilities(alpha: float, gamma: float, theta: np.array, state_trajectory: list,
-                                action_trajectory: list, reward_trajectory: list, probs_trajectory: list) -> np.array:
-    gradients = np.zeros((STATE_DIM, ACTION_DIM))
-    obj = 0
+def update_action_probabilities(alpha: float, gamma: float, theta: np.array, grad: np.array) -> np.array:
 
-    for t in range(len(reward_trajectory)):
-        state = state_trajectory[t]
-        action = action_trajectory[t]
-        cum_reward = compute_cum_rewards(gamma, t, reward_trajectory)
-
-        # Determine action probabilities with policy
-        #  action_probs = pi(state)
-        action_probs = probs_trajectory[t]
-
-        # Encode action
-        phi = encode_vector(action, ACTION_DIM)
-
-        # Construct weighted state-action vector (average phi over all actions)
-        weighted_phi = np.zeros((1, ACTION_DIM))
-
-        # For demonstration only, simply copies probability vector
-        for action in range(ACTION_DIM):
-            action_input = encode_vector(action, ACTION_DIM)
-            weighted_phi[0] += action_probs[action] * action_input[0]
-
-        # Return score function (phi - weighted phi)
-        score_function = phi - weighted_phi
-
-        # Update theta (only update for current state, no changes for other states)
-        theta[0, state] += alpha * (cum_reward * score_function[0])  # + score_function[0])
-        gradients[state, :] = cum_reward * score_function[0]
-        obj += gamma ** t * reward_trajectory[t]
-
-    return theta, obj, gradients
+    grad = np.reshape(grad, (1, STATE_DIM, ACTION_DIM))
+    theta = theta + alpha * grad
+    return theta
 
 
 def get_entropy_bonus(action_probs: list) -> float:
@@ -207,26 +178,6 @@ def objective_trajectory(reward_trajectory, gamma):
     return obj
 
 
-def grad_trajectory(state_trajectory, action_trajectory, probs_trajectory, reward_trajectory, gamma):
-    """
-    This function computes the grad of objective function for a given trajectory.
-    Inputs:
-    - action_trajectory: trajectory of actions
-    - probs_trajectory: trajectory of prob. of policy taking each action
-    - reward_trajectory: rewards of a trajectory
-    - gamma: discount factor
-    Output:
-    - grad: grad of obj. function for a given trajectory
-    """
-    grad_collection = grad_log_pi(action_trajectory, probs_trajectory)
-    grad = np.zeros((STATE_DIM, ACTION_DIM))
-    for t in range(len(reward_trajectory)):
-        cum_reward = compute_cum_rewards(gamma, t, reward_trajectory)
-        grad[state_trajectory[t], :] = grad[state_trajectory[t], :] + cum_reward * grad_collection[t]
-    grad = np.reshape(grad, (1, ACTION_DIM * STATE_DIM))
-    return grad, grad_collection
-
-
 def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
     """
     Off training function to estimate objective and gradient under current policy
@@ -277,9 +228,32 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
                                                           probs_trajectory, reward_trajectory, gamma)
 
         obj.append(obj_traj)
-        grad.append(np.linalg.norm(grad_traj))
+        grad.append(grad_traj)
 
-    return obj, grad, sample_traj
+    obj_estimate = np.mean(np.array(obj))
+    grad_estimate = np.linalg.norm(np.mean(np.array(grad)))
+
+    return obj_estimate, grad_estimate
+
+
+def grad_trajectory(state_trajectory, action_trajectory, probs_trajectory, reward_trajectory, gamma):
+    """
+    This function computes the grad of objective function for a given trajectory.
+    Inputs:
+    - action_trajectory: trajectory of actions
+    - probs_trajectory: trajectory of prob. of policy taking each action
+    - reward_trajectory: rewards of a trajectory
+    - gamma: discount factor
+    Output:
+    - grad: grad of obj. function for a given trajectory
+    """
+    grad_collection = grad_log_pi(action_trajectory, probs_trajectory)
+    grad = np.zeros((STATE_DIM, ACTION_DIM))
+    for t in range(len(reward_trajectory)):
+        cum_reward = compute_cum_rewards(gamma, t, reward_trajectory)
+        grad[state_trajectory[t], :] = grad[state_trajectory[t], :] + cum_reward * grad_collection[t]
+    grad = np.reshape(grad, (1, ACTION_DIM * STATE_DIM))
+    return grad, grad_collection
 
 
 def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad, grad_collection, gamma, theta):
