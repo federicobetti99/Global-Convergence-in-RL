@@ -1,4 +1,4 @@
-from mazes.training_utils import *
+from utils.training_utils import *
 
 STATE_DIM = 54
 ACTION_DIM = 4
