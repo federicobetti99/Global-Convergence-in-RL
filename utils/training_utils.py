@@ -69,7 +69,6 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=50):
     :param num_episodes: batch size
     :return:
     """
-    sample_traj = ()
     obj = []
     grad = []
 
@@ -101,9 +100,6 @@ def estimate_objective_and_gradient(env, gamma, theta, num_episodes=50):
             reward_trajectory.append(reward)  # + entropy_bonus
             probs_trajectory.append(action_probs)
 
-        if episode == 0:
-            sample_traj = (state_trajectory, action_trajectory)
-
         # Computing objective, grad and Hessian for the current trajectory
         obj_traj = objective_trajectory(reward_trajectory, gamma)
         grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
@@ -127,12 +123,10 @@ def grad_entropy_bonus(action_trajectory, state_trajectory, reward_trajectory, p
     cum_grad_log_phi = np.zeros((1, ACTION_DIM * STATE_DIM))
     grad = np.zeros((STATE_DIM, ACTION_DIM))
     grad1 = np.zeros((STATE_DIM, ACTION_DIM))
-    grad11 = np.zeros((STATE_DIM, ACTION_DIM))
     grad_collection = grad_log_pi(action_trajectory, probs_trajectory)
 
     for tau in range(len(reward_trajectory)):
         grad1[state_trajectory[tau], :] += grad_collection[tau]
-        grad11 = np.reshape(grad11, (STATE_DIM, ACTION_DIM))
         grad11 = grad1
         grad11 = np.reshape(grad11, (1, ACTION_DIM * STATE_DIM))
         # cum_grad_log_matrix_temp = np.reshape(cum_grad_log_matrix_temp, (STATE_DIM, ACTION_DIM))
@@ -262,16 +256,16 @@ def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, g
     return Hessian
 
 
-def cubic_subsolver(grad, hessian, l=10, rho=30, eps=1e-3, c_=1, T_eps=10):
+def cubic_subsolver(grad, hessian, L=10, rho=30, eps=1e-3, c_=1, T_eps=10):
     g_norm = np.linalg.norm(grad)
-    if g_norm > l ** 2 / rho:
+    if g_norm > L ** 2 / rho:
         temp = grad @ hessian @ grad.T / rho / g_norm ** 2
         R_c = -temp + np.sqrt(temp ** 2 + 2 * g_norm / rho)
         delta = - R_c * grad / g_norm
     else:
         delta = np.zeros((1, ACTION_DIM * STATE_DIM))
-        sigma = c_ * (eps * rho) ** 0.5 / l
-        mu = 1.0 / (20.0 * l)
+        sigma = c_ * (eps * rho) ** 0.5 / L
+        mu = 1.0 / (20.0 * L)
         vec = np.random.normal(0, 1, ACTION_DIM * STATE_DIM)  # *2 + torch.ones(grad.size())
         vec /= np.linalg.norm(vec)
         g_ = grad + sigma * vec
