@@ -1,6 +1,6 @@
 from utils.training_utils import *
 
-STATE_DIM = 54
+STATE_DIM = 66
 ACTION_DIM = 4
 
 
