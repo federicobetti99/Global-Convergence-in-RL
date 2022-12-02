@@ -4,40 +4,15 @@ STATE_DIM = 54
 ACTION_DIM = 4
 
 
+######### UTILITIES FOR PROBABILITIES AND ENTROPY BONUS COMPUTATION #########
+
+
 def encode_vector(index: int, dim: int) -> list:
     """Encode vector as one-hot vector"""
     vector_encoded = np.zeros((1, dim))
     vector_encoded[0, index] = 1
 
     return list(vector_encoded)
-
-
-def epsilon_greedy_action(state: int, q_table: np.array, epsilon: float) -> int:
-    """
-    Select action based on the ε-greedy policy
-    Random action with prob. ε, greedy action with prob. 1-ε
-    """
-
-    # Random uniform sample from [0,1]
-    sample = np.random.random()
-
-    # Set to 'explore' if sample <= ε
-    explore = True if sample <= epsilon else False
-
-    if explore:  # Explore
-        # Select random action
-        action = np.random.choice(4)
-    else:  # Exploit:
-        # Select action with largest Q-value
-        action = np.argmax(q_table[state, :])
-
-    return action
-
-
-def get_max_qvalue(state: int, q_table: np.array) -> float:
-    """Retrieve best Q-value for state from table"""
-    maximum_state_value = np.amax(q_table[:, state])
-    return maximum_state_value
 
 
 def compute_cum_rewards(gamma: float, t: int, rewards: np.array) -> float:
@@ -57,18 +32,93 @@ def pi(env, theta) -> np.array:
     return probs / np.sum(probs)
 
 
-def update_action_probabilities(alpha: float, gamma: float, theta: np.array, grad: np.array) -> np.array:
-
-    grad = np.reshape(grad, (1, STATE_DIM, ACTION_DIM))
-    theta = theta + alpha * grad
-    return theta
-
-
 def get_entropy_bonus(action_probs: list) -> float:
     entropy_bonus = 0
     for prob_action in action_probs:
         entropy_bonus -= prob_action * np.log(prob_action + 1e-5)
     return float(entropy_bonus)
+
+
+######### UTILITIES FOR OBJECTIVE AND PL CONSTANT COMPUTATION #########
+
+
+def objective_trajectory(reward_trajectory, gamma):
+    """
+    This function computes the objective function for a given trajectory, thus an unbiased estimate of J(\theta).
+    Inputs:
+    - state_trajectory: trajectory of states
+    - action_trajectory: trajectory of actions
+    - probs_trajectory: trajectory of prob. of policy taking each action
+    - reward_trajectory: rewards of a trajectory
+    - gamma: discount factor
+    Output:
+    - obj: obj. function for a given trajectory
+    """
+    obj = 0
+    for t in range(len(reward_trajectory)):
+        obj += gamma ** t * reward_trajectory[t]
+    return obj
+
+
+def estimate_objective_and_gradient(env, gamma, theta, num_episodes=50):
+    """
+    Off training function to estimate objective and gradient under current policy
+    :param env: environment
+    :param gamma: discount factor for future rewards
+    :param theta: parameter for the policy
+    :param num_episodes: batch size
+    :return:
+    """
+    sample_traj = ()
+    obj = []
+    grad = []
+
+    for episode in range(num_episodes):
+
+        env.reset()
+
+        # Initialize reward trajectory
+        reward_trajectory = []
+        action_trajectory = []
+        state_trajectory = []
+        probs_trajectory = []
+
+        while not env.end:
+            # Get state corresponding to agent position
+            state = env.get_state()
+
+            # Get probabilities per action from current policy
+            action_probs = pi(env, theta)
+
+            # Select random action according to policy
+            action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
+
+            # Move agent to next position
+            next_state, reward, _, _, _ = env.step(action)
+
+            state_trajectory.append(state)
+            action_trajectory.append(action)
+            reward_trajectory.append(reward)  # + entropy_bonus
+            probs_trajectory.append(action_probs)
+
+        if episode == 0:
+            sample_traj = (state_trajectory, action_trajectory)
+
+        # Computing objective, grad and Hessian for the current trajectory
+        obj_traj = objective_trajectory(reward_trajectory, gamma)
+        grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
+                                                          probs_trajectory, reward_trajectory, gamma)
+
+        obj.append(obj_traj)
+        grad.append(grad_traj)
+
+    obj_estimate = np.mean(np.array(obj))
+    grad_estimate = np.linalg.norm(np.mean(np.array(grad)))
+
+    return obj_estimate, grad_estimate
+
+
+######### UTILITIES FOR GRADIENT COMPUTATION #########
 
 
 def grad_entropy_bonus(action_trajectory, state_trajectory, reward_trajectory, probs_trajectory, gamma):
@@ -133,6 +183,28 @@ def grad_log_pi(action_trajectory, probs_trajectory):
     return grad_collection
 
 
+def grad_trajectory(state_trajectory, action_trajectory, probs_trajectory, reward_trajectory, gamma):
+    """
+    This function computes the grad of objective function for a given trajectory.
+    Inputs:
+    - action_trajectory: trajectory of actions
+    - probs_trajectory: trajectory of prob. of policy taking each action
+    - reward_trajectory: rewards of a trajectory
+    - gamma: discount factor
+    Output:
+    - grad: grad of obj. function for a given trajectory
+    """
+    grad_collection = grad_log_pi(action_trajectory, probs_trajectory)
+    grad = np.zeros((STATE_DIM, ACTION_DIM))
+    for t in range(len(reward_trajectory)):
+        cum_reward = compute_cum_rewards(gamma, t, reward_trajectory)
+        grad[state_trajectory[t], :] = grad[state_trajectory[t], :] + cum_reward * grad_collection[t]
+    grad = np.reshape(grad, (1, ACTION_DIM * STATE_DIM))
+    return grad, grad_collection
+
+
+######### UTILITIES FOR HESSIAN COMPUTATION #########
+
 def Hessian_log_pi(state_trajectory, action_trajectory, theta):
     """
     This function computes the Hessian(log(pi(a|s))) for all the pair of (state, action) in the trajectory.
@@ -158,102 +230,6 @@ def Hessian_log_pi(state_trajectory, action_trajectory, theta):
             Hessian = Hessian + np.atleast_2d(temp_grad_pi[:, action]).T @ encode_vector(action, ACTION_DIM)
         Hessian_collection.append(Hessian)
     return Hessian_collection
-
-
-def objective_trajectory(reward_trajectory, gamma):
-    """
-    This function computes the objective function for a given trajectory, thus an unbiased estimate of J(\theta).
-    Inputs:
-    - state_trajectory: trajectory of states
-    - action_trajectory: trajectory of actions
-    - probs_trajectory: trajectory of prob. of policy taking each action
-    - reward_trajectory: rewards of a trajectory
-    - gamma: discount factor
-    Output:
-    - obj: obj. function for a given trajectory
-    """
-    obj = 0
-    for t in range(len(reward_trajectory)):
-        obj += gamma ** t * reward_trajectory[t]
-    return obj
-
-
-def estimate_objective_and_gradient(env, gamma, theta, num_episodes=100):
-    """
-    Off training function to estimate objective and gradient under current policy
-    :param env: environment
-    :param gamma: discount factor for future rewards
-    :param theta: parameter for the policy
-    :param num_episodes: batch size
-    :return:
-    """
-    sample_traj = ()
-    obj = []
-    grad = []
-
-    for episode in range(num_episodes):
-
-        env.reset()
-
-        # Initialize reward trajectory
-        reward_trajectory = []
-        action_trajectory = []
-        state_trajectory = []
-        probs_trajectory = []
-
-        while not env.end:
-            # Get state corresponding to agent position
-            state = env.get_state()
-
-            # Get probabilities per action from current policy
-            action_probs = pi(env, theta)
-
-            # Select random action according to policy
-            action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
-
-            # Move agent to next position
-            next_state, reward, _, _, _ = env.step(action)
-
-            state_trajectory.append(state)
-            action_trajectory.append(action)
-            reward_trajectory.append(reward)  # + entropy_bonus
-            probs_trajectory.append(action_probs)
-
-        if episode == 0:
-            sample_traj = (state_trajectory, action_trajectory)
-
-        # Computing objective, grad and Hessian for the current trajectory
-        obj_traj = objective_trajectory(reward_trajectory, gamma)
-        grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
-                                                          probs_trajectory, reward_trajectory, gamma)
-
-        obj.append(obj_traj)
-        grad.append(grad_traj)
-
-    obj_estimate = np.mean(np.array(obj))
-    grad_estimate = np.linalg.norm(np.mean(np.array(grad)))
-
-    return obj_estimate, grad_estimate
-
-
-def grad_trajectory(state_trajectory, action_trajectory, probs_trajectory, reward_trajectory, gamma):
-    """
-    This function computes the grad of objective function for a given trajectory.
-    Inputs:
-    - action_trajectory: trajectory of actions
-    - probs_trajectory: trajectory of prob. of policy taking each action
-    - reward_trajectory: rewards of a trajectory
-    - gamma: discount factor
-    Output:
-    - grad: grad of obj. function for a given trajectory
-    """
-    grad_collection = grad_log_pi(action_trajectory, probs_trajectory)
-    grad = np.zeros((STATE_DIM, ACTION_DIM))
-    for t in range(len(reward_trajectory)):
-        cum_reward = compute_cum_rewards(gamma, t, reward_trajectory)
-        grad[state_trajectory[t], :] = grad[state_trajectory[t], :] + cum_reward * grad_collection[t]
-    grad = np.reshape(grad, (1, ACTION_DIM * STATE_DIM))
-    return grad, grad_collection
 
 
 def Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad, grad_collection, gamma, theta):
