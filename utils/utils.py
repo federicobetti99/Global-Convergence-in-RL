@@ -110,3 +110,121 @@ def running_average(arr):
         - the running average (computed after each item) of arr
     """
     return [np.sum(arr[:i]) / (i+1) for i in range(len(arr))]
+
+
+def plot_stats(environment, average_stats, std_stats, num_episodes, test_freq):
+    plt.figure()
+    QOI_SCRN = average_stats["SCRN"]["steps"]
+    STD_SCRN = std_stats["SCRN"]["steps"]
+    QOI_SPG = average_stats["SPG"]["steps"]
+    STD_SPG = std_stats["SPG"]["steps"]
+    QOI_ESPG = average_stats["SPG Entropy"]["steps"]
+    STD_ESPG = std_stats["SPG Entropy"]["steps"]
+    QOI_TSESPG = average_stats["Two stages SPG Entropy"]["steps"]
+    STD_TSESPG = std_stats["Two stages SPG Entropy"]["steps"]
+    plt.plot(np.arange(0, num_episodes), QOI_SCRN, label="SCRN")
+    plt.fill_between(np.arange(0, num_episodes), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes), QOI_SPG, label="SPG")
+    plt.fill_between(np.arange(0, num_episodes), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes), QOI_ESPG, label="ESPG")
+    plt.fill_between(np.arange(0, num_episodes), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes), QOI_TSESPG, label="TSESPG")
+    plt.fill_between(np.arange(0, num_episodes), QOI_TSESPG-STD_TSESPG, QOI_ESPG+STD_TSESPG, alpha=0.2)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.55, -0.2), fancybox=True, shadow=True, ncol=4, fontsize='large')
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel("Number of episodes", fontsize=20)
+    plt.ylabel("Average episode length", fontsize=20)
+
+    plt.figure()
+    QOI_SCRN = average_stats["SCRN"]["taus"]
+    STD_SCRN = std_stats["SCRN"]["taus"]
+    QOI_SPG = average_stats["SPG"]["taus"]
+    STD_SPG = std_stats["SPG"]["taus"]
+    QOI_ESPG = average_stats["SPG Entropy"]["taus"]
+    STD_ESPG = std_stats["SPG Entropy"]["taus"]
+    QOI_TSESPG = average_stats["Two stages SPG Entropy"]["taus"]
+    STD_TSESPG = std_stats["Two stages SPG Entropy"]["taus"]
+    plt.semilogy(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label=r"SCRN, $\alpha = 1$")
+    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
+    plt.semilogy(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label=r"SPG, $\alpha = 1$")
+    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
+    plt.semilogy(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label=r"ESPG, $\alpha=2$")
+    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_TSESPG, label=r"TSESPG, $\alpha = 2$")
+    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_TSESPG-STD_TSESPG, QOI_TSESPG+STD_TSESPG, alpha=0.2)
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.55, -0.2), fancybox=True, shadow=True, ncol=4, fontsize='large')
+    plt.xlabel("Number of episodes", fontsize=20)
+    plt.ylabel(r"$\frac{J(\theta^{*}) - J(\theta)}{\vert \vert \nabla J(\theta) \vert \vert^{\alpha}}$", fontsize=20)
+
+    plt.figure()
+    QOI_SCRN = average_stats["SCRN"]["rewards"]
+    STD_SCRN = std_stats["SCRN"]["rewards"]
+    QOI_SPG = average_stats["SPG"]["rewards"]
+    STD_SPG = std_stats["SPG"]["rewards"]
+    QOI_ESPG = average_stats["SPG Entropy"]["rewards"]
+    STD_ESPG = std_stats["SPG Entropy"]["rewards"]
+    QOI_TSESPG = average_stats["Two stages SPG Entropy"]["rewards"]
+    STD_TSESPG = std_stats["Two stages SPG Entropy"]["rewards"]
+    plt.plot(np.arange(0, num_episodes), QOI_SCRN, label="SCRN")
+    plt.fill_between(np.arange(0, num_episodes), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes), QOI_SPG, label="SPG")
+    plt.fill_between(np.arange(0, num_episodes), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes), QOI_ESPG, label="ESPG")
+    plt.fill_between(np.arange(0, num_episodes), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes), QOI_TSESPG, label="TSESPG")
+    plt.fill_between(np.arange(0, num_episodes), QOI_TSESPG-STD_TSESPG, QOI_TSESPG+STD_TSESPG, alpha=0.2)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.55, -0.2), fancybox=True, shadow=True, ncol=4, fontsize='large')
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel("Number of episodes", fontsize=20)
+    plt.ylabel("Reward during training", fontsize=20)
+    plt.savefig(f"figures/{environment}/rewards.png")
+
+    plt.figure()
+    QOI_SCRN = average_stats["SCRN"]["obj_estimates"]
+    STD_SCRN = std_stats["SCRN"]["obj_estimates"]
+    QOI_SPG = average_stats["SPG"]["obj_estimates"]
+    STD_SPG = std_stats["SPG"]["obj_estimates"]
+    QOI_ESPG = average_stats["SPG Entropy"]["obj_estimates"]
+    STD_ESPG = std_stats["SPG Entropy"]["obj_estimates"]
+    QOI_TSESPG = average_stats["Two stages SPG Entropy"]["obj_estimates"]
+    STD_TSESPG = std_stats["Two stages SPG Entropy"]["obj_estimates"]
+    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label="SCRN")
+    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label="SPG")
+    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label="ESPG")
+    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_TSESPG, label="TSESPG")
+    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_TSESPG-STD_TSESPG, QOI_TSESPG+STD_TSESPG, alpha=0.2)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.55, -0.2), fancybox=True, shadow=True, ncol=4, fontsize='large')
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel("Number of episodes", fontsize=20)
+    plt.ylabel("Objective during training", fontsize=20)
+
+    plt.figure()
+    QOI_SCRN = average_stats["SCRN"]["grad_estimates"]
+    STD_SCRN = std_stats["SCRN"]["grad_estimates"]
+    QOI_SPG = average_stats["SPG"]["grad_estimates"]
+    STD_SPG = std_stats["SPG"]["grad_estimates"]
+    QOI_ESPG = average_stats["SPG Entropy"]["grad_estimates"]
+    STD_ESPG = std_stats["SPG Entropy"]["grad_estimates"]
+    QOI_TSESPG = average_stats["Two stages SPG Entropy"]["grad_estimates"]
+    STD_TSESPG = std_stats["Two stages SPG Entropy"]["grad_estimates"]
+    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label="SCRN")
+    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label="SPG")
+    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label="ESPG")
+    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
+    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_TSESPG, label="TSESPG")
+    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_TSESPG-STD_TSESPG, QOI_TSESPG+STD_TSESPG, alpha=0.2)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.55, -0.2), fancybox=True, shadow=True, ncol=4, fontsize='large')
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel("Number of episodes", fontsize=20)
+    plt.ylabel(r"$\vert \vert \nabla J(\theta) \vert \vert$", fontsize=20)

@@ -54,7 +54,7 @@ class RandomHole(BaseEnv):
 
     @staticmethod
     def get_optimal_path():
-        return [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+        return [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
 
     def step(self, action):
         motion = self.motions[action]

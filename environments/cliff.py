@@ -5,14 +5,14 @@ from gym.spaces import Discrete
 
 class Cliff(BaseMaze):
     def __init__(self, **kwargs):
-        self.x = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                           [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0]])
+        self.x = np.array([[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                           [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                           [0, 1, 1, 1, 1, 1, 1, 1, 0]])
         self.start_idx = [[5, 0]]
-        self.goal_idx = [[5, 10]]
+        self.goal_idx = [[5, 8]]
         super().__init__(**kwargs)
 
     @property
@@ -56,7 +56,7 @@ class RandomCliff(BaseEnv):
 
     @staticmethod
     def get_optimal_path():
-        return [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+        return [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
 
     def step(self, action):
         motion = self.motions[action]

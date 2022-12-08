@@ -1,6 +1,6 @@
 from utils.training_utils import *
 
-STATE_DIM = 66
+STATE_DIM = 54
 ACTION_DIM = 4
 
 
@@ -38,6 +38,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
     objective_estimates = []
     gradients_estimates = []
+    thetas = []
 
     optimum = objective_trajectory(env.get_optimal_path(), gamma)
 
@@ -106,6 +107,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             grad = np.zeros((STATE_DIM * ACTION_DIM))
             Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
+        thetas.append(theta)
+
         if episode % test_freq == 0:
             estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta,
                                                                           num_episodes=50)
@@ -126,7 +129,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
         "steps": steps_cache,
         "rewards": rewards_cache,
         "env": env_cache,
-        "theta": theta,
+        "thetas": thetas,
         "optimum": optimum,
         "taus": tau_estimates,
         "obj_estimates": objective_estimates,
@@ -165,6 +168,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
     count_reached_goal = np.zeros(num_episodes)
     objective_estimates = []
     gradients_estimates = []
+    thetas = []
 
     if two_phases_params is not None:
         initial_batch_size = two_phases_params["B1"]
@@ -231,6 +235,8 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
         grad_traj = np.reshape(grad_traj, (1, STATE_DIM, ACTION_DIM))
         grad = grad + grad_traj / batch_size
 
+        thetas.append(theta)
+
         # Update action probabilities at end of each episode
         if episode % batch_size == 0 and episode > 0:
             grad = np.reshape(grad, (STATE_DIM, ACTION_DIM))
@@ -239,9 +245,11 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
 
         if episode % test_freq == 0:
             estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
-            tau_estimates.append((optimum - estimate_obj) / estimate_grad)
             objective_estimates.append(estimate_obj)
             gradients_estimates.append(estimate_grad)
+            if entropy_bonus:
+                estimate_grad = estimate_grad ** 2
+            tau_estimates.append((optimum - estimate_obj) / estimate_grad)
 
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
@@ -251,7 +259,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
     stats = {
         "steps": steps_cache,
         "rewards": rewards_cache,
-        "theta": theta,
+        "thetas": thetas,
         "history_probs": history_probs,
         "optimum": optimum,
         "taus": tau_estimates,

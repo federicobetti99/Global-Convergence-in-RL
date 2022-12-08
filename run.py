@@ -1,5 +1,4 @@
 import pickle
-import matplotlib.pyplot as plt
 
 environment = "hole"  # among random_maze, Umaze, hole, cliff
 
@@ -34,143 +33,48 @@ elif environment == "umaze":
 else:
     raise ValueError("Please, select an available environment from the list in run.py")
 
-train = True
 test_freq = 50
-num_episodes = 10000
-num_avg = 10
+num_episodes = 500
+num_avg = 2
 
-stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}}
+stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}, "Two stages SPG Entropy": {}}
 
-if train:
-    for i in range(num_avg):
-        print(f"========== TRAINING RUN {i} OUT OF {num_avg} ===========")
-        print("********** TRAINING WITH SCRN **********")
-        stats_SCRN = discrete_SCRN(env, num_episodes=num_episodes, test_freq=test_freq)
-        stats["SCRN"].update({i: stats_SCRN})
-        print("********** TRAINING WITH SPG ********")
-        stats_DPG = discrete_policy_gradient(env, num_episodes=num_episodes, test_freq=test_freq)
-        stats["SPG"].update({i: stats_DPG})
-        print("********** TRAINING WITH regularized SPG ********")
-        stats_DPG = discrete_policy_gradient(env, entropy_bonus=True, num_episodes=num_episodes, test_freq=test_freq)
-        stats["SPG Entropy"].update({i: stats_DPG})
-else:
-    with open("results.pkl", "rb") as f:
-        average_stats = pickle.load(f)
+for i in range(num_avg):
+    print(f"========== TRAINING RUN {i} OUT OF {num_avg} ===========")
+    print("********** TRAINING WITH SCRN **********")
+    stats_SCRN = discrete_SCRN(env, num_episodes=num_episodes, test_freq=test_freq)
+    stats["SCRN"].update({i: stats_SCRN})
+    print("********** TRAINING WITH SPG ********")
+    stats_DPG = discrete_policy_gradient(env, num_episodes=num_episodes, test_freq=test_freq)
+    stats["SPG"].update({i: stats_DPG})
+    print("********** TRAINING WITH regularized SPG ********")
+    stats_DPG = discrete_policy_gradient(env, entropy_bonus=True, num_episodes=num_episodes, test_freq=test_freq)
+    stats["SPG Entropy"].update({i: stats_DPG})
+    print("********** TRAINING WITH TWO STAGES regularized SPG *******")
+    stats_DPG = discrete_policy_gradient(env, entropy_bonus=True, num_episodes=num_episodes,
+                                         two_phases_params={"B1": 16, "B2": 1, "T": num_episodes/5},
+                                         test_freq=test_freq)
+    stats["Two stages SPG Entropy"].update({i: stats_DPG})
 
-
-average_stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}}
-std_stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}}
+average_stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}, "Two stages SPG Entropy": {}}
+std_stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}, "Two stages SPG Entropy": {}}
 
 average_stats["SCRN"] = {key: np.mean([stats["SCRN"][i][key] for i in range(num_avg)], axis=0)
-                                for key in ["steps", "rewards", "taus", "obj_estimates", "grad_estimates"]}
+                                for key in ["steps", "rewards", "taus", "thetas", "obj_estimates", "grad_estimates"]}
 average_stats["SPG"] = {key: np.mean([stats["SPG"][i][key] for i in range(num_avg)], axis=0)
-                                for key in ["steps", "rewards", "taus", "obj_estimates", "grad_estimates"]}
+                                for key in ["steps", "rewards", "taus", "thetas", "obj_estimates", "grad_estimates"]}
 average_stats["SPG Entropy"] = {key: np.mean([stats["SPG Entropy"][i][key] for i in range(num_avg)], axis=0)
-                                for key in ["steps", "rewards", "taus", "obj_estimates", "grad_estimates"]}
+                                for key in ["steps", "rewards", "taus", "thetas", "obj_estimates", "grad_estimates"]}
+average_stats["Two stages SPG Entropy"] = {key: np.mean([stats["Two stages SPG Entropy"][i][key] for i in range(num_avg)], axis=0)
+                                for key in ["steps", "rewards", "taus", "thetas", "obj_estimates", "grad_estimates"]}
 std_stats["SCRN"] = {key: np.std([stats["SCRN"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
-                                for key in ["steps", "rewards", "taus", "obj_estimates", "grad_estimates"]}
+                                for key in ["steps", "rewards", "taus", "thetas", "obj_estimates", "grad_estimates"]}
 std_stats["SPG"] = {key: np.std([stats["SPG"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
-                                for key in ["steps", "rewards", "taus", "obj_estimates", "grad_estimates"]}
+                                for key in ["steps", "rewards", "taus", "thetas", "obj_estimates", "grad_estimates"]}
 std_stats["SPG Entropy"] = {key: np.std([stats["SPG Entropy"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
-                                for key in ["steps", "rewards", "taus", "obj_estimates", "grad_estimates"]}
+                                for key in ["steps", "rewards", "taus", "thetas", "obj_estimates", "grad_estimates"]}
+std_stats["Two stages SPG Entropy"] = {key: np.std([stats["Two stages SPG Entropy"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
+                                for key in ["steps", "rewards", "taus", "thetas", "obj_estimates", "grad_estimates"]}
 
-
-plt.figure()
-QOI_SCRN = average_stats["SCRN"]["steps"]
-STD_SCRN = std_stats["SCRN"]["steps"]
-QOI_SPG = average_stats["SPG"]["steps"]
-STD_SPG = std_stats["SPG"]["steps"]
-QOI_ESPG = average_stats["SPG Entropy"]["steps"]
-STD_ESPG = std_stats["SPG Entropy"]["steps"]
-plt.plot(np.arange(0, num_episodes), QOI_SCRN, label="SCRN")
-plt.fill_between(np.arange(0, num_episodes), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-plt.plot(np.arange(0, num_episodes), QOI_SPG, label="SPG")
-plt.fill_between(np.arange(0, num_episodes), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-plt.plot(np.arange(0, num_episodes), QOI_ESPG, label="SPG Entropy")
-plt.fill_between(np.arange(0, num_episodes), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
-plt.legend(loc="best", fontsize=15)
-plt.xticks(fontsize=15)
-plt.yticks(fontsize=15)
-plt.xlabel("Number of episodes", fontsize=20)
-plt.ylabel("Average episode length", fontsize=20)
-plt.savefig(f"figures/{environment}/episode_lengths.png")
-
-plt.figure()
-QOI_SCRN = average_stats["SCRN"]["taus"]
-STD_SCRN = std_stats["SCRN"]["taus"]
-QOI_SPG = average_stats["SPG"]["taus"]
-STD_SPG = std_stats["SPG"]["taus"]
-QOI_ESPG = average_stats["SPG Entropy"]["taus"]
-STD_ESPG = std_stats["SPG Entropy"]["taus"]
-plt.semilogy(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label="SCRN")
-plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-plt.semilogy(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label="SPG")
-plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-plt.semilogy(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label="SPG Entropy")
-plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
-plt.xticks(fontsize=15)
-plt.yticks(fontsize=15)
-plt.legend(loc="best", fontsize=15)
-plt.xlabel("Number of episodes", fontsize=20)
-plt.ylabel(r"$\frac{J(\theta^{*}) - J(\theta)}{\vert \vert \nabla J(\theta) \vert \vert}$", fontsize=20)
-plt.savefig(f"figures/{environment}/taus.png")
-
-plt.figure()
-QOI_SCRN = average_stats["SCRN"]["rewards"]
-STD_SCRN = std_stats["SCRN"]["rewards"]
-QOI_SPG = average_stats["SPG"]["rewards"]
-STD_SPG = std_stats["SPG"]["rewards"]
-QOI_ESPG = average_stats["SPG Entropy"]["rewards"]
-STD_ESPG = std_stats["SPG Entropy"]["rewards"]
-plt.plot(np.arange(0, num_episodes), QOI_SCRN, label="SCRN")
-plt.fill_between(np.arange(0, num_episodes), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-plt.plot(np.arange(0, num_episodes), QOI_SPG, label="SPG")
-plt.fill_between(np.arange(0, num_episodes), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-plt.plot(np.arange(0, num_episodes), QOI_ESPG, label="SPG Entropy")
-plt.fill_between(np.arange(0, num_episodes), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
-plt.legend(loc="best", fontsize=15)
-plt.xticks(fontsize=15)
-plt.yticks(fontsize=15)
-plt.xlabel("Number of episodes", fontsize=20)
-plt.ylabel("Reward during training", fontsize=20)
-plt.savefig(f"figures/{environment}/rewards.png")
-
-plt.figure()
-QOI_SCRN = average_stats["SCRN"]["obj_estimates"]
-STD_SCRN = std_stats["SCRN"]["obj_estimates"]
-QOI_SPG = average_stats["SPG"]["obj_estimates"]
-STD_SPG = std_stats["SPG"]["obj_estimates"]
-QOI_ESPG = average_stats["SPG Entropy"]["obj_estimates"]
-STD_ESPG = std_stats["SPG Entropy"]["obj_estimates"]
-plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label="SCRN")
-plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label="SPG")
-plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label="SPG Entropy")
-plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
-plt.legend(loc="best", fontsize=15)
-plt.xticks(fontsize=15)
-plt.yticks(fontsize=15)
-plt.xlabel("Number of episodes", fontsize=20)
-plt.ylabel("Objective during training", fontsize=20)
-plt.savefig(f"figures/{environment}/objectives.png")
-
-plt.figure()
-QOI_SCRN = average_stats["SCRN"]["grad_estimates"]
-STD_SCRN = std_stats["SCRN"]["grad_estimates"]
-QOI_SPG = average_stats["SPG"]["grad_estimates"]
-STD_SPG = std_stats["SPG"]["grad_estimates"]
-QOI_ESPG = average_stats["SPG Entropy"]["grad_estimates"]
-STD_ESPG = std_stats["SPG Entropy"]["grad_estimates"]
-plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label="SCRN")
-plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label="SPG")
-plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label="SPG Entropy")
-plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
-plt.legend(loc="best", fontsize=15)
-plt.xticks(fontsize=15)
-plt.yticks(fontsize=15)
-plt.xlabel("Number of episodes", fontsize=20)
-plt.ylabel(r"$\vert \vert \nabla J(\theta) \vert \vert$", fontsize=20)
-plt.savefig(f"figures/{environment}/gradients.png")
+with open(f"results/{environment}_results.pkl", "wb") as handle:
+    pickle.dump({"avg": average_stats, "std": std_stats}, handle, protocol=pickle.HIGHEST_PROTOCOL)
