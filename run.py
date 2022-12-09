@@ -1,6 +1,6 @@
 import pickle
 
-environment = "hole"  # among random_maze, Umaze, hole, cliff
+environment = "umaze"  # among random_maze, Umaze, hole, cliff
 
 if environment == "random_maze":  # select random maze
     from utils.training_utils import *
@@ -34,8 +34,8 @@ else:
     raise ValueError("Please, select an available environment from the list in run.py")
 
 test_freq = 50
-num_episodes = 500
-num_avg = 2
+num_episodes = 10000
+num_avg = 3
 
 stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}, "Two stages SPG Entropy": {}}
 

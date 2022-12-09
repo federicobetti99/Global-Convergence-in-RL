@@ -38,7 +38,7 @@ class RandomCliff(BaseEnv):
         self.x = self.maze.x
 
         self.start_idx = [[5, 0]]
-        self.goal_idx = [[5, 10]]
+        self.goal_idx = [[5, 8]]
 
         self.observation_space = Box(low=0, high=len(self.maze.objects), shape=self.maze.size, dtype=np.uint8)
         self.num_states = self.maze.size[0] * self.maze.size[1]
