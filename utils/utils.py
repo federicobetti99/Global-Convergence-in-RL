@@ -1,5 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from utils.training_utils import *
+from utils.learning_algorithms import *
+from environments.cliff import *
+from environments.hole import *
+from environments.umaze import *
+from environments.random_maze import *
+from environments.gym_utils import *
+import imageio
 
 
 def compare_probabilities_learned(average_stats, state, save_link=None):
@@ -48,28 +57,24 @@ def compare_probabilities_learned(average_stats, state, save_link=None):
     return fig, ax
 
 
-def show_trajectory(env, state_trajectory):
+def show_agent_position(env, position):
     """
     Show trajectory followed by agent
     :param env: environment
-    :param state_trajectory: states visited during trajectory
+    :param position: current agent position
     :return:
     """
-    states = []
     plt.figure(figsize=(6, 3))
-    plt.yticks(np.arange(0, 4), [])
-    plt.xticks(np.arange(0, 12), [])
-    for i in range(4):
-        plt.axhline(y=0.2 * i, xmin=0, xmax=0.3 * 12)
-    for j in range(12):
-        plt.axvline(x=0.2 * j, ymin=0, ymax=0.3 * 4)
-    for state in state_trajectory:
-        state = env.state_to_position(state)
-        states.append(state)
-        plt.plot(0.2 * state[0], 0.2 * state[1], marker='X', color="g", markersize=10)
-        if len(states) >= 2:
-            plt.arrow(0.2 * states[-2][0], 0.2 * states[-2][1],
-                      0.2 * (states[-1][0]-states[-2][0]), 0.2 * (states[-1][1]-states[-2][1]))
+    sizes = env.maze.size
+    plt.yticks(np.arange(0, sizes[0]), [])
+    plt.xticks(np.arange(0, sizes[1]), [])
+    for i in range(sizes[0]):
+        plt.axhline(y=i+0.5, xmin=0, xmax=sizes[1])
+    for j in range(sizes[1]):
+        plt.axvline(x=j+0.5, ymin=0, ymax=sizes[0])
+    twod_position = (int(position / sizes[0]), position % sizes[1])
+    plt.plot([twod_position[0]+0.5], [twod_position[1]+0.5], label="o")
+    plt.legend()
     plt.show()
 
 
@@ -145,4 +150,55 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
                 plt.ylabel(legend_keys[key], fontsize=30)
             else:
                 plt.ylabel(legend_keys[key], fontsize=20)
-                
+
+
+def final_trajectory(environment, theta):
+
+    if environment == "random_maze":  # select random maze
+        env_id = "RandomMaze-v0"
+        gym.envs.register(id=env_id, entry_point=RandomMaze, max_episode_steps=100)
+        env = gym.make(env_id)
+    elif environment == "cliff":  # select cliff
+        env_id = "RandomCliff-v0"
+        gym.envs.register(id=env_id, entry_point=RandomCliff, max_episode_steps=100)
+        env = gym.make(env_id)
+    elif environment == "hole":  # select hole environment
+        env_id = "Hole-v0"
+        gym.envs.register(id=env_id, entry_point=RandomHole, max_episode_steps=100)
+        env = gym.make(env_id)
+    elif environment == "umaze":
+        env_id = "Umaze-v0"
+        gym.envs.register(id=env_id, entry_point=UMaze, max_episode_steps=100)
+        env = gym.make(env_id)
+    else:
+        raise ValueError("Please, select an available environment from the list in run.py")
+
+    env.reset()
+
+    env.render()
+
+    state_trajectory = []
+
+    figs = []
+    count = 0
+
+    while not env.end:
+        # Get state corresponding to agent position
+        state = env.get_state()
+
+        screen = env.render(mode="human")
+        plt.imsave(f"figures/trajectories/{environment}/{count}.png", screen)
+
+        # Get probabilities per action from current policy
+        action_probs = pi(env, theta)
+
+        # Select greedy action according to policy
+        action = np.argmax(np.squeeze(action_probs))
+
+        # Move agent to next position
+        next_state, reward, _, _, _ = env.step(action)
+
+        state_trajectory.append(state)
+        count += 1
+
+    return count

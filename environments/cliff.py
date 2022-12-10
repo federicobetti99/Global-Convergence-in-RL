@@ -37,6 +37,9 @@ class RandomCliff(BaseEnv):
         self.motions = VonNeumannMotion()
         self.x = self.maze.x
 
+        self.metadata = {'render.modes': ['human', 'rgb_array'],
+                    'video.frames_per_second': 3}
+
         self.start_idx = [[5, 0]]
         self.goal_idx = [[5, 8]]
 

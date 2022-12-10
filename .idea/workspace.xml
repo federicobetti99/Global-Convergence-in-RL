@@ -6,26 +6,263 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="074cc01b-e58a-4b80-8201-23a1ee76d1b4" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.ipynb_checkpoints/run-checkpoint.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/cliff/episode_lengths.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/cliff/episode_lengths.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/cliff/grad.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/cliff/gradients.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/cliff/gradients.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/cliff/obj.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/cliff/objectives.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/cliff/objectives.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/cliff/rewards.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/cliff/rewards.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/cliff/taus.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/cliff/taus.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/hole/env_figure.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/hole/episode_lengths.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/hole/episode_lengths.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/hole/gradients.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/hole/gradients.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/hole/objectives.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/hole/objectives.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/hole/rewards.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/hole/rewards.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/figures/hole/taus.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/hole/taus.png" afterDir="false" />
+    <list default="true" id="fdb40b82-7667-4286-b3e9-7a5c75b1ac43" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/figures/cliff/SCRN.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/cliff/SPG Entropy.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/cliff/SPG.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/cliff/Two stages SPG Entropy.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/0.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/10.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/11.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/14.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/15.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/16.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/17.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/20.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/21.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/23.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/24.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/25.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/26.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/27.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/29.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/30.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/31.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/32.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/33.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/34.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/35.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/36.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/39.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/4.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/40.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/43.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/44.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/45.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/46.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/48.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/49.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/5.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/50.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/52.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/53.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/54.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/55.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/58.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/59.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/6.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/61.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/62.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/63.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/64.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/65.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/68.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/69.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/7.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/71.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/72.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/73.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/74.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/75.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/76.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/77.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/78.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/79.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/8.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/80.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/81.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/82.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/83.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/84.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/85.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/87.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/88.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/89.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/9.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/90.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/91.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/92.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/93.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/94.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/96.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/97.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/98.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/cliff/99.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/0.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/10.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/11.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/14.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/15.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/16.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/17.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/18.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/19.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/20.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/21.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/23.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/24.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/25.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/26.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/29.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/30.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/33.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/34.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/35.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/36.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/39.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/4.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/40.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/42.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/43.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/44.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/45.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/46.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/48.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/49.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/5.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/50.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/51.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/52.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/53.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/54.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/55.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/58.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/59.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/6.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/62.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/63.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/64.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/65.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/67.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/68.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/69.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/7.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/71.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/72.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/73.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/74.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/77.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/78.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/79.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/8.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/80.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/81.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/82.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/83.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/84.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/87.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/88.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/89.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/9.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/90.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/91.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/92.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/93.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/94.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/95.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/96.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/97.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/98.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/99.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/SCRN.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/SPG Entropy.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/random_maze/SPG.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/0.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/10.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/11.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/12.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/13.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/14.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/15.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/16.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/17.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/18.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/19.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/20.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/21.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/22.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/23.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/24.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/25.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/26.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/27.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/28.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/29.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/30.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/31.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/32.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/33.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/36.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/37.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/38.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/39.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/4.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/40.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/41.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/42.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/43.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/45.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/46.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/47.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/48.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/5.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/50.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/51.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/52.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/54.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/55.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/56.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/57.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/58.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/6.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/60.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/61.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/64.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/65.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/66.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/67.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/68.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/7.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/70.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/71.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/72.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/73.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/74.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/75.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/76.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/77.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/78.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/8.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/80.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/83.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/84.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/85.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/86.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/87.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/89.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/9.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/90.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/93.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/94.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/95.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/96.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/figures/trajectories/umaze/99.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/run-checkpoint.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/.ipynb_checkpoints/run-checkpoint.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/environments/cliff.py" beforeDir="false" afterPath="$PROJECT_DIR$/environments/cliff.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/results/cliff_results.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/results/cliff_results.pkl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/results/hole_results.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/results/hole_results.pkl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/run.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/run.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -42,8 +279,8 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectId" id="2IiKenxHvTyNnwYjuhNSFiCs4y8" />
-  <component name="ProjectLevelVcsManager">
+  <component name="ProjectId" id="2Ij0Og5VyPN3xchM1NKKJghHIUW" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectViewState">
@@ -52,24 +289,23 @@
   </component>
   <component name="PropertiesComponent">
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
-    <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
-    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
     <property name="cidr.known.project.marker" value="true" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="074cc01b-e58a-4b80-8201-23a1ee76d1b4" name="Changes" comment="" />
-      <created>1670659062565</created>
+      <changelist id="fdb40b82-7667-4286-b3e9-7a5c75b1ac43" name="Changes" comment="" />
+      <created>1670679656647</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1670659062565</updated>
-      <workItem from="1670659064028" duration="6200000" />
+      <updated>1670679656647</updated>
+      <workItem from="1670679658997" duration="4950000" />
     </task>
     <servers />
   </component>
