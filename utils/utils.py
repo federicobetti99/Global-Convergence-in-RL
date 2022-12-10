@@ -102,129 +102,47 @@ def env_to_text(env: np.array) -> str:
     return env
 
 
-def running_average(arr):
-    """
-    Computes the running average of the quantities stored in arr
-    :param arr: array
-    :return:
-        - the running average (computed after each item) of arr
-    """
-    return [np.sum(arr[:i]) / (i+1) for i in range(len(arr))]
+def running_mean(x, n):
+    running_avg = [np.mean(x[i*n:(i+1)*n]) for i in range(int(len(x)/n))]
+    return np.array(running_avg)
 
 
-def plot_stats(environment, average_stats, std_stats, num_episodes, test_freq):
-    plt.figure()
-    QOI_SCRN = average_stats["SCRN"]["steps"]
-    STD_SCRN = std_stats["SCRN"]["steps"]
-    QOI_SPG = average_stats["SPG"]["steps"]
-    STD_SPG = std_stats["SPG"]["steps"]
-    QOI_ESPG = average_stats["SPG Entropy"]["steps"]
-    STD_ESPG = std_stats["SPG Entropy"]["steps"]
-    QOI_TSESPG = average_stats["Two stages SPG Entropy"]["steps"]
-    STD_TSESPG = std_stats["Two stages SPG Entropy"]["steps"]
-    plt.plot(np.arange(0, num_episodes), QOI_SCRN, label="SCRN")
-    plt.fill_between(np.arange(0, num_episodes), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes), QOI_SPG, label="SPG")
-    plt.fill_between(np.arange(0, num_episodes), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes), QOI_ESPG, label="ESPG")
-    plt.fill_between(np.arange(0, num_episodes), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes), QOI_TSESPG, label="TSESPG")
-    plt.fill_between(np.arange(0, num_episodes), QOI_TSESPG-STD_TSESPG, QOI_ESPG+STD_TSESPG, alpha=0.2)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.55, -0.2), fancybox=True, shadow=True, ncol=4, fontsize='large')
-    plt.xticks(fontsize=15)
-    plt.yticks(fontsize=15)
-    plt.xlabel("Number of episodes", fontsize=20)
-    plt.ylabel("Average episode length", fontsize=20)
+def plot_stats(average_stats, std_stats, num_episodes, test_freq):
 
-    plt.figure()
-    QOI_SCRN = average_stats["SCRN"]["taus"]
-    STD_SCRN = std_stats["SCRN"]["taus"]
-    QOI_SPG = average_stats["SPG"]["taus"]
-    STD_SPG = std_stats["SPG"]["taus"]
-    QOI_ESPG = average_stats["SPG Entropy"]["taus"]
-    STD_ESPG = std_stats["SPG Entropy"]["taus"]
-    QOI_TSESPG = average_stats["Two stages SPG Entropy"]["taus"]
-    STD_TSESPG = std_stats["Two stages SPG Entropy"]["taus"]
-    plt.semilogy(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label=r"SCRN, $\alpha = 1$")
-    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-    plt.semilogy(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label=r"SPG, $\alpha = 1$")
-    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-    plt.semilogy(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label=r"ESPG, $\alpha=2$")
-    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_TSESPG, label=r"TSESPG, $\alpha = 2$")
-    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_TSESPG-STD_TSESPG, QOI_TSESPG+STD_TSESPG, alpha=0.2)
-    plt.xticks(fontsize=15)
-    plt.yticks(fontsize=15)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.55, -0.2), fancybox=True, shadow=True, ncol=4, fontsize='large')
-    plt.xlabel("Number of episodes", fontsize=20)
-    plt.ylabel(r"$\frac{J(\theta^{*}) - J(\theta)}{\vert \vert \nabla J(\theta) \vert \vert^{\alpha}}$", fontsize=20)
+    legend_keys = {"steps": "Episode length",
+                   "taus": r"$\frac{J(\theta^{*}) - J(\theta)}{\| \| \nabla J(\theta) \| \|^{\alpha}}$",
+                   "rewards": "Episode reward",
+                   "obj_estimates": r"$J(\theta)$",
+                   "grad_estimates": r"$\| \| \nabla J(\theta) \| \|$"}
 
-    plt.figure()
-    QOI_SCRN = average_stats["SCRN"]["rewards"]
-    STD_SCRN = std_stats["SCRN"]["rewards"]
-    QOI_SPG = average_stats["SPG"]["rewards"]
-    STD_SPG = std_stats["SPG"]["rewards"]
-    QOI_ESPG = average_stats["SPG Entropy"]["rewards"]
-    STD_ESPG = std_stats["SPG Entropy"]["rewards"]
-    QOI_TSESPG = average_stats["Two stages SPG Entropy"]["rewards"]
-    STD_TSESPG = std_stats["Two stages SPG Entropy"]["rewards"]
-    plt.plot(np.arange(0, num_episodes), QOI_SCRN, label="SCRN")
-    plt.fill_between(np.arange(0, num_episodes), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes), QOI_SPG, label="SPG")
-    plt.fill_between(np.arange(0, num_episodes), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes), QOI_ESPG, label="ESPG")
-    plt.fill_between(np.arange(0, num_episodes), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes), QOI_TSESPG, label="TSESPG")
-    plt.fill_between(np.arange(0, num_episodes), QOI_TSESPG-STD_TSESPG, QOI_TSESPG+STD_TSESPG, alpha=0.2)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.55, -0.2), fancybox=True, shadow=True, ncol=4, fontsize='large')
-    plt.xticks(fontsize=15)
-    plt.yticks(fontsize=15)
-    plt.xlabel("Number of episodes", fontsize=20)
-    plt.ylabel("Reward during training", fontsize=20)
-    plt.savefig(f"figures/{environment}/rewards.png")
+    legend_items = {"SCRN": "SCRN", "SPG": "SPG", "SPG Entropy": "ESPG", "Two stages SPG Entropy": "TSESPG"}
+    alphas = {"SCRN": 1, "SPG": 1, "SPG Entropy": 2, "Two stages SPG Entropy": 2}
+    legend_items_taus = {key: rf"{legend_items[key]}, $\alpha = {alphas[key]}$" for key in legend_items.keys()}
+    steps = {"steps": int(test_freq/5), "taus": test_freq, "rewards": int(test_freq/5),
+             "obj_estimates": test_freq, "grad_estimates": test_freq}
 
-    plt.figure()
-    QOI_SCRN = average_stats["SCRN"]["obj_estimates"]
-    STD_SCRN = std_stats["SCRN"]["obj_estimates"]
-    QOI_SPG = average_stats["SPG"]["obj_estimates"]
-    STD_SPG = std_stats["SPG"]["obj_estimates"]
-    QOI_ESPG = average_stats["SPG Entropy"]["obj_estimates"]
-    STD_ESPG = std_stats["SPG Entropy"]["obj_estimates"]
-    QOI_TSESPG = average_stats["Two stages SPG Entropy"]["obj_estimates"]
-    STD_TSESPG = std_stats["Two stages SPG Entropy"]["obj_estimates"]
-    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label="SCRN")
-    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label="SPG")
-    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label="ESPG")
-    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_TSESPG, label="TSESPG")
-    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_TSESPG-STD_TSESPG, QOI_TSESPG+STD_TSESPG, alpha=0.2)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.55, -0.2), fancybox=True, shadow=True, ncol=4, fontsize='large')
-    plt.xticks(fontsize=15)
-    plt.yticks(fontsize=15)
-    plt.xlabel("Number of episodes", fontsize=20)
-    plt.ylabel("Objective during training", fontsize=20)
+    for key in ["steps", "taus", "rewards", "obj_estimates", "grad_estimates"]:
+        plt.figure()
+        for algo in ["SCRN", "SPG", "SPG Entropy", "Two stages SPG Entropy"]:
+            QOI = average_stats[algo][key]
+            STD_QOI = std_stats[algo][key]
+            if key in ["steps", "rewards"]:
+                QOI = running_mean(QOI, steps[key])
+                STD_QOI = running_mean(STD_QOI, steps[key])
+            if key == "taus":
+                plt.plot(np.arange(0, num_episodes, step=steps[key]), QOI, label=legend_items_taus[algo])
+                plt.fill_between(np.arange(0, num_episodes, step=steps[key]), QOI-STD_QOI, QOI+STD_QOI, alpha=0.2)
+                plt.yscale("log")
+            else:
+                plt.plot(np.arange(0, num_episodes, step=steps[key]), QOI, label=legend_items[algo])
+                plt.fill_between(np.arange(0, num_episodes, step=steps[key]), QOI-STD_QOI, QOI+STD_QOI, alpha=0.2)
 
-    plt.figure()
-    QOI_SCRN = average_stats["SCRN"]["grad_estimates"]
-    STD_SCRN = std_stats["SCRN"]["grad_estimates"]
-    QOI_SPG = average_stats["SPG"]["grad_estimates"]
-    STD_SPG = std_stats["SPG"]["grad_estimates"]
-    QOI_ESPG = average_stats["SPG Entropy"]["grad_estimates"]
-    STD_ESPG = std_stats["SPG Entropy"]["grad_estimates"]
-    QOI_TSESPG = average_stats["Two stages SPG Entropy"]["grad_estimates"]
-    STD_TSESPG = std_stats["Two stages SPG Entropy"]["grad_estimates"]
-    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SCRN, label="SCRN")
-    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SCRN-STD_SCRN, QOI_SCRN+STD_SCRN, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_SPG, label="SPG")
-    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_SPG-STD_SPG, QOI_SPG+STD_SPG, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_ESPG, label="ESPG")
-    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_ESPG-STD_ESPG, QOI_ESPG+STD_ESPG, alpha=0.2)
-    plt.plot(np.arange(0, num_episodes, step=test_freq), QOI_TSESPG, label="TSESPG")
-    plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_TSESPG-STD_TSESPG, QOI_TSESPG+STD_TSESPG, alpha=0.2)
-    plt.legend(loc='upper center', bbox_to_anchor=(0.55, -0.2), fancybox=True, shadow=True, ncol=4, fontsize='large')
-    plt.xticks(fontsize=15)
-    plt.yticks(fontsize=15)
-    plt.xlabel("Number of episodes", fontsize=20)
-    plt.ylabel(r"$\vert \vert \nabla J(\theta) \vert \vert$", fontsize=20)
+            plt.legend(loc='upper center', bbox_to_anchor=(1.3, 0.8), fancybox=True, shadow=True, ncol=1, fontsize='xx-large')
+            plt.xticks(fontsize=15)
+            plt.yticks(fontsize=15)
+            plt.xlabel("Number of episodes", fontsize=20)
+            if key in ["taus", "obj_estimates", "grad_estimates"]:
+                plt.ylabel(legend_keys[key], fontsize=30)
+            else:
+                plt.ylabel(legend_keys[key], fontsize=20)
+                

@@ -72,4 +72,4 @@ def start_experiment(environment, num_episodes, test_freq, num_avg):
         pickle.dump({"avg": average_stats, "std": std_stats}, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-start_experiment("cliff", num_episodes=10000, test_freq=50, num_avg=10)
+start_experiment("hole", num_episodes=10000, test_freq=50, num_avg=10)
