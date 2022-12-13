@@ -126,30 +126,42 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
     steps = {"steps": int(test_freq/5), "taus": test_freq, "rewards": int(test_freq/5),
              "obj_estimates": test_freq, "grad_estimates": test_freq}
 
-    for key in ["steps", "taus", "rewards", "obj_estimates", "grad_estimates"]:
-        plt.figure()
+    fig, ax = plt.subplots(2, 2, figsize=(8, 8))
+    fig.tight_layout(pad=3.)
+    fig.subplots_adjust(top=0.7, left=0.001, right=1.2, bottom=0.02)
+
+    for ind, key in enumerate(["steps", "obj_estimates", "rewards", "grad_estimates"]):
         for algo in ["SCRN", "SPG", "SPG Entropy", "Two stages SPG Entropy"]:
             QOI = average_stats[algo][key]
             STD_QOI = std_stats[algo][key]
             if key in ["steps", "rewards"]:
                 QOI = running_mean(QOI, steps[key])
                 STD_QOI = running_mean(STD_QOI, steps[key])
-            if key == "taus":
-                plt.plot(np.arange(0, num_episodes, step=steps[key]), QOI, label=legend_items_taus[algo])
-                plt.fill_between(np.arange(0, num_episodes, step=steps[key]), QOI-STD_QOI, QOI+STD_QOI, alpha=0.2)
-                plt.yscale("log")
+            ax[ind % 2, int(ind/2)].plot(np.arange(0, num_episodes, step=steps[key]), QOI, label=legend_items[algo])
+            ax[ind % 2, int(ind/2)].fill_between(np.arange(0, num_episodes, step=steps[key]), QOI-STD_QOI, QOI+STD_QOI, alpha=0.2)
+            ax[ind % 2, int(ind/2)].set_xlabel("Number of episodes", fontsize=15)
+            ax[ind % 2, int(ind/2)].tick_params(axis='both', which='major', labelsize=15)
+            ax[ind % 2, int(ind/2)].tick_params(axis='both', which='minor', labelsize=15)
+            if key in ["obj_estimates", "grad_estimates"]:
+                ax[ind % 2, int(ind/2)].set_ylabel(legend_keys[key], fontsize=20)
             else:
-                plt.plot(np.arange(0, num_episodes, step=steps[key]), QOI, label=legend_items[algo])
-                plt.fill_between(np.arange(0, num_episodes, step=steps[key]), QOI-STD_QOI, QOI+STD_QOI, alpha=0.2)
+                ax[ind % 2, int(ind/2)].set_ylabel(legend_keys[key], fontsize=15)
 
-            plt.legend(loc='upper center', bbox_to_anchor=(1.3, 0.8), fancybox=True, shadow=True, ncol=1, fontsize='xx-large')
-            plt.xticks(fontsize=15)
-            plt.yticks(fontsize=15)
-            plt.xlabel("Number of episodes", fontsize=20)
-            if key in ["taus", "obj_estimates", "grad_estimates"]:
-                plt.ylabel(legend_keys[key], fontsize=30)
-            else:
-                plt.ylabel(legend_keys[key], fontsize=20)
+    plt.legend(loc='upper center', bbox_to_anchor=(-0.15, -0.25), fancybox=True, shadow=True, ncol=4, fontsize='xx-large')
+
+    plt.figure(figsize=(8, 5))
+    key = "taus"
+    for algo in ["SCRN", "SPG", "SPG Entropy", "Two stages SPG Entropy"]:
+        QOI = average_stats[algo][key]
+        STD_QOI = std_stats[algo][key]
+        plt.plot(np.arange(0, num_episodes, step=steps[key]), QOI, label=legend_items_taus[algo])
+        plt.fill_between(np.arange(0, num_episodes, step=steps[key]), QOI-STD_QOI, QOI+STD_QOI, alpha=0.2)
+        plt.xlabel("Number of episodes", fontsize=15)
+        plt.ylabel(legend_keys[key], fontsize=25)
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
+        plt.yscale("log")
+        plt.legend(loc='upper center', bbox_to_anchor=(1.25, 0.8), fancybox=True, shadow=True, ncol=1, fontsize='xx-large')
 
 
 def final_trajectory(environment, theta):
