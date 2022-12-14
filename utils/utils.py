@@ -128,7 +128,7 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
 
     fig, ax = plt.subplots(2, 2, figsize=(8, 8))
     fig.tight_layout(pad=3.)
-    fig.subplots_adjust(top=0.7, left=0.001, right=1.2, bottom=0.02)
+    fig.subplots_adjust(top=0.7, left=0.001, right=1.2, bottom=0.02, wspace=0.5, hspace=0.5)
 
     for ind, key in enumerate(["steps", "obj_estimates", "rewards", "grad_estimates"]):
         for algo in ["SCRN", "SPG", "SPG Entropy", "Two stages SPG Entropy"]:
