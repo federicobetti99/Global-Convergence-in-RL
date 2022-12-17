@@ -115,14 +115,15 @@ def running_mean(x, n):
 def plot_stats(average_stats, std_stats, num_episodes, test_freq):
 
     legend_keys = {"steps": "Episode length",
-                   "taus": r"$\frac{J(\theta^{*}) - J(\theta)}{\| \| \nabla J(\theta) \| \|^{\alpha}}$",
+                   "taus": r"$\frac{J^\lambda(\theta^{*}) - J^\lambda(\theta)}{\| \| \nabla J^\lambda(\theta) \| \|^{\alpha}}$",
                    "rewards": "Episode reward",
                    "obj_estimates": r"$J(\theta)$",
                    "grad_estimates": r"$\| \| \nabla J(\theta) \| \|$"}
 
     legend_items = {"SCRN": "SCRN", "SPG": "SPG", "SPG Entropy": "ESPG", "Two stages SPG Entropy": "TSESPG"}
     alphas = {"SCRN": 1, "SPG": 1, "SPG Entropy": 2, "Two stages SPG Entropy": 2}
-    legend_items_taus = {key: rf"{legend_items[key]}, $\alpha = {alphas[key]}$" for key in legend_items.keys()}
+    lambdas = {"SCRN": 0, "SPG": 0, "SPG Entropy": "1e-5", "Two stages SPG Entropy": "1e-5"}
+    legend_items_taus = {key: rf"{legend_items[key]}, $\lambda = {lambdas[key]}$, $\alpha = {alphas[key]}$" for key in legend_items.keys()}
     steps = {"steps": int(test_freq/5), "taus": test_freq, "rewards": int(test_freq/5),
              "obj_estimates": test_freq, "grad_estimates": test_freq}
 
@@ -161,7 +162,7 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
         plt.xticks(fontsize=15)
         plt.yticks(fontsize=15)
         plt.yscale("log")
-        plt.legend(loc='upper center', bbox_to_anchor=(1.25, 0.8), fancybox=True, shadow=True, ncol=1, fontsize='xx-large')
+        plt.legend(loc='upper center', bbox_to_anchor=(1.40, 0.8), fancybox=True, shadow=True, ncol=1, fontsize='xx-large')
 
 
 def final_trajectory(environment, theta):

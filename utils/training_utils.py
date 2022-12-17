@@ -60,12 +60,13 @@ def objective_trajectory(reward_trajectory, gamma):
     return obj
 
 
-def estimate_objective_and_gradient(env, gamma, theta, num_episodes=50):
+def estimate_objective_and_gradient(env, gamma, theta, entropy_bonus=False, num_episodes=50):
     """
     Off training function to estimate objective and gradient under current policy
     :param env: environment
     :param gamma: discount factor for future rewards
     :param theta: parameter for the policy
+    :param entropy_bonus: true if there is entropy regularization in the objective to be estimated
     :param num_episodes: batch size
     :return:
     """

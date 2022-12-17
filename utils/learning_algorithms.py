@@ -111,7 +111,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
 
         if episode % test_freq == 0:
             estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta,
-                                                                          num_episodes=50)
+                                                                          entropy_bonus, num_episodes=50)
             tau_estimates.append((optimum - estimate_obj) / estimate_grad)
             objective_estimates.append(estimate_obj)
             gradients_estimates.append(estimate_grad)
@@ -244,7 +244,8 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
             grad = np.zeros((1, STATE_DIM, ACTION_DIM))
 
         if episode % test_freq == 0:
-            estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta, num_episodes=50)
+            estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta,
+                                                                          entropy_bonus, num_episodes=50)
             objective_estimates.append(estimate_obj)
             gradients_estimates.append(estimate_grad)
             if entropy_bonus:
