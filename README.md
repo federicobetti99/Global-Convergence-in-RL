@@ -43,13 +43,13 @@ Requirements for the needed packages are available in requirements.txt. To insta
 pip install -r requirements.txt
 ```
 
-### Reproducibility of the results and usage
+## Reproducibility of the results and usage
 To reproduce the obtained results shown in the report, run the script `run.py`
 by properly choosing an environment, the number of episodes and the test frequency
 of the policy for the validity of the PL inequality testing.
 We recall that the results shown in the report are obtained for the following
 hyperparameter setting:
-```
+```python
 num_episodes = 10000
 gamma = 0.8
 batch_size = 1 # except for two stages algorithm
@@ -65,11 +65,11 @@ Hence, should you just want to visualize the obtained results without loading ne
 we suggest to directly utilize the notebook `plots.ipynb`.
 For the correct usage of the latter, set in the first cell the desired
 environment, by choosing e.g.
-```
+```python
 environment = "umaze"  # any environment in ["cliff", "hole", "random_maze", "umaze"]
 ```
 Moreover, please set additionally
-```
+```python
 num_episodes = 10000
 num_avg = 10
 test_freq = 50
