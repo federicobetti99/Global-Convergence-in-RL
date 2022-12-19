@@ -1,4 +1,4 @@
-from utils.training_utils import *
+from NPG.training_utils import *
 
 STATE_DIM = 2
 ACTION_DIM = 2
@@ -21,7 +21,7 @@ def policy(env, state, theta) -> np.array:
 
 
 def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1, SGD=0, entropy_bonus=False,
-                  period=1000, test_freq=50) -> (np.array, list):
+                  period=1000, test_freq=None) -> (np.array, list):
     """
     Trains a RL agent with SCRN
     :param env: environment (the code works with any environment compatible with the gym syntax)
@@ -64,7 +64,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     for episode in range(num_episodes):
 
         # reset environment
-        state, _ = env.reset()
+        env.reset()
 
         if episode >= 1:
             print(episode, ": ", steps_cache[episode - 1])
@@ -86,7 +86,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            next_state, reward, _, _, _ = env.step(action)
+            next_state, reward = env.step(action)
 
             # collect statistics of current step
             rewards_cache[episode] += reward
@@ -162,7 +162,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
 
 
 def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_phases_params=None,
-                             entropy_bonus=False, period=1000, test_freq=50) -> (np.array, list):
+                             entropy_bonus=False, period=1000, test_freq=None) -> (np.array, list):
     """
     Trains a RL agent with discrete policy gradient
     :param env: environment
@@ -216,7 +216,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
     for episode in range(num_episodes):
 
         # reset environment
-        state, _ = env.reset()
+        env.reset()
 
         if episode >= 1:
             print(episode, ": ", steps_cache[episode - 1])
@@ -238,7 +238,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
             action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            next_state, reward, _, _, _ = env.step(action)
+            next_state, reward = env.step(action)
 
             # Collect statistics of current step
             rewards_cache[episode] += reward
@@ -307,7 +307,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
     return stats
 
 
-def NPG(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=1, period=1000, test_freq=None):
+def NPG(env, num_episodes=1000, alpha=0.001, gamma=0.8, batch_size=1, period=1000, test_freq=None):
     """
     Natural policy gradient for testing on MDP
     :param env: environment (MDP usually, syntax is compatible only with this one)
@@ -329,12 +329,11 @@ def NPG(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=1, period=1000
 
     # Initialize theta and stats collecting builtins
     theta = np.zeros([1, STATE_DIM, ACTION_DIM])
-
     steps_cache = np.zeros(num_episodes)
     rewards_cache = np.zeros(num_episodes)
-
     tau_estimates = []
     grad = np.zeros((1, STATE_DIM, ACTION_DIM))
+    Fisher = np.zeros((1, STATE_DIM, ACTION_DIM))
     objective_estimates = []
     gradients_estimates = []
     thetas = []
@@ -383,9 +382,12 @@ def NPG(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=1, period=1000
         if episode % period == 0 and episode > 0:
             alpha = alpha0 / (episode / period)
 
-        grad_traj = grad_log_pi(action_trajectory, probs_trajectory)
+        grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory, probs_trajectory,
+                                                          reward_trajectory, gamma)
         grad_traj = np.reshape(grad_traj, (1, STATE_DIM, ACTION_DIM))
+        Fisher_traj = Fisher_matrix_trajectory(state_trajectory, action_trajectory, probs_trajectory)
         grad = grad + grad_traj / batch_size
+        Fisher = Fisher + Fisher_traj / batch_size
 
         # save solution vector at the end of current episode
         thetas.append(theta)
@@ -393,9 +395,9 @@ def NPG(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=1, period=1000
         # Update action probabilities at end of each episode
         if episode % batch_size == 0 and episode > 0:
             grad = np.reshape(grad, (STATE_DIM, ACTION_DIM))
-            Fisher = grad @ grad.T  # Fisher information matrix
             theta = theta + alpha * np.linalg.pinv(Fisher) @ grad  # NPG update
             grad = np.zeros((1, STATE_DIM, ACTION_DIM))  # reset gradient
+            Fisher = np.zeros((1, STATE_DIM, ACTION_DIM))  # reset Fisher matrix
 
         if test_freq is not None:
             # test validity of PL inequality by estimating objective and gradient
