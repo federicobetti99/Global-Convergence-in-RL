@@ -45,7 +45,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     # Iterate over episodes
     for episode in range(num_episodes):
 
-        state, _ = env.reset()
+        env.reset()
 
         if episode >= 1:
             print(episode, ": ", steps_cache[episode - 1])
@@ -67,16 +67,12 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            next_state, reward, _, _, _ = env.step(action)
+            next_state, reward = env.step(action)
 
             rewards_cache[episode] += reward
-
             state_trajectory.append(state)
             action_trajectory.append(action)
-            if entropy_bonus:
-                reward_trajectory.append(reward + get_entropy_bonus(action_probs))
-            else:
-                reward_trajectory.append(reward)
+            reward_trajectory.append(reward)
             probs_trajectory.append(action_probs)
 
             steps_cache[episode] += 1
@@ -101,7 +97,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             if SGD == 1:
                 Delta = alpha * grad
             else:
-                Delta = cubic_subsolver(-grad, -Hessian)  # 0.001*grad#
+                Delta = cubic_subsolver(-grad, -Hessian)
             Delta = np.reshape(Delta, (STATE_DIM, ACTION_DIM))
             theta = theta + Delta
             grad = np.zeros((STATE_DIM * ACTION_DIM))
@@ -186,7 +182,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
     # Iterate over episodes
     for episode in range(num_episodes):
 
-        state, _ = env.reset()
+        env.reset()
 
         if episode >= 1:
             print(episode, ": ", steps_cache[episode - 1])
@@ -208,7 +204,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
             action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            next_state, reward, _, _, _ = env.step(action)
+            next_state, reward = env.step(action)
             rewards_cache[episode] += reward
             state_trajectory.append(state)
             action_trajectory.append(action)
