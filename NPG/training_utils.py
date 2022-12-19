@@ -205,6 +205,23 @@ def grad_log_pi(action_trajectory, probs_trajectory):
     return grad_collection
 
 
+def Fisher_matrix_trajectory(state_trajectory, action_trajectory, probs_trajectory):
+    """
+    Computes an estimate of the Fisher information
+    :param state_trajectory: trajectory of states
+    :param action_trajectory: trajectory of actions
+    :param probs_trajectory: trajectory of probabilities
+    :return:
+        - a matrix ready to be inverted for a NPG update
+    """
+    grad_collection = grad_log_pi(action_trajectory, probs_trajectory)
+    grad = np.zeros((STATE_DIM, ACTION_DIM))
+    for t in range(len(action_trajectory)):
+        grad[state_trajectory[t], :] += grad_collection[t]
+    grad = np.reshape(grad, (1, ACTION_DIM * STATE_DIM))
+    return grad @ grad.T
+
+
 def grad_trajectory(state_trajectory, action_trajectory, probs_trajectory, reward_trajectory, gamma):
     """
     Computes the grad of objective function for a given trajectory
