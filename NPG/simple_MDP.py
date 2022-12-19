@@ -26,20 +26,15 @@ class MDP:
 
     def step(self, action):
         if action == 0:
-            new_position = self.get_state()
-        else:  # action == 1, move to other state
-            new_position = 1 if self.get_state() == 0 else 0
-
-        self.num_steps += 1
-        self.state = new_position
-
-        if self.state == self.goal_idx:
+            self.state = 0
+            self.end = True
+            reward = 1
+            print("==== Stuck in initial state ====")
+        else:
+            self.state = 1
             self.end = True
             reward = 2
-            print(f"========== Goal reached in {self.num_steps} steps ==========")
-        else:
-            self.end = False
-            reward = 1
+            print("==== Found high reward ====")
 
         return self.state, reward
 
