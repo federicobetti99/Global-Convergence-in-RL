@@ -5,7 +5,13 @@ ACTION_DIM = 2
 
 
 def policy(env, state, theta) -> np.array:
-    """Off policy computation of pi(state)"""
+    """Off policy computation of pi(state)
+    :param env: environment
+    :param state: state of the agent
+    :param theta: policy parameters
+    :return:
+        - softmax of the learned values
+    """
     probs = np.zeros(ACTION_DIM)
     env.set_state(state)
     for action in range(ACTION_DIM):
@@ -17,14 +23,25 @@ def policy(env, state, theta) -> np.array:
 def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1, SGD=0, entropy_bonus=False,
                   period=1000, test_freq=50) -> (np.array, list):
     """
-    SCRN with discrete policy (manual weight updates)
+    Trains a RL agent with SCRN
+    :param env: environment (the code works with any environment compatible with the gym syntax)
+    :param num_episodes: number of training episodes
+    :param alpha: learning rate
+    :param gamma: discount factor for future rewards
+    :param batch_size: batch size for estimates of gradient and Hessian
+    :param SGD: True to simply do SGD update
+    :param entropy_bonus: True to regularize the objective with an entropy bonus
+    :param period: period for the decay of the learning rate
+    :param test_freq: test frequency during training for PL inequality testing
+    :return:
+        - a dictionary of statistics collected during training
     """
     step_cache = []
     reward_cache = []
     env_cache = []
     name_cache = []
 
-    # Initialize theta
+    # Initialize theta and other quantities to collect training statistics
     theta = np.zeros([1, STATE_DIM, ACTION_DIM])
     alpha0 = alpha
     alpha = alpha0
@@ -40,12 +57,14 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     gradients_estimates = []
     thetas = []
 
+    # compute optimum J(\theta^*)
     optimum = objective_trajectory(env.get_optimal_path(), gamma)
 
     # Iterate over episodes
     for episode in range(num_episodes):
 
-        env.reset()
+        # reset environment
+        state, _ = env.reset()
 
         if episode >= 1:
             print(episode, ": ", steps_cache[episode - 1])
@@ -67,14 +86,17 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            next_state, reward = env.step(action)
+            next_state, reward, _, _, _ = env.step(action)
 
+            # collect statistics of current step
             rewards_cache[episode] += reward
             state_trajectory.append(state)
             action_trajectory.append(action)
-            reward_trajectory.append(reward)
+            if entropy_bonus:
+                reward_trajectory.append(reward + get_entropy_bonus(action_probs))
+            else:
+                reward_trajectory.append(reward)
             probs_trajectory.append(action_probs)
-
             steps_cache[episode] += 1
 
         # Computing objective, grad and Hessian for the current trajectory
@@ -84,9 +106,6 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
                                           grad_collection_traj, gamma, theta)
 
         # adding entropy regularized term to grad
-        if SGD == 1:
-            grad_traj = grad_traj  # - grad_entropy_bonus(action_trajectory, state_trajectory,
-            # reward_trajectory, probs_trajectory, gamma)
         grad = grad + grad_traj / batch_size
         Hessian = Hessian + Hessian_traj / batch_size
         if episode % period == 0 and episode > 0:
@@ -97,21 +116,25 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             if SGD == 1:
                 Delta = alpha * grad
             else:
-                Delta = cubic_subsolver(-grad, -Hessian)
+                Delta = cubic_subsolver(-grad, -Hessian)  # 0.001*grad#
             Delta = np.reshape(Delta, (STATE_DIM, ACTION_DIM))
             theta = theta + Delta
             grad = np.zeros((STATE_DIM * ACTION_DIM))
             Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
+        # save solution parameters for the current epoch
         thetas.append(theta)
 
-        if episode % test_freq == 0:
-            estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta,
-                                                                          entropy_bonus, num_episodes=50)
-            tau_estimates.append((optimum - estimate_obj) / estimate_grad)
-            objective_estimates.append(estimate_obj)
-            gradients_estimates.append(estimate_grad)
+        if test_freq is not None:
+            # test validity of the PL inequality by estimating objective and gradient
+            if episode % test_freq == 0:
+                estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta,
+                                                                              entropy_bonus, num_episodes=50)
+                tau_estimates.append((optimum - estimate_obj) / estimate_grad)
+                objective_estimates.append(estimate_obj)
+                gradients_estimates.append(estimate_grad)
 
+    # save caches
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
     env_cache.append(env)
@@ -142,7 +165,16 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
 def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_phases_params=None,
                              entropy_bonus=False, period=1000, test_freq=50) -> (np.array, list):
     """
-    REINFORCE with discrete policy gradient (manual weight updates)
+    Trains a RL agent with discrete policy gradient
+    :param env: environment
+    :param num_episodes: number of training episodes
+    :param alpha: learning rate
+    :param gamma: discount factor for future rewards
+    :param two_phases_params: parameters for the two stages variant of the algorithm
+    :param entropy_bonus: True to regularize objective with an entropy bonus
+    :param period: period for decay of the learning rate
+    :param test_freq: test frequency during training to test validity of PL inequality
+    :return:
     """
     step_cache = []
     reward_cache = []
@@ -166,10 +198,11 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
     gradients_estimates = []
     thetas = []
 
+    # set parameters for two stages if they are not None
     if two_phases_params is not None:
-        initial_batch_size = two_phases_params["B1"]
-        final_batch_size = two_phases_params["B2"]
-        change_step = two_phases_params["T"]
+        initial_batch_size = two_phases_params["B1"]  # initial batch size
+        final_batch_size = two_phases_params["B2"]   # final batch size
+        change_step = two_phases_params["T"]  # change of step
     else:
         initial_batch_size = 1
         final_batch_size = 1
@@ -177,12 +210,14 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
 
     batch_size = initial_batch_size
 
+    # compute optimum J(\theta^*)
     optimum = objective_trajectory(env.get_optimal_path(), gamma)
 
     # Iterate over episodes
     for episode in range(num_episodes):
 
-        env.reset()
+        # reset environment
+        state, _ = env.reset()
 
         if episode >= 1:
             print(episode, ": ", steps_cache[episode - 1])
@@ -204,7 +239,9 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
             action = np.random.choice(ACTION_DIM, p=np.squeeze(action_probs))
 
             # Move agent to next position
-            next_state, reward = env.step(action)
+            next_state, reward, _, _, _ = env.step(action)
+
+            # Collect statistics of current step
             rewards_cache[episode] += reward
             state_trajectory.append(state)
             action_trajectory.append(action)
@@ -213,7 +250,6 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
             else:
                 reward_trajectory.append(reward)
             probs_trajectory.append(action_probs)
-
             steps_cache[episode] += 1
 
         if episode % period == 0 and episode > 0:
@@ -231,6 +267,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
         grad_traj = np.reshape(grad_traj, (1, STATE_DIM, ACTION_DIM))
         grad = grad + grad_traj / batch_size
 
+        # save solution vector after current episode
         thetas.append(theta)
 
         # Update action probabilities at end of each episode
@@ -239,15 +276,17 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
             theta = theta + alpha * grad
             grad = np.zeros((1, STATE_DIM, ACTION_DIM))
 
-        if episode % test_freq == 0:
-            estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta,
-                                                                          entropy_bonus, num_episodes=50)
-            objective_estimates.append(estimate_obj)
-            gradients_estimates.append(estimate_grad)
-            if entropy_bonus:
-                estimate_grad = estimate_grad ** 2
-            tau_estimates.append((optimum - estimate_obj) / estimate_grad)
+        if test_freq is not None:
+            # test validity of the PL inequality by estimating objective and gradient
+            if episode % test_freq == 0:
+                estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta, entropy_bonus, num_episodes=50)
+                objective_estimates.append(estimate_obj)
+                gradients_estimates.append(estimate_grad)
+                if entropy_bonus:
+                    estimate_grad = estimate_grad ** 2
+                tau_estimates.append((optimum - estimate_obj) / estimate_grad)
 
+    # save caches
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
     env_cache.append(env)
@@ -269,14 +308,15 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
     return stats
 
 
+
 def NPG(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=1, period=1000, test_freq=None):
     """
     Natural policy gradient for testing on MDP
     :param env: environment (MDP usually, syntax is compatible only with this one)
-    :param num_episodes: number of episodes
-    :param alpha: alpha
-    :param gamma: gamma
-    :param batch_size: batch size
+    :param num_episodes: number of training episodes
+    :param alpha: learning rate
+    :param gamma: discount factor for future rewards
+    :param batch_size: batch size for estimation of gradient
     :param period: period for learning rate decay
     :param test_freq: test frequency for PL constant experiments
     :return:
@@ -301,11 +341,13 @@ def NPG(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=1, period=1000
     gradients_estimates = []
     thetas = []
 
+    # compute optimum J(\theta^*)
     optimum = objective_trajectory(env.get_optimal_path(), gamma)
 
     # Iterate over episodes
     for episode in range(num_episodes):
 
+        # reset environment
         env.reset()
 
         if episode >= 1:
@@ -329,6 +371,8 @@ def NPG(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=1, period=1000
 
             # Move agent to next position
             next_state, reward = env.step(action)
+
+            # Save statistics of current step
             rewards_cache[episode] += reward
             state_trajectory.append(state)
             action_trajectory.append(action)
@@ -337,6 +381,7 @@ def NPG(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=1, period=1000
 
             steps_cache[episode] += 1
 
+        # update learning rate according to schedule
         if episode % period == 0 and episode > 0:
             alpha = alpha0 / (episode / period)
 
@@ -345,22 +390,25 @@ def NPG(env, num_episodes=1000, alpha=0.01, gamma=0.8, batch_size=1, period=1000
         grad_traj = np.reshape(grad_traj, (1, STATE_DIM, ACTION_DIM))
         grad = grad + grad_traj / batch_size
 
+        # save solution vector at the end of current episode
         thetas.append(theta)
 
         # Update action probabilities at end of each episode
         if episode % batch_size == 0 and episode > 0:
             grad = np.reshape(grad, (STATE_DIM, ACTION_DIM))
-            Fisher = grad @ grad.T
-            theta = theta + alpha * np.linalg.pinv(Fisher) @ grad
-            grad = np.zeros((1, STATE_DIM, ACTION_DIM))
+            Fisher = grad @ grad.T  # Fisher information matrix
+            theta = theta + alpha * np.linalg.pinv(Fisher) @ grad  # NPG update
+            grad = np.zeros((1, STATE_DIM, ACTION_DIM))  # reset gradient
 
         if test_freq is not None:
+            # test validity of PL inequality by estimating objective and gradient
             if episode % test_freq == 0:
                 estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta, False, num_episodes=50)
                 objective_estimates.append(estimate_obj)
                 gradients_estimates.append(estimate_grad)
                 tau_estimates.append((optimum - estimate_obj) / estimate_grad)
 
+    # save caches
     step_cache.append(steps_cache)
     reward_cache.append(rewards_cache)
     env_cache.append(env)

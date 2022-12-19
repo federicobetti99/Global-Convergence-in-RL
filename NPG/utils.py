@@ -1,4 +1,3 @@
-import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from utils.training_utils import *
@@ -14,6 +13,9 @@ import imageio
 def compare_probabilities_learned(average_stats, state, save_link=None):
     """
     Compare probabilities learned during training
+    :param average_stats: average stats collected during training
+    :param state: state of observation space
+    :param save_link: link where to save image
     """
 
     fig, ax = plt.subplots(1, 2, tight_layout=True, figsize=(12, 5))
@@ -82,6 +84,10 @@ def mark_path(agent: tuple, env: np.array) -> np.array:
     """
     Store path taken by agent
     Only needed for visualization
+    :param agent: agent encoding
+    :param env: environment
+    :return:
+        - path followed by agent
     """
     (posY, posX) = agent
     env[posY][posX] += 1
@@ -93,9 +99,9 @@ def env_to_text(env: np.array) -> str:
     """
     Convert environment to text format
     Needed for visualization in console
+    :param env: environment
     """
     env = np.where(env >= 1, 1, env)
-
     env = np.array2string(env, precision=0, separator=" ", suppress_small=False)
     env = env.replace("[[", " |")
     env = env.replace("]]", "|")
@@ -108,12 +114,27 @@ def env_to_text(env: np.array) -> str:
 
 
 def running_mean(x, n):
+    """
+    Running average of vector x values with window size n
+    :param x: vector of values
+    :param n: window size
+    :return:
+        - running average of x every n elements, for smoothing out rewards average over training
+    """
     running_avg = [np.mean(x[i*n:(i+1)*n]) for i in range(int(len(x)/n))]
     return np.array(running_avg)
 
 
 def plot_stats(average_stats, std_stats, num_episodes, test_freq):
-
+    """
+    Main function to plot statistics, produces 4 subplots with average episode length, reward, objective and gradient norm
+    and a bigger plot for PL constant results on average
+    :param average_stats: average stats for all RL algorithms
+    :param std_stats: standard deviations for all RL algorithms
+    :param num_episodes: number of training episodes
+    :param test_freq: test frequency during training for PL inequality testing
+    :return:
+    """
     legend_keys = {"steps": "Episode length",
                    "taus": r"$\frac{J^\lambda(\theta^{*}) - J^\lambda(\theta)}{\| \| \nabla J^\lambda(\theta) \| \|^{\alpha}}$",
                    "rewards": "Episode reward",
@@ -166,7 +187,13 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
 
 
 def final_trajectory(environment, theta):
-
+    """
+    Shows the final trajectory of training followed by a RL agent, saves snapshots of the environment
+    for future postprocessing and GIF creations
+    :param environment: environment string
+    :param theta: parameter policy
+    :return:
+    """
     if environment == "random_maze":  # select random maze
         env_id = "RandomMaze-v0"
         gym.envs.register(id=env_id, entry_point=RandomMaze, max_episode_steps=100)
@@ -187,12 +214,9 @@ def final_trajectory(environment, theta):
         raise ValueError("Please, select an available environment from the list in run.py")
 
     env.reset()
-
     env.render()
 
     state_trajectory = []
-
-    figs = []
     count = 0
 
     while not env.end:
