@@ -143,7 +143,7 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
 
     legend_items = {"SCRN": "SCRN", "SPG": "SPG", "SPG Entropy": "ESPG", "Two stages SPG Entropy": "TSESPG"}
     alphas = {"SCRN": 1, "SPG": 1, "SPG Entropy": 2, "Two stages SPG Entropy": 2}
-    lambdas = {"SCRN": 0, "SPG": 0, "SPG Entropy": "1e-5", "Two stages SPG Entropy": "1e-5"}
+    lambdas = {"SCRN": 0, "SPG": 0, "SPG Entropy": 1, "Two stages SPG Entropy": 1}
     legend_items_taus = {key: rf"{legend_items[key]}, $\lambda = {lambdas[key]}$, $\alpha = {alphas[key]}$" for key in legend_items.keys()}
     steps = {"steps": int(test_freq/5), "taus": test_freq, "rewards": int(test_freq/5),
              "obj_estimates": test_freq, "grad_estimates": test_freq}
