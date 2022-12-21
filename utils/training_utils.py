@@ -116,6 +116,8 @@ def estimate_objective_and_gradient(env, gamma, theta, entropy_bonus=False, num_
 
             state_trajectory.append(state)
             action_trajectory.append(action)
+            if entropy_bonus:
+                reward += get_entropy_bonus(action_probs)
             reward_trajectory.append(reward)
             probs_trajectory.append(action_probs)
 

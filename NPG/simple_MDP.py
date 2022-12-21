@@ -9,7 +9,7 @@ class MDP:
         self.end = False
         self.num_states = 2
         self.num_actions = 2
-        self.maximum_number_steps = 100
+        self.maximum_number_steps = 20
 
     def end(self):
         return self.end
@@ -25,16 +25,22 @@ class MDP:
         return self.num_states, self.num_actions
 
     def step(self, action):
-        if action == 0:
-            self.state = 0
+        reward = 0
+        self.num_steps += 1
+        if self.num_steps >= self.maximum_number_steps:
             self.end = True
-            reward = 1
-            print("==== Stuck in initial state ====")
         else:
-            self.state = 1
-            self.end = True
-            reward = 2
-            print("==== Found high reward ====")
+            if action == 0:
+                if self.state == 0:
+                    reward = 1
+                    self.end = False
+                else:
+                    self.end = True
+                    reward = 2
+                    print(f"==== Goal reached in {self.num_steps} steps ====")
+            else:
+                reward = 0
+                self.end = False
 
         return self.state, reward
 
