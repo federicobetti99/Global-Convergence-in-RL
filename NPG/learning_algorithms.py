@@ -20,7 +20,7 @@ def policy(env, state, theta) -> np.array:
     return probs / np.sum(probs)
 
 
-def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1, SGD=0, entropy_bonus=False,
+def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=10, SGD=0, entropy_bonus=False,
                   period=1000, test_freq=None) -> (np.array, list):
     """
     Trains a RL agent with SCRN
@@ -307,7 +307,7 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
     return stats
 
 
-def NPG(env, num_episodes=1000, alpha=0.001, gamma=0.8, batch_size=1, period=1000, test_freq=None):
+def NPG(env, num_episodes=1000, alpha=0.1, gamma=0.8, batch_size=1, period=1000, test_freq=None):
     """
     Natural policy gradient for testing on MDP
     :param env: environment (MDP usually, syntax is compatible only with this one)
@@ -333,7 +333,7 @@ def NPG(env, num_episodes=1000, alpha=0.001, gamma=0.8, batch_size=1, period=100
     rewards_cache = np.zeros(num_episodes)
     tau_estimates = []
     grad = np.zeros((1, STATE_DIM, ACTION_DIM))
-    Fisher = np.zeros((1, STATE_DIM, ACTION_DIM))
+    Fisher = np.zeros((1, STATE_DIM * ACTION_DIM))
     objective_estimates = []
     gradients_estimates = []
     thetas = []
@@ -394,10 +394,12 @@ def NPG(env, num_episodes=1000, alpha=0.001, gamma=0.8, batch_size=1, period=100
 
         # Update action probabilities at end of each episode
         if episode % batch_size == 0 and episode > 0:
-            grad = np.reshape(grad, (STATE_DIM, ACTION_DIM))
-            theta = theta + alpha * np.linalg.pinv(Fisher) @ grad  # NPG update
+            grad = np.reshape(grad, (STATE_DIM * ACTION_DIM))
+            theta = np.reshape(theta, (STATE_DIM * ACTION_DIM))
+            theta = theta + alpha * np.linalg.pinv(Fisher + 1e-3 * np.eye(Fisher.shape[0])) @ grad  # NPG update
+            theta = np.reshape(theta, [1, STATE_DIM, ACTION_DIM])
             grad = np.zeros((1, STATE_DIM, ACTION_DIM))  # reset gradient
-            Fisher = np.zeros((1, STATE_DIM, ACTION_DIM))  # reset Fisher matrix
+            Fisher = np.zeros((1, STATE_DIM * ACTION_DIM))  # reset Fisher matrix
 
         if test_freq is not None:
             # test validity of PL inequality by estimating objective and gradient

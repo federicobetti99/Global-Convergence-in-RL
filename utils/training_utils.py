@@ -33,6 +33,19 @@ def compute_cum_rewards(gamma: float, t: int, rewards: np.array) -> float:
     return cum_reward
 
 
+def softmax(state, theta) -> np.array:
+    """
+    Computes the softmax policy, probability distribution of actions in given state, given the parameters' theta
+    :param state: environment state
+    :param theta: policy parameters
+    """
+    probs = np.zeros(ACTION_DIM)
+    for action in range(ACTION_DIM):
+        action_encoded = encode_vector(action, ACTION_DIM)
+        probs[action] = np.exp(theta[0, state].dot(action_encoded[0]))
+    return probs / np.sum(probs)
+
+
 def pi(env, theta) -> np.array:
     """
     Computes the softmax policy, probability distribution of actions in given state, given the parameters' theta
@@ -76,7 +89,7 @@ def objective_trajectory(reward_trajectory, gamma):
     return obj
 
 
-def estimate_objective_and_gradient(env, gamma, theta, entropy_bonus=False, num_episodes=50):
+def estimate_objective_and_gradient_and_Hessian(env, gamma, theta, entropy_bonus=False, num_episodes=50):
     """
     Off training function to estimate objective and gradient under current policy
     :param env: environment
@@ -90,6 +103,7 @@ def estimate_objective_and_gradient(env, gamma, theta, entropy_bonus=False, num_
     """
     obj = 0
     grad = np.zeros((STATE_DIM, ACTION_DIM))
+    Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
     for episode in range(num_episodes):
 
@@ -125,6 +139,8 @@ def estimate_objective_and_gradient(env, gamma, theta, entropy_bonus=False, num_
         obj_traj = objective_trajectory(reward_trajectory, gamma)
         grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
                                                           probs_trajectory, reward_trajectory, gamma)
+        Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
+                                          grad_collection_traj, gamma, theta)
 
         if entropy_bonus:
             grad_traj = grad_traj - grad_entropy_bonus(action_trajectory, state_trajectory, reward_trajectory,
@@ -132,8 +148,9 @@ def estimate_objective_and_gradient(env, gamma, theta, entropy_bonus=False, num_
 
         obj += obj_traj / num_episodes
         grad += np.reshape(grad_traj, (STATE_DIM, ACTION_DIM)) / num_episodes
+        Hessian += Hessian_traj / num_episodes
 
-    return obj, np.linalg.norm(grad)
+    return obj, np.linalg.norm(grad), np.min(np.linalg.eigvals(Hessian)), np.max(np.linalg.eigvals(Hessian))
 
 
 ######### UTILITIES FOR GRADIENT COMPUTATION #########

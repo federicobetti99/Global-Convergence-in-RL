@@ -219,7 +219,7 @@ def Fisher_matrix_trajectory(state_trajectory, action_trajectory, probs_trajecto
     for t in range(len(action_trajectory)):
         grad[state_trajectory[t], :] += grad_collection[t]
     grad = np.reshape(grad, (1, ACTION_DIM * STATE_DIM))
-    return grad @ grad.T
+    return np.outer(grad, grad)
 
 
 def grad_trajectory(state_trajectory, action_trajectory, probs_trajectory, reward_trajectory, gamma):

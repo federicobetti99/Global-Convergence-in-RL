@@ -139,14 +139,16 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
                    "taus": r"$\frac{J^\lambda(\theta^{*}) - J^\lambda(\theta)}{\| \| \nabla J^\lambda(\theta) \| \|^{\alpha}}$",
                    "rewards": "Episode reward",
                    "obj_estimates": r"$J(\theta)$",
-                   "grad_estimates": r"$\| \| \nabla J(\theta) \| \|$"}
+                   "grad_estimates": r"$\| \| \nabla J(\theta) \| \|$",
+                   "QOI": r"$\min_{s} \pi_{\theta_t}(a^*(s) \vert s)$",
+                   "eigs": r"$\lambda_{\min}(\nabla^2 J^\lambda(\theta), \lambda_{\max}(\nabla^2 J^\lambda(\theta)$"}
 
     legend_items = {"SCRN": "SCRN", "SPG": "SPG", "SPG Entropy": "ESPG", "Two stages SPG Entropy": "TSESPG"}
     alphas = {"SCRN": 1, "SPG": 1, "SPG Entropy": 2, "Two stages SPG Entropy": 2}
     lambdas = {"SCRN": 0, "SPG": 0, "SPG Entropy": 1, "Two stages SPG Entropy": 1}
     legend_items_taus = {key: rf"{legend_items[key]}, $\lambda = {lambdas[key]}$, $\alpha = {alphas[key]}$" for key in legend_items.keys()}
     steps = {"steps": int(test_freq/5), "taus": test_freq, "rewards": int(test_freq/5),
-             "obj_estimates": test_freq, "grad_estimates": test_freq}
+             "obj_estimates": test_freq, "grad_estimates": test_freq, "QOI": 1}
 
     fig, ax = plt.subplots(2, 2, figsize=(8, 8))
     fig.tight_layout(pad=3.)
@@ -184,6 +186,33 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
         plt.yticks(fontsize=15)
         plt.yscale("log")
         plt.legend(loc='upper center', bbox_to_anchor=(1.40, 0.8), fancybox=True, shadow=True, ncol=1, fontsize='xx-large')
+
+    plt.figure(figsize=(8, 5))
+    key = "QOI"
+    for algo in ["SCRN", "SPG", "SPG Entropy", "Two stages SPG Entropy"]:
+        QOI = average_stats[algo][key]
+        STD_QOI = std_stats[algo][key]
+        plt.plot(np.arange(0, num_episodes, step=steps[key]), QOI, label=legend_items[algo])
+        plt.fill_between(np.arange(0, num_episodes, step=steps[key]), QOI-STD_QOI, QOI+STD_QOI, alpha=0.2)
+        plt.xlabel("Number of episodes", fontsize=15)
+        plt.ylabel(legend_keys[key], fontsize=25)
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
+        plt.yscale("log")
+        plt.legend(loc='upper center', bbox_to_anchor=(1.20, 0.8), fancybox=True, shadow=True, ncol=1, fontsize='xx-large')
+
+    plt.figure(figsize=(8, 5))
+    key_low = "min_eigs"
+    key_up = "max_eigs"
+    for algo in ["SCRN", "SPG", "SPG Entropy", "Two stages SPG Entropy"]:
+        QOI_LOW = average_stats[algo][key_low]
+        QOI_UP = average_stats[algo][key_up]
+        plt.fill_between(np.arange(0, num_episodes, step=test_freq), QOI_LOW, QOI_UP, alpha=0.3, label=legend_items[algo])
+        plt.xlabel("Number of episodes", fontsize=15)
+        plt.ylabel(legend_keys["eigs"], fontsize=15)
+        plt.xticks(fontsize=15)
+        plt.yticks(fontsize=15)
+        plt.legend(loc='upper center', bbox_to_anchor=(1.20, 0.8), fancybox=True, shadow=True, ncol=1, fontsize='xx-large')
 
 
 def final_trajectory(environment, theta):

@@ -44,6 +44,8 @@ class UMaze(BaseEnv):
         self.end = False
         self.maximum_number_steps = 100
 
+        self.optimal_actions = []
+
     def end(self):
         return self.end
 
@@ -53,6 +55,24 @@ class UMaze(BaseEnv):
 
     def get_num_states_actions(self):
         return self.num_states, len(self.motions)
+
+    def get_optimal_actions(self):
+        for i in range(6):
+            self.optimal_actions.append(3)
+        for i in range(3):
+            self.optimal_actions.append(1)
+        for i in range(6):
+            self.optimal_actions.append(3)
+        for i in range(3):
+            self.optimal_actions.append(1)
+        for i in range(18):
+            self.optimal_actions.append(1)
+        for i in range(9):
+            self.optimal_actions.append(1)
+        for i in range(9):
+            self.optimal_actions.append(2)
+
+        return self.optimal_actions
 
     def step(self, action):
         motion = self.motions[action]

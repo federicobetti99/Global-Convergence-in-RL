@@ -46,6 +46,8 @@ class RandomHole(BaseEnv):
         self.end = False
         self.maximum_number_steps = 100
 
+        self.optimal_actions = []
+
     def end(self):
         return self.end
 
@@ -55,6 +57,31 @@ class RandomHole(BaseEnv):
     @staticmethod
     def get_optimal_path():
         return [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+
+    def get_optimal_actions(self):
+        for i in range(9):
+            self.optimal_actions.append(1)
+        for i in range(4):
+            self.optimal_actions.append(3)
+        self.optimal_actions.append(1)
+        for i in range(4):
+            self.optimal_actions.append(2)
+        for i in range(4):
+            self.optimal_actions.append(0)
+        self.optimal_actions.append(1)
+        for i in range(4):
+            self.optimal_actions.append(0)
+        for i in range(18):
+            self.optimal_actions.append(0)
+        for i in range(3):
+            self.optimal_actions.append(0)
+        self.optimal_actions.append(2)
+        self.optimal_actions.append(3)
+        self.optimal_actions.append(3)
+        for i in range(3):
+            self.optimal_actions.append(0)
+
+        return self.optimal_actions
 
     def step(self, action):
         motion = self.motions[action]

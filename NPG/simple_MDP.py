@@ -39,6 +39,7 @@ class MDP:
                     reward = 2
                     print(f"==== Goal reached in {self.num_steps} steps ====")
             else:
+                self.state = 1 if self.state == 0 else 1
                 reward = 0
                 self.end = False
 

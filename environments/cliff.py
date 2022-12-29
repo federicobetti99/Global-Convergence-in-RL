@@ -38,7 +38,7 @@ class RandomCliff(BaseEnv):
         self.x = self.maze.x
 
         self.metadata = {'render.modes': ['human', 'rgb_array'],
-                    'video.frames_per_second': 3}
+                         'video.frames_per_second': 3}
 
         self.start_idx = [[5, 0]]
         self.goal_idx = [[5, 8]]
@@ -48,8 +48,7 @@ class RandomCliff(BaseEnv):
         self.action_space = Discrete(len(self.motions))
         self.end = False
         self.maximum_number_steps = 100
-
-        self.optimal_actions = {k: 0 for k in range(self.num_states)}
+        self.optimal_actions = []
 
     def end(self):
         return self.end
@@ -60,6 +59,16 @@ class RandomCliff(BaseEnv):
     @staticmethod
     def get_optimal_path():
         return [-0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, -0.1, 100]
+
+    def get_optimal_actions(self):
+        for i in range(35):
+            self.optimal_actions.append(1)
+        for i in range(9):
+            self.optimal_actions.append(3)
+        self.optimal_actions.append(1)
+        self.optimal_actions.append(0)
+
+        return self.optimal_actions
 
     def step(self, action):
         motion = self.motions[action]
