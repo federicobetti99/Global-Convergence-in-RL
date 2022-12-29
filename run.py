@@ -10,8 +10,6 @@ from environments.gym_utils import *
 
 def start_experiment(environment, num_episodes, test_freq, num_avg):
 
-    np.random.seed(0)
-
     if environment == "random_maze":  # select random maze
         env_id = "RandomMaze-v0"
         gym.envs.register(id=env_id, entry_point=RandomMaze, max_episode_steps=100)
@@ -24,7 +22,7 @@ def start_experiment(environment, num_episodes, test_freq, num_avg):
         env_id = "Hole-v0"
         gym.envs.register(id=env_id, entry_point=RandomHole, max_episode_steps=100)
         env = gym.make(env_id)
-    elif environment == "umaze":
+    elif environment == "umaze":  # select umaze
         env_id = "Umaze-v0"
         gym.envs.register(id=env_id, entry_point=UMaze, max_episode_steps=100)
         env = gym.make(env_id)
@@ -83,4 +81,4 @@ def start_experiment(environment, num_episodes, test_freq, num_avg):
         pickle.dump({"avg": average_stats, "std": std_stats}, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-start_experiment("cliff", num_episodes=10000, test_freq=50, num_avg=10)
+start_experiment("hole", num_episodes=10000, test_freq=50, num_avg=10)
