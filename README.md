@@ -8,7 +8,7 @@ The validity of a gradient dominance property is often assumed for the convergen
 - `results` - Dictionaries with results
 - `utils` - Implementation of learning algorithms and utilities
 - `run.py` - Script to reproduce results
-- `report` - Contains the report of the obtained results in _.pdf_ format
+- `report` - Contains the report of the obtained results in pdf format
 - `plots.ipynb` - Notebook for visualization of obtained results
 - `requirements.txt` - Requirements _.txt_ file
 
@@ -34,10 +34,10 @@ gamma = 0.8
 batch_size = 1 # except for two stages algorithm
 alpha = 0.001 # for first order methods, alpha = 1e-4 for SCRN
 lambda_ = 1e-5  # for entropy regularized objectives
-test_freq = 50  # and 50 episodes of testing to get estimates of objective and gradient
+test_freq = 50  # and 100 episodes of testing to get estimates of objective and gradient
 ```
 Be aware that running the script above and terminating the procedure:
-1. Takes a very long time, as 10 averages are carried out (approximately 4 hours).
+1. Takes a very long time, as 10 averages are carried out (approximately 7-8 hours, depending on the environment).
 2. Overwrites the dictionaries stored in the `results` folder.
 
 Hence, should you just want to visualize the obtained results without loading new ones,
@@ -56,7 +56,7 @@ test_freq = 50
 or the values which you chose if you have run again the experiment in `run.py`.
 
 ## Report
-The report can be found in _.pdf_ format in the folder `report`.
+The report of the obtained results can be found in pdf format in the folder `report`.
 
 ## References
 [1] Saeed Masiha, Saber Salehkaleybar, Niao He, Negar Kiyavash, Patrick Thiran, [Stochastic Second-Order Methods Provably Beat SGD For Gradient-Dominated Functions](https://arxiv.org/abs/2205.12856) <br />
