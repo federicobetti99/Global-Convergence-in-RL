@@ -59,10 +59,10 @@ or the values which you chose if you have run again the experiment in `run.py`.
 The report can be found in _.pdf_ format in the folder `report`.
 
 ## References
-[1] [Stochastic Second-Order Methods Provably Beat SGD For Gradient-Dominated Functions](https://arxiv.org/abs/2205.12856)
-[2] [An Improved Analysis of Variance-Reduced Policy Gradient and Natural Policy Gradient Methods](https://arxiv.org/abs/2211.07937))
-[3] [On the Global Convergence Rates of Softmax Policy Gradient Methods](https://arxiv.org/abs/2005.06392)
-[4] [A Natural Policy Gradient](https://papers.nips.cc/paper/2001/hash/4b86abe48d358ecf194c56c69108433e-Abstract.html)
+[1] Saeed Masiha, Saber Salehkaleybar, Niao He, Negar Kiyavash, Patrick Thiran, [Stochastic Second-Order Methods Provably Beat SGD For Gradient-Dominated Functions](https://arxiv.org/abs/2205.12856) <br />
+[2] Yanli Liu, Kaiqing Zhang, Tamer Başar, Wotao Yin, [An Improved Analysis of Variance-Reduced Policy Gradient and Natural Policy Gradient Methods](https://arxiv.org/abs/2211.07937) <br />
+[3] Jincheng Mei, Chenjun Xiao, Csaba Szepesvari, Dale Schuurmans, [On the Global Convergence Rates of Softmax Policy Gradient Methods](https://arxiv.org/abs/2005.06392) <br />
+[4] Sham Kakade, [A Natural Policy Gradient](https://papers.nips.cc/paper/2001/hash/4b86abe48d358ecf194c56c69108433e-Abstract.html) <br />
 
 ## Authors
 - Student: Federico Betti
