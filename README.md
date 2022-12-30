@@ -1,26 +1,5 @@
 # Global Convergence in Reinforcement Learning
-A large class of policies for discrete state-actions environments 
-in a reinforcement learning setting satisfies the Fisher non-degeneracy
-assumptions, such as Gaussian policies.
-The latter condition, together with the boundedness of a 
-compatible function approximation error, implies that a weak gradient
-dominance property is satisfied. For a soft-max policy, 
-the Fisher information matrix becomes degenerate when the policy
-becomes arbitrarily close to a greedy one, independently of the
-optimality of the latter. In this semester project, 
-we show empirically the validity of a gradient dominance property
-under a soft-max policy along the trajectories of different RL algorithms
-and in different discrete environments.
-We then use this results to gain further insight on the superior
-behaviour of the stochastic cubic regularized Newton method (SCRN)
-with respect to first order stochastic policy gradient methods
-in our setting. The analysis shows that convergence to the optimal policy
-is faster and more robust for SCRN compared to SPG, with a comparable
-computational cost per episode under our frame.
-In the second to last section, we briefly compare the second order
-information enclosed in the Fisher information and in the Hessian
-as a first attempt to compare the natural policy gradient method
-with the cubic regularized Newton's method in the stochastic setting.
+The validity of a gradient dominance property is often assumed for the convergence study of many reinforcement learning algorithms [1]. The latter condition is satisfied in weak form if the objective function satisfies a Fisher non-degeneracy assumptions together with a boundedness requirement on the compatible function approximation error. While Fisher non degeneracy holds for a large class of policies, such as Gaussian policies [2], under a soft-max policy the Fisher information matrix becomes degenerate when the algorithm gets arbitrarily close to a greedy policy. A non-uniform version of the Polyak-Łojasiewicz has still been shown to hold along the trajectories of policy gradient methods [3], but these algorithms require access to the full gradient of the objective which is often unfeasible to compute; on the other hand, the study in this direction for some much more practical stochastic first order and second order methods is still somehow limited. In this work, we show empirically the validity of a gradient dominance property under a soft-max policy along the trajectories of stochastic policy gradient methods and stochastic second order methods, in different discrete reinforcement learning environments. Using the results obtained, we gain further insight on the faster and more stable convergence of the stochastic cubic regularized Newton method (SCRN) over stochastic policy gradient methods. To go further in understanding the performance of second order methods, we make a first attempt at analyzing the natural policy gradient method and the differences with the cubic regularized Newton's method by comparing the second order information enclosed in the Fisher information and in the Hessian of the objective: in particular, we compare the methods on a simple MDP proposed in [4]. Finally, we draw conclusions about the work in the final section, and we present possible developments of the study presented here.
 
 ## Repository description
 - `environments` - Implementation of the considered discrete environments
@@ -78,6 +57,12 @@ or the values which you chose if you have run again the experiment in `run.py`.
 
 ## Report
 The report can be found in _.pdf_ format in the folder `report`.
+
+## References
+[1] (Stochastic Second-Order Methods Provably Beat SGD For Gradient-Dominated Functions)[https://arxiv.org/abs/2205.12856]
+[2] (An Improved Analysis of (Variance-Reduced) Policy Gradient and Natural Policy Gradient Methods)[https://proceedings.neurips.cc/paper/2020/hash/56577889b3c1cd083b6d7b32d32f99d5-Abstract.html]
+[3] (On the Global Convergence Rates of Softmax Policy Gradient Methods)[https://arxiv.org/abs/2005.06392]
+[4] (A Natural Policy Gradient)[https://papers.nips.cc/paper/2001/hash/4b86abe48d358ecf194c56c69108433e-Abstract.html]
 
 ## Authors
 - Student: Federico Betti
