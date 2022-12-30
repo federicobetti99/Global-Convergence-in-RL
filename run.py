@@ -32,17 +32,16 @@ def start_experiment(environment, num_episodes, test_freq, num_avg):
     stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}, "Two stages SPG Entropy": {}}
 
     for i in range(num_avg):
-        print(f"========== TRAINING RUN {i} OUT OF {num_avg} ===========")
-        print("********** TRAINING WITH SCRN **********")
+        print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH SCRN ===========")
         stats_SCRN = discrete_SCRN(env, num_episodes=num_episodes, test_freq=test_freq)
         stats["SCRN"].update({i: stats_SCRN})
-        print("********** TRAINING WITH SPG ********")
+        print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH SPG ===========")
         stats_DPG = discrete_policy_gradient(env, num_episodes=num_episodes, test_freq=test_freq)
         stats["SPG"].update({i: stats_DPG})
-        print("********** TRAINING WITH regularized SPG ********")
+        print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH regularized SPG ===========")
         stats_DPG = discrete_policy_gradient(env, entropy_bonus=True, num_episodes=num_episodes, test_freq=test_freq)
         stats["SPG Entropy"].update({i: stats_DPG})
-        print("********** TRAINING WITH TWO STAGES regularized SPG *******")
+        print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH two stages regularized SPG ===========")
         stats_DPG = discrete_policy_gradient(env, entropy_bonus=True, num_episodes=num_episodes,
                                              two_phases_params={"B1": 16, "B2": 1, "T": num_episodes/5},
                                              test_freq=test_freq)
@@ -81,4 +80,4 @@ def start_experiment(environment, num_episodes, test_freq, num_avg):
         pickle.dump({"avg": average_stats, "std": std_stats}, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-start_experiment("hole", num_episodes=10000, test_freq=50, num_avg=10)
+start_experiment("hole", num_episodes=10000, test_freq=50, num_avg=5)
