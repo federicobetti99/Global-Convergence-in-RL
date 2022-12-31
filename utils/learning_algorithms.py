@@ -56,8 +56,6 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
     objective_estimates = []
     gradients_estimates = []
     action_probabilities = []
-    min_eigs = []
-    max_eigs = []
 
     env.get_optimal_actions()
 
@@ -96,10 +94,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             rewards_cache[episode] += reward
             state_trajectory.append(state)
             action_trajectory.append(action)
-            if entropy_bonus:
-                reward_trajectory.append(reward + get_entropy_bonus(action_probs))
-            else:
-                reward_trajectory.append(reward)
+            reward_trajectory.append(reward)
             probs_trajectory.append(action_probs)
             steps_cache[episode] += 1
 
@@ -120,7 +115,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
             if SGD == 1:
                 Delta = alpha * grad
             else:
-                Delta = cubic_subsolver(-grad, -Hessian)  # 0.001*grad#
+                Delta = cubic_subsolver(-grad, -Hessian)
             Delta = np.reshape(Delta, (STATE_DIM, ACTION_DIM))
             theta = theta + Delta
             grad = np.zeros((STATE_DIM * ACTION_DIM))
@@ -136,13 +131,10 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
         if test_freq is not None:
             # test validity of the PL inequality by estimating objective and gradient
             if episode % test_freq == 0:
-                estimate_obj, estimate_grad, min_eig_Hess, max_eig_Hess = estimate_objective_and_gradient_and_Hessian \
-                    (env, gamma, theta, entropy_bonus, num_episodes=100)
+                estimate_obj, estimate_grad = estimate_objective_and_gradient_and_Hessian(env, gamma, theta, entropy_bonus, num_episodes=100)
                 tau_estimates.append((optimum - estimate_obj) / estimate_grad)
                 objective_estimates.append(estimate_obj)
                 gradients_estimates.append(estimate_grad)
-                min_eigs.append(min_eig_Hess)
-                max_eigs.append(max_eig_Hess)
 
     # save caches
     step_cache.append(steps_cache)
@@ -159,8 +151,6 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1,
         "rewards": rewards_cache,
         "env": env_cache,
         "QOI": action_probabilities,
-        "min_eigs": min_eigs,
-        "max_eigs": max_eigs,
         "optimum": optimum,
         "taus": tau_estimates,
         "obj_estimates": objective_estimates,
@@ -208,8 +198,6 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
     objective_estimates = []
     gradients_estimates = []
     action_probabilities = []
-    min_eigs = []
-    max_eigs = []
 
     # set parameters for two stages if they are not None
     if two_phases_params is not None:
@@ -296,15 +284,12 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
         if test_freq is not None:
             # test validity of the PL inequality by estimating objective and gradient
             if episode % test_freq == 0:
-                estimate_obj, estimate_grad, min_eig_Hess, max_eig_Hess = \
-                    estimate_objective_and_gradient_and_Hessian(env, gamma, theta, entropy_bonus, num_episodes=100)
+                estimate_obj, estimate_grad = estimate_objective_and_gradient_and_Hessian(env, gamma, theta, entropy_bonus, num_episodes=100)
                 objective_estimates.append(estimate_obj)
                 gradients_estimates.append(estimate_grad)
                 if entropy_bonus:
                     estimate_grad = estimate_grad ** 2
                 tau_estimates.append((optimum - estimate_obj) / estimate_grad)
-                min_eigs.append(min_eig_Hess)
-                max_eigs.append(max_eig_Hess)
 
     # save caches
     step_cache.append(steps_cache)
@@ -316,8 +301,6 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
         "steps": steps_cache,
         "rewards": rewards_cache,
         "QOI": action_probabilities,
-        "min_eigs": min_eigs,
-        "max_eigs": max_eigs,
         "optimum": optimum,
         "taus": tau_estimates,
         "obj_estimates": objective_estimates,

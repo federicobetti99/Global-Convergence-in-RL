@@ -103,7 +103,6 @@ def estimate_objective_and_gradient_and_Hessian(env, gamma, theta, entropy_bonus
     """
     obj = 0
     grad = np.zeros((STATE_DIM, ACTION_DIM))
-    Hessian = np.zeros((STATE_DIM * ACTION_DIM, STATE_DIM * ACTION_DIM))
 
     for episode in range(num_episodes):
 
@@ -139,18 +138,14 @@ def estimate_objective_and_gradient_and_Hessian(env, gamma, theta, entropy_bonus
         obj_traj = objective_trajectory(reward_trajectory, gamma)
         grad_traj, grad_collection_traj = grad_trajectory(state_trajectory, action_trajectory,
                                                           probs_trajectory, reward_trajectory, gamma)
-        Hessian_traj = Hessian_trajectory(state_trajectory, action_trajectory, reward_trajectory, grad_traj,
-                                          grad_collection_traj, gamma, theta)
-
         if entropy_bonus:
             grad_traj = grad_traj - grad_entropy_bonus(action_trajectory, state_trajectory, reward_trajectory,
                                                        probs_trajectory, gamma)
 
         obj += obj_traj / num_episodes
         grad += np.reshape(grad_traj, (STATE_DIM, ACTION_DIM)) / num_episodes
-        Hessian += Hessian_traj / num_episodes
 
-    return obj, np.linalg.norm(grad), np.min(np.linalg.eigvals(Hessian)), np.max(np.linalg.eigvals(Hessian))
+    return obj, np.linalg.norm(grad)
 
 
 ######### UTILITIES FOR GRADIENT COMPUTATION #########
@@ -322,7 +317,7 @@ def cubic_subsolver(grad, hessian, L=10, rho=30, eps=1e-3, c_=1, T_eps=10):
         delta = np.zeros((1, ACTION_DIM * STATE_DIM))
         sigma = c_ * (eps * rho) ** 0.5 / L
         mu = 1.0 / (20.0 * L)
-        vec = np.random.normal(0, 1, ACTION_DIM * STATE_DIM)  # *2 + torch.ones(grad.size())
+        vec = np.random.normal(0, 1, ACTION_DIM * STATE_DIM)
         vec /= np.linalg.norm(vec)
         g_ = grad + sigma * vec
         for _ in range(T_eps):

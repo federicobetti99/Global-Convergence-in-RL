@@ -214,20 +214,6 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
         ax[1].set_yscale("log")
         ax[1].legend(loc='upper center', bbox_to_anchor=(0.55, -0.2), fancybox=True, shadow=True, ncol=2, fontsize='xx-large')
 
-    fig, ax = plt.subplots(2, 2, figsize=(8, 8))
-    fig.tight_layout(pad=3.)
-    fig.subplots_adjust(top=0.7, left=0.001, right=1.2, bottom=0.02, wspace=0.5, hspace=0.5)
-    key_low = "min_eigs"
-    key_up = "max_eigs"
-    for ind, algo in enumerate(["SCRN", "SPG", "SPG Entropy", "Two stages SPG Entropy"]):
-        QOI_LOW = average_stats[algo][key_low]
-        QOI_UP = average_stats[algo][key_up]
-        ax[ind % 2, int(ind/2)].fill_between(np.arange(0, num_episodes, step=test_freq), QOI_LOW, QOI_UP, alpha=0.6, label=legend_items[algo])
-        ax[ind % 2, int(ind/2)].set_xlabel("Number of episodes", fontsize=15)
-        ax[ind % 2, int(ind/2)].set_ylabel(legend_keys["eigs"], fontsize=12)
-        ax[ind % 2, int(ind/2)].tick_params(axis="both", which="major", labelsize=15)
-        ax[ind % 2, int(ind/2)].legend(loc='best', fontsize=15)
-
 
 def final_trajectory(environment, theta):
     """
