@@ -165,7 +165,7 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.0001, gamma=0.8, batch_size=1
     return stats
 
 
-def discrete_policy_gradient(env, num_episodes=1000, alpha=0.001, gamma=0.8, two_phases_params=None,
+def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_phases_params=None,
                              entropy_bonus=False, period=1000, test_freq=50) -> (np.array, list):
     """
     Trains a RL agent with discrete policy gradient

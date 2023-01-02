@@ -7,8 +7,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="016cbde6-40c1-478a-99c6-f78271a117dc" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/results/cliff_results.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/results/hole_results.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run_NPG.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/plots-checkpoint.ipynb" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/plots.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/plots.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/cliff_results.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/results/cliff_results.pkl" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/run.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/learning_algorithms.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/learning_algorithms.py" afterDir="false" />
     </list>
@@ -19,6 +23,13 @@
   </component>
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -43,6 +54,7 @@
     <property name="cf.first.check.clang-format" value="false" />
     <property name="cidr.known.project.marker" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -55,6 +67,8 @@
       <workItem from="1672478323833" duration="4000" />
       <workItem from="1672581820224" duration="9460000" />
       <workItem from="1672644619309" duration="12000" />
+      <workItem from="1672644676876" duration="909000" />
+      <workItem from="1672653221589" duration="10700000" />
     </task>
     <servers />
   </component>
