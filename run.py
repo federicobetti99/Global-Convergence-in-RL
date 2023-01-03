@@ -33,13 +33,13 @@ def start_experiment(environment, num_episodes, test_freq, num_avg):
 
     for i in range(num_avg):
         print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH SCRN ===========")
-        stats_SCRN = discrete_SCRN(env, num_episodes=num_episodes, test_freq=test_freq)
+        stats_SCRN = discrete_SCRN(env, alpha=1e-4, num_episodes=num_episodes, test_freq=test_freq)
         stats["SCRN"].update({i: stats_SCRN})
         print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH SPG ===========")
-        stats_DPG = discrete_policy_gradient(env, num_episodes=num_episodes, test_freq=test_freq)
+        stats_DPG = discrete_policy_gradient(env, alpha=0.01, num_episodes=num_episodes, test_freq=test_freq)
         stats["SPG"].update({i: stats_DPG})
         print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH regularized SPG ===========")
-        stats_DPG = discrete_policy_gradient(env, entropy_bonus=True, num_episodes=num_episodes, test_freq=test_freq)
+        stats_DPG = discrete_policy_gradient(env, alpha=0.01, entropy_bonus=True, num_episodes=num_episodes, test_freq=test_freq)
         stats["SPG Entropy"].update({i: stats_DPG})
         print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH two stages regularized SPG ===========")
         stats_DPG = discrete_policy_gradient(env, entropy_bonus=True, num_episodes=num_episodes,
@@ -51,25 +51,25 @@ def start_experiment(environment, num_episodes, test_freq, num_avg):
     std_stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}, "Two stages SPG Entropy": {}}
 
     average_stats["SCRN"] = {key: np.mean([stats["SCRN"][i][key] for i in range(num_avg)], axis=0)
-                                    for key in ["steps", "rewards", "taus", "QOI", "obj_estimates", "grad_estimates"]}
+                                    for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
     average_stats["SPG"] = {key: np.mean([stats["SPG"][i][key] for i in range(num_avg)], axis=0)
-                                    for key in ["steps", "rewards", "taus", "QOI", "obj_estimates", "grad_estimates"]}
+                                    for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
     average_stats["SPG Entropy"] = {key: np.mean([stats["SPG Entropy"][i][key] for i in range(num_avg)], axis=0)
-                                    for key in ["steps", "rewards", "taus", "QOI", "obj_estimates", "grad_estimates"]}
+                                    for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
     average_stats["Two stages SPG Entropy"] = {key: np.mean([stats["Two stages SPG Entropy"][i][key] for i in range(num_avg)], axis=0)
-                                    for key in ["steps", "rewards", "taus", "QOI", "obj_estimates", "grad_estimates"]}
+                                    for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
 
     std_stats["SCRN"] = {key: np.std([stats["SCRN"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
-                                    for key in ["steps", "rewards", "taus", "QOI", "obj_estimates", "grad_estimates"]}
+                                    for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
     std_stats["SPG"] = {key: np.std([stats["SPG"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
-                                    for key in ["steps", "rewards", "taus", "QOI", "obj_estimates", "grad_estimates"]}
+                                    for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
     std_stats["SPG Entropy"] = {key: np.std([stats["SPG Entropy"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
-                                    for key in ["steps", "rewards", "taus", "QOI", "obj_estimates", "grad_estimates"]}
+                                    for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
     std_stats["Two stages SPG Entropy"] = {key: np.std([stats["Two stages SPG Entropy"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
-                                    for key in ["steps", "rewards", "taus", "QOI", "obj_estimates", "grad_estimates"]}
+                                    for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
 
     with open(f"results/{environment}_results.pkl", "wb") as handle:
         pickle.dump({"avg": average_stats, "std": std_stats}, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-start_experiment("cliff", num_episodes=10000, test_freq=50, num_avg=1)
+start_experiment("random_maze", num_episodes=10000, test_freq=50, num_avg=10)

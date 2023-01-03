@@ -25,23 +25,16 @@ class MDP:
         return self.num_states, self.num_actions
 
     def step(self, action):
-        reward = 0
         self.num_steps += 1
+        if action == 0:
+            if self.state == 0:
+                reward = 1
+            else:
+                reward = 2
+        else:
+            reward = 0
         if self.num_steps >= self.maximum_number_steps:
             self.end = True
-        else:
-            if action == 0:
-                if self.state == 0:
-                    reward = 1
-                    self.end = False
-                else:
-                    self.end = True
-                    reward = 2
-                    print(f"==== Goal reached in {self.num_steps} steps ====")
-            else:
-                self.state = 1 if self.state == 0 else 1
-                reward = 0
-                self.end = False
 
         return self.state, reward
 
