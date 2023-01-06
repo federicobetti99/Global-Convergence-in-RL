@@ -28,13 +28,18 @@ The algorithms work correctly for any environment whose implementation is compat
 `gym` syntax. Examples on how to achieve this can be found in the `environments` folder.
 To launch a training, the syntax should be as follows
 ```python
+# initialize environment
 env_id = "RandomMaze-v0"  # id of the environment
 gym.envs.register(id=env_id, entry_point=RandomMaze, max_episode_steps=100)  # register environment, RandomMaze is the class of the actual environment with step method ecc.
 env = gym.make(env_id)  # define environment
+
+# training quantities and hyperparameters
 num_episodes = 10000  # number of episodes
 alpha = 1e-3  # learning rate
 gamma = 0.8  # discount factor for future rewards
 test_freq = 50  # test frequency for PL constant estimation
+
+# perform training
 stats = discrete_SCRN(env, num_episodes=num_episodes, alpha=alpha, gamma=gamma, test_freq=test_freq) 
 ```
 and similarly for any custom environment which you defined.
