@@ -89,7 +89,7 @@ def objective_trajectory(reward_trajectory, gamma):
     return obj
 
 
-def estimate_objective_and_gradient_and_Hessian(env, gamma, theta, entropy_bonus=False, num_episodes=50):
+def estimate_objective_and_gradient(env, gamma, theta, entropy_bonus=False, num_episodes=50):
     """
     Off training function to estimate objective and gradient under current policy
     :param env: environment
@@ -129,8 +129,10 @@ def estimate_objective_and_gradient_and_Hessian(env, gamma, theta, entropy_bonus
 
             state_trajectory.append(state)
             action_trajectory.append(action)
+
             if entropy_bonus:
                 reward += get_entropy_bonus(action_probs)
+
             reward_trajectory.append(reward)
             probs_trajectory.append(action_probs)
 
@@ -245,7 +247,7 @@ def Hessian_log_pi(state_trajectory, action_trajectory, theta):
     """
     Computes the Hessian(log(pi(a|s))) for all the pair of (state, action) in the trajectory
     :param state_trajectory: trajectory of states
-    :param action_trajectory: trajectory of actions
+    :param action_trajectory: trajectory of actions (not used)
     :param theta: parameters policy
     :return:
         - a list of Hessian(log(pi(a|s))) for a given trajectory, i.e.,

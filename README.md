@@ -1,23 +1,48 @@
 # Global Convergence in Reinforcement Learning
-The validity of a gradient dominance property is often assumed for the convergence study of many reinforcement learning algorithms [1]. The latter condition is satisfied in weak form if the objective function satisfies a Fisher non-degeneracy assumptions together with a boundedness requirement on the compatible function approximation error. While Fisher non degeneracy holds for a large class of policies, such as Gaussian policies [2], under a soft-max policy the Fisher information matrix becomes degenerate when the algorithm gets arbitrarily close to a greedy policy. A non-uniform version of the Polyak-Łojasiewicz has still been shown to hold along the trajectories of policy gradient methods [3], but these algorithms require access to the full gradient of the objective which is often unfeasible to compute; on the other hand, the study in this direction for some much more practical stochastic first order and second order methods is still somehow limited. In this work, we show empirically the validity of a gradient dominance property under a soft-max policy along the trajectories of stochastic policy gradient methods and stochastic second order methods, in different discrete reinforcement learning environments. Using the results obtained, we gain further insight on the faster and more stable convergence of the stochastic cubic regularized Newton method (SCRN) over stochastic policy gradient methods. To go further in understanding the performance of second order methods, we make a first attempt at analyzing the natural policy gradient method and the differences with the cubic regularized Newton's method by comparing the second order information enclosed in the Fisher information and in the Hessian of the objective: in particular, we compare the methods on a simple MDP proposed in [4].
+The validity of a gradient dominance property is often assumed 
+for the convergence study of many reinforcement learning
+algorithms [1]. The latter condition is satisfied in weak form 
+if the objective function satisfies a Fisher non-degeneracy assumptions
+together with a boundedness requirement on the transferred compatible
+function approximation error. While Fisher non degeneracy holds for
+a large class of policies, such as Gaussian policies [2], under a
+soft-max policy the Fisher information matrix becomes degenerate when
+the policy becomes greedy or deterministic.
+A non-uniform version of the Polyak-Łojasiewicz has still been
+shown to hold along the trajectories of policy gradient methods [3], 
+but these algorithms require access to the full gradient of the 
+objective which is often unfeasible to compute; on the other hand, 
+the study in this direction for much more practical stochastic
+first order and second order methods is still somehow limited.
+In this work, we show empirically the validity of a gradient
+dominance property under a soft-max policy along the trajectories
+of stochastic policy gradient methods and stochastic second order methods,
+in different discrete reinforcement learning environments.
+Using the results obtained, we gain further insight on the faster 
+and more stable convergence of the stochastic cubic regularized Newton
+method (SCRN) over stochastic policy gradient methods. To go further
+in understanding the performance of second order methods, we make a
+first attempt at analyzing the natural policy gradient method [4] and 
+the differences with the cubic regularized Newton's method by 
+comparing the second order information enclosed in the Fisher
+information and in the Hessian of the objective.
 
 ## Repository description
-- `environments` - Implementation of the considered discrete environments
+- `environments` - Implementation of discrete environments used for the experiments
 - `figures` - Plots shown in the report
 - `NPG` - Implementation of natural policy gradient and testing on a simple MDP
-- `results` - Dictionaries with results
 - `utils` - Implementation of learning algorithms and utilities
 - `run.py` - Script to reproduce results
 - `report` - Contains the report of the obtained results in pdf format
 - `plots.ipynb` - Notebook for visualization of obtained results
-- `requirements.txt` - Requirements _.txt_ file
+- `requirements.txt` - Requirements file
 
 ## Installation
 To clone the following repository, please run
 ```
 https://github.com/federicobetti99/Global-Convergence-in-RL.git
 ```
-Requirements for the needed packages are available in requirements.txt. To install the needed packages, please run:
+Requirements for the needed packages are available in `requirements.txt`. To install the needed packages, please run:
 ```
 pip install -r requirements.txt
 ```
@@ -32,13 +57,12 @@ hyperparameter setting:
 num_episodes = 10000
 gamma = 0.8
 batch_size = 1 # except for two stages algorithm
-alpha = 0.001 # for first order methods, alpha = 1e-4 for SCRN
-lambda_ = 1e-5  # for entropy regularized objectives
+alpha = 0.01 # for first order methods, alpha = 1e-4 for SCRN
 test_freq = 50  # and 100 episodes of testing to get estimates of objective and gradient
 ```
-Be aware that running the script above and terminating the procedure:
-1. Takes a very long time, as 10 averages are carried out (approximately 7-8 hours, depending on the environment).
-2. Overwrites the dictionaries stored in the `results` folder.
+Be aware that running the script above and terminating the procedure takes a
+very long time, as 10 averages are carried out
+(approximately 7-8 hours, depending on the environment).
 
 Hence, should you just want to visualize the obtained results without loading new ones,
 we suggest to directly utilize the notebook `plots.ipynb`.
@@ -50,7 +74,6 @@ environment = "umaze"  # any environment in ["cliff", "hole", "random_maze", "um
 Moreover, please set additionally
 ```python
 num_episodes = 10000
-num_avg = 10
 test_freq = 50
 ```
 or the values which you chose if you have run again the experiment in `run.py`.

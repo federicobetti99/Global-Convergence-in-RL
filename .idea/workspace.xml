@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="89320e7b-7646-41c6-8b98-7fa1c079de11" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/figures/NPG/NPG.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/results/umaze_results.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NPG/learning_algorithms.py" beforeDir="false" afterPath="$PROJECT_DIR$/NPG/learning_algorithms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/UMaze/SCRN.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/UMaze/SPG Entropy.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/UMaze/SPG.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/UMaze/Two stages SPG Entropy.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/UMaze/taus.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/UMaze/taus.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/cliff/SCRN.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/cliff/SPG Entropy.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/cliff/SPG.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/cliff/Two stages SPG Entropy.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/cliff/action_probs.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/cliff/action_probs.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/cliff/all.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/cliff/all.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/cliff/episode_lengths.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/cliff/episode_lengths.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/cliff/gradients.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/cliff/gradients.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/cliff/objectives.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/cliff/objectives.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/cliff/rewards.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/cliff/rewards.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/cliff/taus.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/cliff/taus.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/hole/SCRN.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/hole/SPG Entropy.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/hole/SPG.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/hole/Two stages SPG Entropy.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/hole/action_probs.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/hole/action_probs.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/hole/all.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/hole/all.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/hole/episode_lengths.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/hole/episode_lengths.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/hole/gradients.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/hole/gradients.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/hole/objectives.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/hole/objectives.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/hole/rewards.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/hole/rewards.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/hole/taus.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/hole/taus.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/random_maze/SCRN.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/random_maze/SPG Entropy.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/random_maze/SPG.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/random_maze/Two stages SPG Entropy.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/random_maze/action_probs.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/random_maze/action_probs.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/random_maze/all.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/random_maze/all.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/random_maze/episode_lengths.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/random_maze/episode_lengths.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/random_maze/gradients.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/random_maze/gradients.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/random_maze/objectives.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/random_maze/objectives.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/random_maze/rewards.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/random_maze/rewards.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/random_maze/taus.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/random_maze/taus.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/figures/umaze/action_probs.png" beforeDir="false" afterPath="$PROJECT_DIR$/figures/umaze/action_probs.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plots.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/plots.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/cliff_results.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/results/cliff_results.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/hole_results.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/results/hole_results.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/results/random_maze_results.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/results/random_maze_results.pkl" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run.py" beforeDir="false" afterPath="$PROJECT_DIR$/run.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/run_NPG.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/learning_algorithms.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/learning_algorithms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/training_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/training_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils.py" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2JwYRTRhfxftrs0O0f9dIQvBF6J" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="cf.first.check.clang-format" value="false" />
+    <property name="cidr.known.project.marker" value="true" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="89320e7b-7646-41c6-8b98-7fa1c079de11" name="Changes" comment="" />
+      <created>1672990607688</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1672990607688</updated>
+      <workItem from="1672990610504" duration="1807000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+</project>

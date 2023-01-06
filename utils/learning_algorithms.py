@@ -20,7 +20,7 @@ def policy(env, state, theta) -> np.array:
     return probs / np.sum(probs)
 
 
-def discrete_SCRN(env, num_episodes=10000, alpha=0.0001, gamma=0.8, batch_size=1, SGD=0, entropy_bonus=False,
+def discrete_SCRN(env, num_episodes=10000, alpha=0.001, gamma=0.8, batch_size=1, SGD=0, entropy_bonus=False,
                   period=1000, test_freq=50) -> (np.array, list):
     """
     Trains a RL agent with SCRN
@@ -131,8 +131,8 @@ def discrete_SCRN(env, num_episodes=10000, alpha=0.0001, gamma=0.8, batch_size=1
         if test_freq is not None:
             # test validity of the PL inequality by estimating objective and gradient
             if episode % test_freq == 0:
-                estimate_obj, estimate_grad = estimate_objective_and_gradient_and_Hessian(env, gamma, theta,
-                                                                                          entropy_bonus, num_episodes=50)
+                estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta,
+                                                                              entropy_bonus, num_episodes=100)
                 tau_estimates.append((optimum - estimate_obj) / estimate_grad)
                 objective_estimates.append(estimate_obj)
                 gradients_estimates.append(estimate_grad)
@@ -286,8 +286,8 @@ def discrete_policy_gradient(env, num_episodes=1000, alpha=0.01, gamma=0.8, two_
         if test_freq is not None:
             # test validity of the PL inequality by estimating objective and gradient
             if episode % test_freq == 0:
-                estimate_obj, estimate_grad = estimate_objective_and_gradient_and_Hessian(env, gamma, theta,
-                                                                                          entropy_bonus, num_episodes=50)
+                estimate_obj, estimate_grad = estimate_objective_and_gradient(env, gamma, theta,
+                                                                              entropy_bonus, num_episodes=100)
                 objective_estimates.append(estimate_obj)
                 gradients_estimates.append(estimate_grad)
                 if entropy_bonus:

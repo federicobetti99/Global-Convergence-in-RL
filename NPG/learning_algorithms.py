@@ -336,7 +336,6 @@ def NPG(env, num_episodes=1000, alpha=0.1, gamma=0.8, batch_size=1, period=1000,
     Fisher = np.zeros((1, STATE_DIM * ACTION_DIM))
     objective_estimates = []
     gradients_estimates = []
-    thetas = []
 
     # compute optimum J(\theta^*)
     optimum = objective_trajectory(env.get_optimal_path(), gamma)
@@ -389,9 +388,6 @@ def NPG(env, num_episodes=1000, alpha=0.1, gamma=0.8, batch_size=1, period=1000,
         grad = grad + grad_traj / batch_size
         Fisher = Fisher + Fisher_traj / batch_size
 
-        # save solution vector at the end of current episode
-        thetas.append(theta)
-
         # Update action probabilities at end of each episode
         if episode % batch_size == 0 and episode > 0:
             grad = np.reshape(grad, (STATE_DIM * ACTION_DIM))
@@ -418,7 +414,7 @@ def NPG(env, num_episodes=1000, alpha=0.1, gamma=0.8, batch_size=1, period=1000,
     stats = {
         "steps": steps_cache,
         "rewards": rewards_cache,
-        "thetas": thetas,
+        "theta": theta,
         "optimum": optimum,
         "name": name_cache,
     }
