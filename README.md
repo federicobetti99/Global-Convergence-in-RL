@@ -30,8 +30,8 @@ hyperparameter setting:
 ```python
 num_episodes = 10000
 gamma = 0.8
-batch_size = 1 # except for two stages algorithm
-alpha = 0.01 # for first order methods, alpha = 1e-4 for SCRN
+batch_size = 1 # except for two stages algorithm, where we pick an initial batch size of 16
+alpha = 0.01 # for first order methods, alpha = 1e-3 for SCRN
 test_freq = 50  # and 100 episodes of testing to get estimates of objective and gradient
 ```
 Be aware that running the script above and terminating the procedure takes a
