@@ -1,31 +1,5 @@
 # Global Convergence in Reinforcement Learning
-The validity of a gradient dominance property is often assumed 
-for the convergence study of many reinforcement learning
-algorithms [1]. The latter condition is satisfied in weak form 
-if the objective function satisfies a Fisher non-degeneracy assumptions
-together with a boundedness requirement on the transferred compatible
-function approximation error. While Fisher non degeneracy holds for
-a large class of policies, such as Gaussian policies [2], under a
-soft-max policy the Fisher information matrix becomes degenerate when
-the policy becomes greedy or deterministic.
-A non-uniform version of the Polyak-Łojasiewicz has still been
-shown to hold along the trajectories of policy gradient methods [3], 
-but these algorithms require access to the full gradient of the 
-objective which is often unfeasible to compute; on the other hand, 
-the study in this direction for much more practical stochastic
-first order and second order methods is still somehow limited.
-In this work, we show empirically the validity of a gradient
-dominance property under a soft-max policy along the trajectories
-of stochastic policy gradient methods and stochastic second order methods,
-in different discrete reinforcement learning environments.
-Using the results obtained, we gain further insight on the faster 
-and more stable convergence of the stochastic cubic regularized Newton
-method (SCRN) over stochastic policy gradient methods. To go further
-in understanding the performance of second order methods, we make a
-first attempt at analyzing the natural policy gradient method [4] and 
-the differences with the cubic regularized Newton's method by 
-comparing the second order information enclosed in the Fisher
-information and in the Hessian of the objective.
+The validity of a gradient dominance property is often assumed for the convergence study of many reinforcement learning algorithms [2]. A usual assumption which guarantees the latter condition in weak form is the non-degeneracy of the Fisher information matrix, together with a boundedness requirement on the transferred compatible function approximation error [1]. Under a soft-max policy, the Fisher information matrix becomes degenerate when the policy gets arbitrarily close to a greedy one; as a consequence, only a non-uniform version of the Polyak-Łojasiewicz has been established in the literature. It was shown in [3] that along the trajectories of policy gradient algorithms in the deterministic case, but these algorithms require access to the full gradient of the objective which is often unfeasible or too expensive to compute; on the other hand, the study in this direction for much more practical stochastic first order and second order methods is still somehow limited. In this work, we show empirically that also in the stochastic setting a gradient dominance property holds along the trajectories of stochastic policy gradient methods and stochastic second order methods. From the obtained results, we gain further insight on the faster and more stable convergence of the stochastic cubic regularized Newton method (SCRN) over first order methods. To go further in understanding the performance of second order methods, we make a first attempt at analyzing the natural policy gradient method [4] and the differences with the cubic regularized Newton's method by comparing the second order information enclosed in the Fisher information and in the Hessian of the expected return.
 
 ## Repository description
 - `environments` - Implementation of discrete environments used for the experiments
