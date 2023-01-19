@@ -136,7 +136,7 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
     :return:
     """
     legend_keys = {"steps": "Episode length",
-                   "taus": r"$\frac{J(\theta^{*}) - J(\theta)}{\| \| \nabla J^\lambda(\theta) \| \|}$",
+                   "taus": r"$\frac{J(\theta^{*}) - J(\theta)}{\| \| \nabla J(\theta) \| \|}$",
                    "taus entropy": r"$\frac{J^\lambda(\theta^{*}) - J^\lambda(\theta)}{\| \| \nabla J^\lambda(\theta) \| \|^{2}}$",
                    "rewards": "Episode reward",
                    "obj_estimates": r"$J(\theta)$",
@@ -245,11 +245,12 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
         ax[1].legend(loc="best", ncol=1, fontsize='xx-large')
 
 
-def final_trajectory(environment, theta):
+def final_trajectory(environment, algo, theta):
     """
     Shows the final trajectory of training followed by a RL agent, saves snapshots of the environment
     for future postprocessing and GIF creations
     :param environment: environment string
+    :param algo: algorithm which learned theta
     :param theta: parameter policy
     :return:
     """
@@ -301,6 +302,6 @@ def final_trajectory(environment, theta):
     for i in range(count):
         filename = f"figures/{environment}/{i}.png"
         images.append(imageio.v2.imread(filename))
-    imageio.mimsave(f"figures/{environment}/traj.gif", images)
+    imageio.mimsave(f"figures/{environment}/{algo}_traj.gif", images)
 
     return count
