@@ -165,10 +165,8 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
             plt.ylabel(legend_keys[key], fontsize=20)
             plt.xticks(fontsize=18)
             plt.yticks(fontsize=18)
-            if key == "steps":
-                plt.legend(loc='upper center', bbox_to_anchor=(0.55, -0.25), fancybox=True, shadow=True, ncol=4, fontsize='xx-large')
-            else:
-                plt.legend(loc="best", fontsize='xx-large')
+            plt.legend(loc='upper center', bbox_to_anchor=(1.20, 0.75), fancybox=True, shadow=True,
+                       ncol=1, fontsize='xx-large')
 
     fig, ax = plt.subplots(2, 2, figsize=(8, 8))
     fig.tight_layout(pad=3.)
@@ -284,7 +282,7 @@ def final_trajectory(environment, algo, theta):
         state = env.get_state()
 
         screen = env.render(mode="human")
-        plt.imsave(f"figures/{environment}/{count}.png", screen)
+        plt.imsave(f"figures/{environment}/{algo}_{count}.png", screen)
 
         # Get probabilities per action from current policy
         action_probs = pi(env, theta)
@@ -297,11 +295,5 @@ def final_trajectory(environment, algo, theta):
 
         state_trajectory.append(state)
         count += 1
-
-    images = []
-    for i in range(count):
-        filename = f"figures/{environment}/{i}.png"
-        images.append(imageio.v2.imread(filename))
-    imageio.mimsave(f"figures/{environment}/{algo}_traj.gif", images)
 
     return count

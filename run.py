@@ -7,7 +7,7 @@ from environments.random_maze import *
 from environments.gym_utils import *
 
 
-def start_experiment(environment, num_episodes, test_freq, num_avg):
+def start_experiment(environment, algos, num_episodes, test_freq, num_avg):
 
     np.random.seed(0)
 
@@ -30,47 +30,31 @@ def start_experiment(environment, num_episodes, test_freq, num_avg):
     else:
         raise ValueError("Please, select an available environment from the list in run.py")
 
-    stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}, "Two stages SPG Entropy": {}}
+    to_run = {"SCRN": discrete_SCRN, "SPG": discrete_policy_gradient, "SPG Entropy": discrete_policy_gradient,
+              "Two stages SPG Entropy": discrete_policy_gradient}
+    params = {"env": env, "num_episodes": num_episodes, "test_freq": test_freq}
+    alphas = {"SCRN": 1e-3, "SPG": 1e-2, "SPG Entropy": 1e-2, "Two stages SPG Entropy": 1e-2}
+    stats = {key: {} for key in algos}
 
     for i in range(num_avg):
-        print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH SCRN ===========")
-        stats_SCRN = discrete_SCRN(env, alpha=1e-3, num_episodes=num_episodes, test_freq=test_freq)
-        stats["SCRN"].update({i: stats_SCRN})
-        print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH SPG ===========")
-        stats_DPG = discrete_policy_gradient(env, alpha=0.01, num_episodes=num_episodes, test_freq=test_freq)
-        stats["SPG"].update({i: stats_DPG})
-        print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH regularized SPG ===========")
-        stats_DPG = discrete_policy_gradient(env, alpha=0.01, entropy_bonus=True, num_episodes=num_episodes, test_freq=test_freq)
-        stats["SPG Entropy"].update({i: stats_DPG})
-        print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH two stages regularized SPG ===========")
-        stats_DPG = discrete_policy_gradient(env, entropy_bonus=True, alpha=0.01, num_episodes=num_episodes,
-                                             two_phases_params={"B1": 16, "B2": 1, "T": num_episodes/5},
-                                             test_freq=test_freq)
-        stats["Two stages SPG Entropy"].update({i: stats_DPG})
+        for algo in algos:
+            algo_params = {**params, "alpha": alphas[algo]}
+            algo_name = to_run[algo]
+            print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH {algo} ===========")
+            current_stats = algo_name(**algo_params)
+            stats[algo].update({i: current_stats})
 
-    average_stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}, "Two stages SPG Entropy": {}}
-    std_stats = {"SCRN": {}, "SPG": {}, "SPG Entropy": {}, "Two stages SPG Entropy": {}}
+    average_stats = {}
+    std_stats = {}
 
-    average_stats["SCRN"] = {key: np.mean([stats["SCRN"][i][key] for i in range(num_avg)], axis=0)
-                             for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
-    average_stats["SPG"] = {key: np.mean([stats["SPG"][i][key] for i in range(num_avg)], axis=0)
-                            for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
-    average_stats["SPG Entropy"] = {key: np.mean([stats["SPG Entropy"][i][key] for i in range(num_avg)], axis=0)
-                                    for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
-    average_stats["Two stages SPG Entropy"] = {key: np.mean([stats["Two stages SPG Entropy"][i][key] for i in range(num_avg)], axis=0)
-                                               for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
+    for key in algos:
+        average_stats[key] = {item: np.mean([stats[key][i][item] for i in range(num_avg)], axis=0)
+                              for item in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
+        std_stats[key] = {item: np.std([stats[key][i][item] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
+                          for item in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
 
-    std_stats["SCRN"] = {key: np.std([stats["SCRN"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
-                         for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
-    std_stats["SPG"] = {key: np.std([stats["SPG"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
-                        for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
-    std_stats["SPG Entropy"] = {key: np.std([stats["SPG Entropy"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
-                                for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
-    std_stats["Two stages SPG Entropy"] = {key: np.std([stats["Two stages SPG Entropy"][i][key] for i in range(num_avg)], axis=0) / np.sqrt(num_avg)
-                                           for key in ["steps", "rewards", "taus", "theta", "QOI", "obj_estimates", "grad_estimates"]}
-
-    with open(f"results/{environment}_results.pkl", "wb") as handle:
+    with open(f"new_results/{environment}_results.pkl", "wb") as handle:
         pickle.dump({"avg": average_stats, "std": std_stats}, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-start_experiment("random_maze", num_episodes=10000, test_freq=50, num_avg=10)
+start_experiment("random_maze", ["SCRN"], num_episodes=10000, test_freq=50, num_avg=10)
