@@ -1,13 +1,10 @@
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from utils.training_utils import *
-from utils.learning_algorithms import *
 from environments.cliff import *
-from environments.hole import *
-from environments.umaze import *
-from environments.random_maze import *
 from environments.gym_utils import *
-import imageio
+from environments.hole import *
+from environments.random_maze import *
+from environments.umaze import *
+from utils.learning_algorithms import *
 
 
 def compare_probabilities_learned(average_stats, state, save_link=None):
@@ -127,8 +124,8 @@ def running_mean(x, n):
 
 def plot_stats(average_stats, std_stats, num_episodes, test_freq):
     """
-    Main function to plot statistics, produces 4 subplots with average episode length, reward, objective and gradient norm
-    and a bigger plot for PL constant results on average
+    Main function to plot statistics, produces 4 subplots with average episode length, reward, objective and gradient
+    norm and a bigger plot for PL constant results on average
     :param average_stats: average stats for all RL algorithms
     :param std_stats: standard deviations for all RL algorithms
     :param num_episodes: number of training episodes
@@ -137,7 +134,7 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
     """
     legend_keys = {"steps": "Episode length",
                    "taus": r"$\frac{J(\theta^{*}) - J(\theta)}{\| \| \nabla J(\theta) \| \|}$",
-                   "taus entropy": r"$\frac{J^\lambda(\theta^{*}) - J^\lambda(\theta)}{\| \| \nabla J^\lambda(\theta) \| \|^{2}}$",
+                   "taus entropy": r"$\frac{J^\lambda(\theta_\lambda^{*}) - J^\lambda(\theta)}{\| \| \nabla J^\lambda(\theta) \| \|^{2}}$",
                    "rewards": "Episode reward",
                    "obj_estimates": r"$J(\theta)$",
                    "grad_estimates": r"$\| \| \nabla J(\theta) \| \|$",
@@ -281,8 +278,12 @@ def final_trajectory(environment, algo, theta):
         # Get state corresponding to agent position
         state = env.get_state()
 
-        screen = env.render(mode="human")
-        plt.imsave(f"figures/{environment}/{algo}_{count}.png", screen)
+        screen = env.get_image()
+        plt.axis("off")
+        plt.imshow(screen)
+        plt.tight_layout()
+        plt.savefig(f"figures/{environment}/{algo}_{count}.png")
+        plt.show()
 
         # Get probabilities per action from current policy
         action_probs = pi(env, theta)
