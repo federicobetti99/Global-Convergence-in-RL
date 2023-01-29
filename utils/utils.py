@@ -134,7 +134,7 @@ def plot_stats(average_stats, std_stats, num_episodes, test_freq):
     """
     legend_keys = {"steps": "Episode length",
                    "taus": r"$\frac{J(\theta^{*}) - J(\theta)}{\| \| \nabla J(\theta) \| \|}$",
-                   "taus entropy": r"$\frac{J^\lambda(\theta_\lambda^{*}) - J^\lambda(\theta)}{\| \| \nabla J^\lambda(\theta) \| \|^{2}}$",
+                   "taus entropy": r"$\frac{J^\lambda(\theta^{*}) - J^\lambda(\theta)}{\| \| \nabla J^\lambda(\theta) \| \|^{2}}$",
                    "rewards": "Episode reward",
                    "obj_estimates": r"$J(\theta)$",
                    "grad_estimates": r"$\| \| \nabla J(\theta) \| \|$",
@@ -282,7 +282,7 @@ def final_trajectory(environment, algo, theta):
         plt.axis("off")
         plt.imshow(screen)
         plt.tight_layout()
-        plt.savefig(f"figures/{environment}/{algo}_{count}.png")
+        # plt.savefig(f"figures/{environment}/{algo}_{count}.png")
         plt.show()
 
         # Get probabilities per action from current policy

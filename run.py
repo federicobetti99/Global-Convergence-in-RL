@@ -9,8 +9,6 @@ from environments.gym_utils import *
 
 def start_experiment(environment, algos, num_episodes, test_freq, num_avg):
 
-    np.random.seed(0)
-
     if environment == "random_maze":  # select random maze
         env_id = "RandomMaze-v0"
         gym.envs.register(id=env_id, entry_point=RandomMaze, max_episode_steps=100)
@@ -40,6 +38,11 @@ def start_experiment(environment, algos, num_episodes, test_freq, num_avg):
         for algo in algos:
             algo_params = {**params, "alpha": alphas[algo]}
             algo_name = to_run[algo]
+            if algo == "SPG Entropy" or algo == "Two stages SPG Entropy":
+                algo_params = {**algo_params, "entropy_bonus": True}
+            if algo == "Two stages SPG Entropy":
+                two_phase_params = {"B1": 16, "B2": 1, "T": int(num_episodes/5)}
+                algo_params = {**algo_params, "two_phases_params": two_phase_params}
             print(f"========== TRAINING RUN {i} OUT OF {num_avg} WITH {algo} ===========")
             current_stats = algo_name(**algo_params)
             stats[algo].update({i: current_stats})
@@ -57,4 +60,5 @@ def start_experiment(environment, algos, num_episodes, test_freq, num_avg):
         pickle.dump({"avg": average_stats, "std": std_stats}, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-start_experiment("random_maze", ["SCRN"], num_episodes=10000, test_freq=50, num_avg=10)
+start_experiment("hole", ["SCRN", "SPG", "SPG Entropy", "Two stages SPG Entropy"],
+                 num_episodes=10000, test_freq=50, num_avg=10)
